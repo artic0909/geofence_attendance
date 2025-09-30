@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login - Palgeo</title>
+    <title>Admin Login - Geo Locate</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100">
@@ -46,11 +46,7 @@
                 </button>
             </form>
 
-            <div class="mt-6 text-center text-sm text-gray-600">
-                <p>Default credentials:</p>
-                <p>Email: admin@palgeo.com</p>
-                <p>Password: password123</p>
-            </div>
+         
         </div>
     </div>
 </body>
