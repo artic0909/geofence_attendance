@@ -12,12 +12,12 @@ class AttendanceController extends Controller
 {
     public function index(Request $request)
     {
-        $adminId = auth()->guard('admin')->id(); // current logged-in admin id
+        $adminId = auth()->guard('admin')->id();
 
-        // Get only this admin’s geofences
+        // Get admin's geofences
         $geofences = Geofence::where('admin_id', $adminId)->get();
 
-        // Stats for this admin only
+        // Stats
         $stats = [
             'total_employees' => Employee::where('admin_id', $adminId)->count(),
             'total_geofences' => Geofence::where('admin_id', $adminId)->count(),
@@ -29,7 +29,7 @@ class AttendanceController extends Controller
                 ->count(),
         ];
 
-        // Base query for recent attendances (for this admin only)
+        // Base query
         $query = Attendance::with(['employee', 'geofence'])
             ->where('admin_id', $adminId);
 
@@ -38,9 +38,13 @@ class AttendanceController extends Controller
             $query->where('geofence_id', $request->geofence);
         }
 
-        // Filter by date
-        if ($request->filled('date')) {
-            $query->whereDate('date', $request->date);
+        // Filter by date range
+        if ($request->filled('from_date') && $request->filled('to_date')) {
+            $query->whereBetween('date', [$request->from_date, $request->to_date]);
+        } elseif ($request->filled('from_date')) {
+            $query->whereDate('date', '>=', $request->from_date);
+        } elseif ($request->filled('to_date')) {
+            $query->whereDate('date', '<=', $request->to_date);
         }
 
         // Filter by employee name (optional)
@@ -51,8 +55,8 @@ class AttendanceController extends Controller
             });
         }
 
-        // Get attendances
-        $recent_attendances = $query->orderBy('created_at', 'desc')->paginate(10);
+        // Fetch paginated results
+        $recent_attendances = $query->orderBy('date', 'desc')->paginate(10);
 
         return view('admin.attendance.index', compact('stats', 'recent_attendances', 'geofences'));
     }

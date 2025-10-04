@@ -28,17 +28,18 @@
                     </select>
                 </div>
 
-                <!-- Date Picker -->
+                <!-- From Date -->
                 <div class="col-md-4 mt-3">
-                    <label for="date" class="form-label">From Date</label>
-                    <input type="date" name="date" id="date" class="form-control" value="{{ request('date') }}">
+                    <label for="from_date" class="form-label">From Date</label>
+                    <input type="date" name="from_date" id="from_date" class="form-control" value="{{ request('from_date') }}">
                 </div>
 
-                <!-- Date Picker -->
+                <!-- To Date -->
                 <div class="col-md-4 mt-3">
-                    <label for="date" class="form-label">To Date</label>
-                    <input type="date" name="date" id="date" class="form-control" value="{{ request('date') }}">
+                    <label for="to_date" class="form-label">To Date</label>
+                    <input type="date" name="to_date" id="to_date" class="form-control" value="{{ request('to_date') }}">
                 </div>
+
 
                 <!-- Employee Name (optional) -->
                 <div class="col-md-4 mt-3">
@@ -70,7 +71,8 @@
             <table class="w-full">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Employee</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Check In</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ChaeckIn Image</th>
@@ -83,6 +85,7 @@
                     @foreach($recent_attendances as $attendance)
                     <tr>
                         <td class="px-6 py-4 whitespace-nowrap">{{ $attendance->employee->name }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ $attendance->employee->email }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             {{ \Carbon\Carbon::parse($attendance->date)->format('d/m/Y') }}
                         </td>
@@ -189,5 +192,17 @@
     </div>
 </div>
 @endforeach
+
+
+<script>
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const geofence = document.getElementById('geofence').value;
+        if (!geofence) {
+            e.preventDefault();
+            alert('Please select a Geofence before filtering.');
+        }
+    });
+</script>
+
 
 @endsection
