@@ -24,6 +24,9 @@
                     @enderror
                 </div>
 
+                <!-- Hidden input field for admin_id guard admins -->
+                <input type="hidden" name="admin_id" value="{{ auth()->guard('admin')->user()->id }}">
+
                 <div>
                     <label class="block text-gray-700 text-sm font-bold mb-2" for="email">Email *</label>
                     <input type="email" name="email" id="email" required 

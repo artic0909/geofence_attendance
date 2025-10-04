@@ -7,6 +7,7 @@ return new class extends Migration {
     public function up(): void {
         Schema::create('geofences', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('admin_id')->constrained()->onDelete('cascade');
             $table->string('name');
             $table->string('latitude');
             $table->string('longitude');

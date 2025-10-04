@@ -7,11 +7,12 @@ return new class extends Migration {
     public function up(): void {
         Schema::create('employees', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('admin_id')->constrained()->onDelete('cascade');
             $table->string('name');
             $table->string('email')->unique();
             $table->string('password');
             $table->string('phone')->nullable();
-            $table->string('employee_id')->unique();
+            $table->string('employee_id');
             $table->boolean('is_active')->default(true);
             $table->rememberToken();
             $table->timestamps();

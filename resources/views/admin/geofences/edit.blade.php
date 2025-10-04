@@ -8,6 +8,9 @@
         <form action="{{ route('admin.geofences.update', $geofence) }}" method="POST">
             @csrf
             @method('PUT')
+
+            <!-- Hidden input field for admin_id guard admins -->
+            <input type="hidden" name="admin_id" value="{{ auth()->guard('admin')->user()->id }}">
             
             <div class="mb-4">
                 <label class="block text-gray-700 text-sm font-bold mb-2" for="name">Name</label>

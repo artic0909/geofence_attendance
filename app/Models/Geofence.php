@@ -9,6 +9,7 @@ class Geofence extends Model
     use HasFactory;
 
     protected $fillable = [
+        'admin_id',
         'name',
         'latitude',
         'longitude',

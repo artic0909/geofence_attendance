@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
@@ -9,7 +10,7 @@ use Illuminate\Http\Request;
 
 class GeofenceController extends Controller
 {
-    
+
 
     public static function middleware(): array
     {
@@ -17,19 +18,23 @@ class GeofenceController extends Controller
             new Middleware('admin'), // applies "admin" middleware to all actions
         ];
     }
-    
 
-    public function index() {
-        $geofences = Geofence::all();
+
+    public function index()
+    {
+        $geofences = Geofence::where('admin_id', auth()->guard('admin')->id())->get();
         return view('admin.geofences.index', compact('geofences'));
     }
 
-    public function create() {
+    public function create()
+    {
         return view('admin.geofences.create');
     }
 
-    public function store(Request $request) {
+    public function store(Request $request)
+    {
         $request->validate([
+            'admin_id' => 'required|exists:admins,id',
             'name' => 'required|string|max:255',
             'latitude' => 'required|numeric',
             'longitude' => 'required|numeric',
@@ -42,12 +47,15 @@ class GeofenceController extends Controller
         return redirect()->route('admin.geofences.index')->with('success', 'Geofence created successfully.');
     }
 
-    public function edit(Geofence $geofence) {
+    public function edit(Geofence $geofence)
+    {
         return view('admin.geofences.edit', compact('geofence'));
     }
 
-    public function update(Request $request, Geofence $geofence) {
+    public function update(Request $request, Geofence $geofence)
+    {
         $request->validate([
+            'admin_id' => 'required|exists:admins,id',
             'name' => 'required|string|max:255',
             'latitude' => 'required|numeric',
             'longitude' => 'required|numeric',
@@ -60,7 +68,8 @@ class GeofenceController extends Controller
         return redirect()->route('admin.geofences.index')->with('success', 'Geofence updated successfully.');
     }
 
-    public function destroy(Geofence $geofence) {
+    public function destroy(Geofence $geofence)
+    {
         $geofence->delete();
         return redirect()->route('admin.geofences.index')->with('success', 'Geofence deleted successfully.');
     }
