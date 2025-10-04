@@ -13,7 +13,7 @@
 
 
         <div class="searchbar mb-2">
-            <form method="GET" action="{{ route('admin.dashboard') }}" class="row">
+            <form method="GET" action="{{ route('admin.attendances') }}" class="row">
                 <h2 class="font-bold">Filter Search</h2>
                 <!-- Geofence Dropdown -->
                 <div class="col-md-12">
@@ -55,7 +55,7 @@
                 </div>
             </form>
 
-            <form method="GET" action="{{ route('admin.dashboard') }}" class="text-end">
+            <form method="GET" action="{{ route('admin.attendances') }}" class="text-end">
                 <button type="submit" class="btn btn-secondary w-20 mt-2">Reset</button>
             </form>
 
