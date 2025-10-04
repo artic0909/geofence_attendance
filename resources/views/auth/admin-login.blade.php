@@ -3,13 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login - Geo Locate</title>
+    <title>Administrator Login | Site Sync Attendance System</title>
+     <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('logo.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('logo.png') }}">
+
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100">
     <div class="min-h-screen flex items-center justify-center">
         <div class="bg-white p-8 rounded-lg shadow-md w-96">
-            <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Admin Login</h2>
+            <div style="display: flex; justify-content: center;">
+                <img src="{{asset('logo.png')}}" width="80" height="80" alt="">
+            </div>
+            <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Site Sync | Admin Login</h2>
             
             @if($errors->any())
                 <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
