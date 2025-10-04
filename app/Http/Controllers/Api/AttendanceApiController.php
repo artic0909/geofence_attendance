@@ -85,6 +85,7 @@ class AttendanceApiController extends Controller
                     'date' => $today,
                 ],
                 [
+                    'admin_id' => $employee->admin_id,
                     'geofence_id' => $matchedGeofence->id,
                     'check_in' => now(),
                     'check_in_lat' => $lat,
@@ -197,6 +198,7 @@ class AttendanceApiController extends Controller
                 'check_out_lat' => $request->latitude,
                 'check_out_lng' => $request->longitude,
                 'check_out_photo' => $photoPath,
+                'admin_id' => $employee->admin_id,
             ]);
 
             Log::info("CheckOut successful for employee {$employee->id}");
