@@ -13,7 +13,7 @@
 
 
         <div class="searchbar mb-2">
-            <form method="GET" action="{{ route('admin.attendances') }}" class="row">
+            <form method="GET" id="filterForm" action="{{ route('admin.attendances') }}" class="row">
                 <h2 class="font-bold">Filter Search</h2>
                 <!-- Geofence Dropdown -->
                 <div class="col-md-12">
@@ -51,12 +51,12 @@
 
                 <!-- Filter Button -->
                 <div class="col-md-4 mt-3 w-100 text-end">
-                    <button type="submit" class="btn btn-primary w-20">Filter</button>
+                    <button type="submit" id="filterBtn" class="btn btn-primary w-20">Filter</button>
                 </div>
             </form>
 
             <form method="GET" action="{{ route('admin.attendances') }}" class="text-end">
-                <button type="submit" class="btn btn-secondary w-20 mt-2">Reset</button>
+                <button type="submit" id="resetBtn" class="btn btn-secondary w-20 mt-2">Reset</button>
             </form>
 
         </div>
@@ -78,6 +78,7 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ChaeckIn Image</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Check Out</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ChaeckOut Image</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total Hours</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Location</th>
                     </tr>
                 </thead>
@@ -103,6 +104,18 @@
                         </td>
 
                         <td class="px-6 py-4 whitespace-nowrap"><button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdropCheckOut{{$attendance->id}}">View</button></td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            @php
+                            if ($attendance->check_in && $attendance->check_out) {
+                            $checkIn = \Carbon\Carbon::parse($attendance->check_in);
+                            $checkOut = \Carbon\Carbon::parse($attendance->check_out);
+                            $totalHours = $checkIn->diff($checkOut)->format('%H:%I:%S');
+                            } else {
+                            $totalHours = 'N/A';
+                            }
+                            @endphp
+                            {{ $totalHours }}
+                        </td>
                         <td class="px-6 py-4 whitespace-nowrap">{{ $attendance->geofence->name }}</td>
                     </tr>
                     @endforeach
@@ -195,7 +208,8 @@
 
 
 <script>
-    document.querySelector('form').addEventListener('submit', function(e) {
+    // Only attach to filter form
+    document.getElementById('filterForm').addEventListener('submit', function(e) {
         const geofence = document.getElementById('geofence').value;
         if (!geofence) {
             e.preventDefault();
