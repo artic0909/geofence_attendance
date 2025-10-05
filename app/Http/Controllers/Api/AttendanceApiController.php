@@ -256,7 +256,7 @@ class AttendanceApiController extends Controller
     public function getEmployeeData(Request $request)
     {
         $user = auth()->user();
-        $employee = Employee::where('id', $user->id)->first(); // adjust according to your schema
+        $employee = Employee::find($user->id);
 
         if (!$employee) {
             return response()->json([
@@ -264,12 +264,13 @@ class AttendanceApiController extends Controller
             ], 404);
         }
 
-        // Fetch assigned geofences if needed
-        $geofences = $user->geofences()->pluck('name'); // adjust relationship
+        // Fetch assigned geofences as objects with id and name
+        $geofences = $user->geofences()->where('is_active', true)
+            ->get(['id', 'name']); // return id & name
 
         return response()->json([
             'employee_name' => $employee->name,
-            'admin_name' => $user->admin->name ?? 'Admin', // adjust
+            'admin_name' => $user->admin->name ?? 'Admin',
             'assigned_geofences' => $geofences,
         ]);
     }
