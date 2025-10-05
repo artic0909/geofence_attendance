@@ -17,33 +17,32 @@ class AttendanceApiController extends Controller
         try {
             $employee = $request->user();
 
-            // Get assigned geofences with basic info
-            $geofences = $employee->geofences()
+            // Get admin details
+            $admin = $employee->admin;
+
+            // Get geofences assigned to this employee (through pivot)
+            $assignedGeofences = $employee->geofences()
                 ->where('is_active', true)
                 ->get(['id', 'name', 'address', 'latitude', 'longitude', 'radius', 'admin_id']);
 
-            // Get admin information
-            $admin = $employee->admin; // Make sure you have this relationship in Employee model
-
-            // Transform geofences data
-            $assignedGeofences = $geofences->map(function ($geofence) {
-                return [
-                    'id' => $geofence->id,
-                    'name' => $geofence->name,
-                    'address' => $geofence->address ?? 'No address provided',
-                    'latitude' => (float) $geofence->latitude,
-                    'longitude' => (float) $geofence->longitude,
-                    'radius' => (float) $geofence->radius,
-                    'admin_id' => $geofence->admin_id,
-                ];
-            });
+            // Get all geofences under same admin
+            $adminGeofences = $admin ? $admin->geofences()->where('is_active', true)->get(['id', 'name']) : collect();
 
             return response()->json([
                 'success' => true,
-                'admin_name' => $admin ? $admin->name : 'Administrator',
-                'employee_name' => $employee->name,
-                'employee_id' => $employee->employee_id,
+                'employee' => [
+                    'id' => $employee->id,
+                    'name' => $employee->name,
+                    'email' => $employee->email,
+                    'employee_id' => $employee->employee_id,
+                ],
+                'admin' => $admin ? [
+                    'id' => $admin->id,
+                    'name' => $admin->name,
+                    'email' => $admin->email,
+                ] : null,
                 'assigned_geofences' => $assignedGeofences,
+                'admin_geofences' => $adminGeofences,
             ]);
         } catch (\Exception $e) {
             Log::error('Get employee data error: ' . $e->getMessage());
@@ -53,6 +52,7 @@ class AttendanceApiController extends Controller
             ], 500);
         }
     }
+
 
 
 

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -21,9 +22,21 @@ class Admin extends Authenticatable
         'remember_token',
     ];
 
-    protected function casts(): array {
+    protected function casts(): array
+    {
         return [
             'password' => 'hashed',
         ];
+    }
+
+
+    public function employees()
+    {
+        return $this->hasMany(Employee::class);
+    }
+
+    public function geofences()
+    {
+        return $this->hasMany(Geofence::class);
     }
 }
