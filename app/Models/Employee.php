@@ -45,14 +45,13 @@ class Employee extends Authenticatable
     // }
 
     // In your Employee model
-    public function geofences()
-    {
-        return $this->belongsToMany(Geofence::class, 'employee_geofence')
-            ->withTimestamps();
-    }
-
     public function admin()
     {
-        return $this->belongsTo(Admin::class, 'admin_id');
+        return $this->belongsTo(Admin::class);
+    }
+
+    public function geofences()
+    {
+        return $this->belongsToMany(Geofence::class, 'employee_geofence');
     }
 }

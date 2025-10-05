@@ -30,13 +30,13 @@ class Admin extends Authenticatable
     }
 
 
-    public function employees()
-    {
-        return $this->hasMany(Employee::class);
-    }
-
     public function geofences()
     {
         return $this->hasMany(Geofence::class);
+    }
+
+    public function employees()
+    {
+        return $this->hasMany(Employee::class);
     }
 }

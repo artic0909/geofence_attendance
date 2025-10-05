@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -30,11 +31,13 @@ class Attendance extends Model
         'check_out' => 'datetime',
     ];
 
-    public function employee() {
-        return $this->belongsTo(Employee::class);
+    public function geofence()
+    {
+        return $this->belongsTo(Geofence::class);
     }
 
-    public function geofence() {
-        return $this->belongsTo(Geofence::class);
+    public function employee()
+    {
+        return $this->belongsTo(Employee::class);
     }
 }
