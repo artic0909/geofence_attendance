@@ -15,4 +15,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/check-out', [AttendanceApiController::class, 'checkOut']);
     Route::get('/attendance-history', [AttendanceApiController::class, 'history']);
     Route::get('/employee/geofences', [AttendanceApiController::class, 'getAssignedGeofences']);
+    Route::get('/employee/data', [AttendanceApiController::class, 'getEmployeeData']);
 });

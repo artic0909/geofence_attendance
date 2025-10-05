@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -25,19 +26,33 @@ class Employee extends Authenticatable
         'remember_token',
     ];
 
-    protected function casts(): array {
+    protected function casts(): array
+    {
         return [
             'password' => 'hashed',
             'is_active' => 'boolean',
         ];
     }
 
-    public function attendances() {
+    public function attendances()
+    {
         return $this->hasMany(Attendance::class);
     }
 
     // Add this relationship
-    public function geofences() {
-        return $this->belongsToMany(Geofence::class, 'employee_geofence');
+    // public function geofences() {
+    //     return $this->belongsToMany(Geofence::class, 'employee_geofence');
+    // }
+
+    // In your Employee model
+    public function geofences()
+    {
+        return $this->belongsToMany(Geofence::class, 'employee_geofence')
+            ->withTimestamps();
+    }
+
+    public function admin()
+    {
+        return $this->belongsTo(Admin::class, 'admin_id');
     }
 }

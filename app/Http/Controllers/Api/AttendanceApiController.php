@@ -12,6 +12,50 @@ use Illuminate\Support\Facades\Storage;
 class AttendanceApiController extends Controller
 {
 
+    public function getEmployeeData(Request $request)
+    {
+        try {
+            $employee = $request->user();
+
+            // Get assigned geofences with basic info
+            $geofences = $employee->geofences()
+                ->where('is_active', true)
+                ->get(['id', 'name', 'address', 'latitude', 'longitude', 'radius', 'admin_id']);
+
+            // Get admin information
+            $admin = $employee->admin; // Make sure you have this relationship in Employee model
+
+            // Transform geofences data
+            $assignedGeofences = $geofences->map(function ($geofence) {
+                return [
+                    'id' => $geofence->id,
+                    'name' => $geofence->name,
+                    'address' => $geofence->address ?? 'No address provided',
+                    'latitude' => (float) $geofence->latitude,
+                    'longitude' => (float) $geofence->longitude,
+                    'radius' => (float) $geofence->radius,
+                    'admin_id' => $geofence->admin_id,
+                ];
+            });
+
+            return response()->json([
+                'success' => true,
+                'admin_name' => $admin ? $admin->name : 'Administrator',
+                'employee_name' => $employee->name,
+                'employee_id' => $employee->employee_id,
+                'assigned_geofences' => $assignedGeofences,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Get employee data error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'error' => 'Failed to fetch employee data',
+            ], 500);
+        }
+    }
+
+
+
     public function getAssignedGeofences(Request $request)
     {
         try {
