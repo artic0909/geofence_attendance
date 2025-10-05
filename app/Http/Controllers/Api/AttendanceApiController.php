@@ -11,80 +11,6 @@ use Illuminate\Support\Facades\Storage;
 
 class AttendanceApiController extends Controller
 {
-
-    public function getEmployeeData(Request $request)
-    {
-        try {
-            $employee = $request->user();
-
-            // Get admin details
-            $admin = $employee->admin;
-
-            // Get geofences assigned to this employee (through pivot)
-            $assignedGeofences = $employee->geofences()
-                ->where('is_active', true)
-                ->get(['id', 'name', 'address', 'latitude', 'longitude', 'radius', 'admin_id']);
-
-            // Get all geofences under same admin
-            $adminGeofences = $admin ? $admin->geofences()->where('is_active', true)->get(['id', 'name']) : collect();
-
-            return response()->json([
-                'success' => true,
-                'employee' => [
-                    'id' => $employee->id,
-                    'name' => $employee->name,
-                    'email' => $employee->email,
-                    'employee_id' => $employee->employee_id,
-                ],
-                'admin' => $admin ? [
-                    'id' => $admin->id,
-                    'name' => $admin->name,
-                    'email' => $admin->email,
-                ] : null,
-                'assigned_geofences' => $assignedGeofences,
-                'admin_geofences' => $adminGeofences,
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Get employee data error: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'error' => 'Failed to fetch employee data',
-            ], 500);
-        }
-    }
-
-
-
-
-    public function getAssignedGeofences(Request $request)
-    {
-        try {
-            $employee = $request->user();
-
-            // Get assigned geofences with admin information
-            $geofences = $employee->geofences()
-                ->where('is_active', true)
-                ->select('id', 'name', 'address', 'latitude', 'longitude', 'radius', 'admin_id')
-                ->get();
-
-            // Get admin name
-            $admin = $employee->admin; // Assuming you have admin relationship in Employee model
-            $adminName = $admin ? $admin->name : 'Administrator';
-
-            return response()->json([
-                'admin_name' => $adminName,
-                'geofences' => $geofences,
-                'employee_name' => $employee->name,
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Get assigned geofences error: ' . $e->getMessage());
-            return response()->json([
-                'error' => 'Failed to fetch assigned geofences',
-            ], 500);
-        }
-    }
-
-
     public function checkIn(Request $request)
     {
         try {
@@ -173,7 +99,10 @@ class AttendanceApiController extends Controller
             return response()->json([
                 'message' => 'Check-in successful!',
                 'attendance' => $attendance,
-                'geofence' => $matchedGeofence->name
+                'employee_name' => $employee->name,
+                'admin_name' => $employee->admin ? $employee->admin->name : null,
+                'geofence_name' => $matchedGeofence->name,
+                'assigned_geofences' => $geofences->pluck('name'), // all geofences for this employee
             ]);
         } catch (\Exception $e) {
             Log::error('Check-in error: ' . $e->getMessage());
@@ -181,25 +110,6 @@ class AttendanceApiController extends Controller
                 'error' => 'Server error: ' . $e->getMessage(),
             ], 500);
         }
-    }
-
-    /**
-     * Calculate distance between two coordinates (in meters).
-     */
-    private function haversineDistance($lat1, $lon1, $lat2, $lon2)
-    {
-        $earthRadius = 6371000; // meters
-
-        $dLat = deg2rad($lat2 - $lat1);
-        $dLon = deg2rad($lon2 - $lon1);
-
-        $a = sin($dLat / 2) * sin($dLat / 2)
-            + cos(deg2rad($lat1)) * cos(deg2rad($lat2))
-            * sin($dLon / 2) * sin($dLon / 2);
-
-        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
-
-        return $earthRadius * $c; // meters
     }
 
     public function checkOut(Request $request)
@@ -269,18 +179,24 @@ class AttendanceApiController extends Controller
 
             $attendance->update([
                 'check_out' => now(),
-                'check_out_lat' => $request->latitude,
-                'check_out_lng' => $request->longitude,
+                'check_out_lat' => $lat,
+                'check_out_lng' => $lng,
                 'check_out_photo' => $photoPath,
                 'admin_id' => $employee->admin_id,
             ]);
 
             Log::info("CheckOut successful for employee {$employee->id}");
 
+            // Fetch all assigned geofences for employee
+            $assignedGeofences = $employee->geofences()->where('is_active', true)->pluck('name');
+
             return response()->json([
                 'message' => 'Check-out successful!',
                 'attendance' => $attendance,
-                'geofence' => $checkInGeofence->name
+                'employee_name' => $employee->name,
+                'admin_name' => $employee->admin ? $employee->admin->name : null,
+                'geofence_name' => $checkInGeofence->name,
+                'assigned_geofences' => $assignedGeofences,
             ]);
         } catch (\Exception $e) {
             Log::error('Check-out error: ' . $e->getMessage());
@@ -289,6 +205,7 @@ class AttendanceApiController extends Controller
             ], 500);
         }
     }
+
     public function history(Request $request)
     {
         try {
@@ -299,12 +216,38 @@ class AttendanceApiController extends Controller
                 ->orderBy('date', 'desc')
                 ->get();
 
-            return response()->json(['attendances' => $attendances]);
+            $assignedGeofences = $employee->geofences()->where('is_active', true)->pluck('name');
+
+            return response()->json([
+                'employee_name' => $employee->name,
+                'admin_name' => $employee->admin ? $employee->admin->name : null,
+                'assigned_geofences' => $assignedGeofences,
+                'attendances' => $attendances,
+            ]);
         } catch (\Exception $e) {
             Log::error('History error: ' . $e->getMessage());
             return response()->json([
                 'error' => 'Server error: ' . $e->getMessage(),
             ], 500);
         }
+    }
+
+    /**
+     * Calculate distance between two coordinates (in meters).
+     */
+    private function haversineDistance($lat1, $lon1, $lat2, $lon2)
+    {
+        $earthRadius = 6371000; // meters
+
+        $dLat = deg2rad($lat2 - $lat1);
+        $dLon = deg2rad($lon2 - $lon1);
+
+        $a = sin($dLat / 2) * sin($dLat / 2)
+            + cos(deg2rad($lat1)) * cos(deg2rad($lat2))
+            * sin($dLon / 2) * sin($dLon / 2);
+
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+
+        return $earthRadius * $c; // meters
     }
 }
