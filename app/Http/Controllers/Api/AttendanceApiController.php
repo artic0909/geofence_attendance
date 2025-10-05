@@ -11,6 +11,36 @@ use Illuminate\Support\Facades\Storage;
 
 class AttendanceApiController extends Controller
 {
+
+    public function getAssignedGeofences(Request $request)
+    {
+        try {
+            $employee = $request->user();
+
+            // Get assigned geofences with admin information
+            $geofences = $employee->geofences()
+                ->where('is_active', true)
+                ->select('id', 'name', 'address', 'latitude', 'longitude', 'radius', 'admin_id')
+                ->get();
+
+            // Get admin name
+            $admin = $employee->admin; // Assuming you have admin relationship in Employee model
+            $adminName = $admin ? $admin->name : 'Administrator';
+
+            return response()->json([
+                'admin_name' => $adminName,
+                'geofences' => $geofences,
+                'employee_name' => $employee->name,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Get assigned geofences error: ' . $e->getMessage());
+            return response()->json([
+                'error' => 'Failed to fetch assigned geofences',
+            ], 500);
+        }
+    }
+
+
     public function checkIn(Request $request)
     {
         try {
