@@ -265,10 +265,7 @@ class AttendanceApiController extends Controller
         }
 
         // Fetch assigned geofences if needed
-        // Fetch assigned geofences as objects with id and name, convert to array
-        $geofences = $user->geofences()->where('is_active', true)
-            ->get(['id', 'name'])
-            ->toArray(); // <-- this is key
+        $geofences = $user->geofences()->pluck('name'); // adjust relationship
 
         return response()->json([
             'employee_name' => $employee->name,
