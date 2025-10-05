@@ -19,6 +19,7 @@ class AttendanceApiController extends Controller
                 'latitude' => 'required|numeric',
                 'longitude' => 'required|numeric',
                 'photo' => 'required|image|max:5120',
+                'geofence_id' => 'required|exists:geofences,id',
             ]);
 
             $employee = $request->user();
@@ -35,44 +36,34 @@ class AttendanceApiController extends Controller
                 ], 400);
             }
 
-            // Get assigned geofences
-            $geofences = $employee->geofences()->where('is_active', true)->get();
+            $lat = (float) $request->latitude;
+            $lng = (float) $request->longitude;
+            $geofenceId = $request->geofence_id;
 
-            if ($geofences->isEmpty()) {
+            $geofence = Geofence::where('id', $geofenceId)
+                ->where('is_active', true)
+                ->first();
+
+            if (!$geofence) {
                 return response()->json([
-                    'error' => 'No geofences assigned to employee',
+                    'error' => 'Selected geofence is invalid or inactive',
                 ], 400);
             }
 
-            $lat = (float) $request->latitude;
-            $lng = (float) $request->longitude;
-            $withinGeofence = false;
-            $matchedGeofence = null;
+            // Check if employee is inside the selected geofence
+            $distance = $this->haversineDistance(
+                $lat,
+                $lng,
+                (float) $geofence->latitude,
+                (float) $geofence->longitude
+            );
 
-            Log::info("CheckIn attempt by employee {$employee->id} at ($lat, $lng)");
+            Log::info("CheckIn attempt by employee {$employee->id} at ($lat, $lng) for geofence '{$geofence->name}'");
+            Log::info("Distance to geofence '{$geofence->name}': {$distance}m (Radius: {$geofence->radius}m)");
 
-            foreach ($geofences as $geofence) {
-                $distance = $this->haversineDistance(
-                    $lat,
-                    $lng,
-                    (float) $geofence->latitude,
-                    (float) $geofence->longitude
-                );
-
-                Log::info("Distance to {$geofence->name}: {$distance}m (Radius: {$geofence->radius}m)");
-
-                if ($distance <= $geofence->radius) {
-                    $withinGeofence = true;
-                    $matchedGeofence = $geofence;
-                    Log::info("Employee {$employee->id} is INSIDE geofence '{$geofence->name}'");
-                    break;
-                }
-            }
-
-            if (!$withinGeofence) {
-                Log::warning("Employee {$employee->id} is OUTSIDE all geofences");
+            if ($distance > $geofence->radius) {
                 return response()->json([
-                    'error' => 'You are not within any assigned geofence area. Current location is too far from your assigned geofences.',
+                    'error' => "You are outside the selected geofence '{$geofence->name}'.",
                 ], 403);
             }
 
@@ -87,7 +78,7 @@ class AttendanceApiController extends Controller
                 ],
                 [
                     'admin_id' => $employee->admin_id,
-                    'geofence_id' => $matchedGeofence->id,
+                    'geofence_id' => $geofence->id,
                     'check_in' => now(),
                     'check_in_lat' => $lat,
                     'check_in_lng' => $lng,
@@ -102,8 +93,7 @@ class AttendanceApiController extends Controller
                 'attendance' => $attendance,
                 'employee_name' => $employee->name,
                 'admin_name' => $employee->admin ? $employee->admin->name : null,
-                'geofence_name' => $matchedGeofence->name,
-                'assigned_geofences' => $geofences->pluck('name'), // all geofences for this employee
+                'geofence_name' => $geofence->name,
             ]);
         } catch (\Exception $e) {
             Log::error('Check-in error: ' . $e->getMessage());
@@ -120,6 +110,7 @@ class AttendanceApiController extends Controller
                 'latitude' => 'required|numeric',
                 'longitude' => 'required|numeric',
                 'photo' => 'required|image|max:5120',
+                'geofence_id' => 'required|exists:geofences,id',
             ]);
 
             $employee = $request->user();
@@ -141,39 +132,36 @@ class AttendanceApiController extends Controller
                 ], 400);
             }
 
-            // Get the geofence where the employee checked in
-            $checkInGeofence = Geofence::find($attendance->geofence_id);
+            $lat = (float) $request->latitude;
+            $lng = (float) $request->longitude;
+            $geofenceId = $request->geofence_id;
 
-            if (!$checkInGeofence) {
+            $geofence = Geofence::where('id', $geofenceId)
+                ->where('is_active', true)
+                ->first();
+
+            if (!$geofence) {
                 return response()->json([
-                    'error' => 'Unable to find your check-in location data',
+                    'error' => 'Selected geofence is invalid or inactive',
                 ], 400);
             }
 
-            $lat = (float) $request->latitude;
-            $lng = (float) $request->longitude;
-
-            Log::info("CheckOut attempt by employee {$employee->id} at ($lat, $lng)");
-            Log::info("Check-in was at geofence: {$checkInGeofence->name}");
-
-            // Check if employee is within the same geofence where they checked in
+            // Check if employee is inside the selected geofence
             $distance = $this->haversineDistance(
                 $lat,
                 $lng,
-                (float) $checkInGeofence->latitude,
-                (float) $checkInGeofence->longitude
+                (float) $geofence->latitude,
+                (float) $geofence->longitude
             );
 
-            Log::info("Distance to check-in geofence '{$checkInGeofence->name}': {$distance}m (Radius: {$checkInGeofence->radius}m)");
+            Log::info("CheckOut attempt by employee {$employee->id} at ($lat, $lng) for geofence '{$geofence->name}'");
+            Log::info("Distance to geofence '{$geofence->name}': {$distance}m (Radius: {$geofence->radius}m)");
 
-            if ($distance > $checkInGeofence->radius) {
-                Log::warning("Employee {$employee->id} is OUTSIDE check-in geofence for checkout");
+            if ($distance > $geofence->radius) {
                 return response()->json([
-                    'error' => 'You must be within the same location where you checked in to check out. Current location is too far from your check-in location.',
+                    'error' => "You must be within the selected geofence '{$geofence->name}' to check out.",
                 ], 403);
             }
-
-            Log::info("Employee {$employee->id} is INSIDE check-in geofence for checkout");
 
             // Save photo
             $photoPath = $request->file('photo')->store('attendance-photos', 'public');
@@ -184,20 +172,17 @@ class AttendanceApiController extends Controller
                 'check_out_lng' => $lng,
                 'check_out_photo' => $photoPath,
                 'admin_id' => $employee->admin_id,
+                'geofence_id' => $geofence->id, // update geofence
             ]);
 
             Log::info("CheckOut successful for employee {$employee->id}");
-
-            // Fetch all assigned geofences for employee
-            $assignedGeofences = $employee->geofences()->where('is_active', true)->pluck('name');
 
             return response()->json([
                 'message' => 'Check-out successful!',
                 'attendance' => $attendance,
                 'employee_name' => $employee->name,
                 'admin_name' => $employee->admin ? $employee->admin->name : null,
-                'geofence_name' => $checkInGeofence->name,
-                'assigned_geofences' => $assignedGeofences,
+                'geofence_name' => $geofence->name,
             ]);
         } catch (\Exception $e) {
             Log::error('Check-out error: ' . $e->getMessage());
@@ -205,6 +190,22 @@ class AttendanceApiController extends Controller
                 'error' => 'Server error: ' . $e->getMessage(),
             ], 500);
         }
+    }
+
+    private function haversineDistance($lat1, $lon1, $lat2, $lon2)
+    {
+        $earthRadius = 6371000;
+
+        $dLat = deg2rad($lat2 - $lat1);
+        $dLon = deg2rad($lon2 - $lon1);
+
+        $a = sin($dLat / 2) * sin($dLat / 2)
+            + cos(deg2rad($lat1)) * cos(deg2rad($lat2))
+            * sin($dLon / 2) * sin($dLon / 2);
+
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+
+        return $earthRadius * $c;
     }
 
     public function history(Request $request)
@@ -236,21 +237,21 @@ class AttendanceApiController extends Controller
     /**
      * Calculate distance between two coordinates (in meters).
      */
-    private function haversineDistance($lat1, $lon1, $lat2, $lon2)
-    {
-        $earthRadius = 6371000; // meters
+    // private function haversineDistance($lat1, $lon1, $lat2, $lon2)
+    // {
+    //     $earthRadius = 6371000; // meters
 
-        $dLat = deg2rad($lat2 - $lat1);
-        $dLon = deg2rad($lon2 - $lon1);
+    //     $dLat = deg2rad($lat2 - $lat1);
+    //     $dLon = deg2rad($lon2 - $lon1);
 
-        $a = sin($dLat / 2) * sin($dLat / 2)
-            + cos(deg2rad($lat1)) * cos(deg2rad($lat2))
-            * sin($dLon / 2) * sin($dLon / 2);
+    //     $a = sin($dLat / 2) * sin($dLat / 2)
+    //         + cos(deg2rad($lat1)) * cos(deg2rad($lat2))
+    //         * sin($dLon / 2) * sin($dLon / 2);
 
-        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+    //     $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
 
-        return $earthRadius * $c; // meters
-    }
+    //     return $earthRadius * $c; // meters
+    // }
 
     public function getEmployeeData(Request $request)
     {
