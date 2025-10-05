@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
+use App\Models\Employee;
 use App\Models\Geofence;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -249,5 +250,26 @@ class AttendanceApiController extends Controller
         $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
 
         return $earthRadius * $c; // meters
+    }
+
+    public function getEmployeeData(Request $request)
+    {
+        $user = auth()->user();
+        $employee = Employee::where('id', $user->id)->first(); // adjust according to your schema
+
+        if (!$employee) {
+            return response()->json([
+                'error' => 'Employee not found'
+            ], 404);
+        }
+
+        // Fetch assigned geofences if needed
+        $geofences = $user->geofences()->pluck('name'); // adjust relationship
+
+        return response()->json([
+            'employee_name' => $employee->name,
+            'admin_name' => $user->admin->name ?? 'Admin', // adjust
+            'assigned_geofences' => $geofences,
+        ]);
     }
 }

@@ -17,3 +17,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/employee/geofences', [AttendanceApiController::class, 'getAssignedGeofences']);
     Route::get('/employee/data', [AttendanceApiController::class, 'getEmployeeData']);
 });
+
+// routes/api.php
+Route::middleware('auth:sanctum')->get('/employee-data', [AttendanceApiController::class, 'getEmployeeData']);
