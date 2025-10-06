@@ -18,7 +18,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::post('/logout', [AdminLoginController::class, 'logout'])->name('logout');
 
     Route::get('/privacy-policy', function () {
-        return redirect()->route('auth.privacy');
+        return view('auth.privacy');
     });
 
     // Protected Admin Routes
