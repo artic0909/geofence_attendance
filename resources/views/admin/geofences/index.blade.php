@@ -12,7 +12,7 @@
     <table class="w-full">
         <thead class="bg-gray-50">
             <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Site Name</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Location</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Radius</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
