@@ -16,14 +16,18 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::post('/login', [AdminLoginController::class, 'login'])->name('login.submit');
     Route::post('/register', [AdminRegisterController::class, 'register'])->name('register.submit');
     Route::post('/logout', [AdminLoginController::class, 'logout'])->name('logout');
-    
+
+    Route::get('/privacy-policy', function () {
+        return redirect()->route('admin.auth.privacy');
+    });
+
     // Protected Admin Routes
     Route::middleware(['admin'])->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
         Route::get('/attendances', [AttendanceController::class, 'index'])->name('attendances');
         Route::resource('employees', EmployeeController::class);
         Route::resource('geofences', GeofenceController::class);
-        
+
         // Redirect admin root to dashboard
         Route::get('/', function () {
             return redirect()->route('admin.dashboard');
