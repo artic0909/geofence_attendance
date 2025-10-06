@@ -13,7 +13,7 @@
             <input type="hidden" name="admin_id" value="{{ auth()->guard('admin')->user()->id }}">
             
             <div class="mb-4">
-                <label class="block text-gray-700 text-sm font-bold mb-2" for="name">Name</label>
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="name">Site Name</label>
                 <input type="text" name="name" id="name" required 
                        class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
                        value="{{ old('name', $geofence->name) }}">
