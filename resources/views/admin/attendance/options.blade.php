@@ -36,8 +36,8 @@
         </a>
     </div>
 
-    <div class="bg-white rounded-lg shadow p-6">
-        <a href="{{ route('admin.attendances.delete') }}" class="flex items-center">
+    <div class="bg-white rounded-lg shadow p-6" style="cursor: pointer;" onclick="showRestrictedAlert()">
+        <div id="ShowAlert" class="flex items-center">
             <div class="p-3 rounded-full bg-red-100 text-red-500">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -48,7 +48,7 @@
             <div class="ml-4">
                 <h3 class="text-sm font-medium text-gray-600">Delete Old Attendances</h3>
             </div>
-        </a>
+        </div>
     </div>
 
     <!-- <div class="bg-white rounded-lg shadow p-6">
@@ -72,5 +72,23 @@
 </div>
 
 
+<script>
+    function showRestrictedAlert() {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Access Restricted',
+            html: `
+                <p class="mb-2">This feature is <strong>restricted by the Super Admin</strong> for security purposes.</p>
+                <p class="text-muted">Please contact your Super Admin if you need access to delete old attendance records.</p>
+            `,
+            confirmButtonText: 'Understood',
+            confirmButtonColor: '#6c757d',
+            allowOutsideClick: false,
+            customClass: {
+                popup: 'animated fadeInDown'
+            }
+        });
+    }
+</script>
 
 @endsection
