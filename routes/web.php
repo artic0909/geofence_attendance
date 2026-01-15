@@ -24,6 +24,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     // Protected Admin Routes
     Route::middleware(['admin'])->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/attendances/export', [AttendanceController::class, 'export'])->name('attendances.export');
         Route::get('/attendances', [AttendanceController::class, 'index'])->name('attendances');
         Route::get('/attendances/options', [AttendanceController::class, 'options'])->name('attendances.options');
         Route::get('/attendances/today', [AttendanceController::class, 'todayAttedances'])->name('attendances.today');

@@ -61,6 +61,88 @@ class AttendanceController extends Controller
         return view('admin.attendance.index', compact('stats', 'recent_attendances', 'geofences'));
     }
 
+    public function export(Request $request)
+    {
+        $adminId = auth()->guard('admin')->id();
+
+        // Base query - re-using the same logic as index logic to ensure consistency
+        $query = Attendance::with(['employee', 'geofence'])
+            ->where('admin_id', $adminId);
+
+        // Filter by geofence
+        if ($request->filled('geofence')) {
+            $query->where('geofence_id', $request->geofence);
+        }
+
+        // Filter by date range
+        if ($request->filled('from_date') && $request->filled('to_date')) {
+            $query->whereBetween('date', [$request->from_date, $request->to_date]);
+        } elseif ($request->filled('from_date')) {
+            $query->whereDate('date', '>=', $request->from_date);
+        } elseif ($request->filled('to_date')) {
+            $query->whereDate('date', '<=', $request->to_date);
+        }
+
+        // Filter by employee name (optional)
+        if ($request->filled('employee_name')) {
+            $query->whereHas('employee', function ($q) use ($request, $adminId) {
+                $q->where('admin_id', $adminId)
+                    ->where('name', 'like', '%' . $request->employee_name . '%');
+            });
+        }
+
+        $attendances = $query->orderBy('date', 'desc')->get();
+
+        $csvFileName = 'attendances_' . date('Y-m-d_H-i-s') . '.csv';
+
+        $headers = [
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=$csvFileName",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        ];
+
+        $callback = function () use ($attendances) {
+            $file = fopen('php://output', 'w');
+            
+            // CSV Header
+            fputcsv($file, [
+                'Name', 
+                'Email', 
+                'Date', 
+                'Check In', 
+                'Check Out', 
+                'Total Hours', 
+                'Location'
+            ]);
+
+            foreach ($attendances as $attendance) {
+                $checkIn = $attendance->check_in ? \Carbon\Carbon::parse($attendance->check_in) : null;
+                $checkOut = $attendance->check_out ? \Carbon\Carbon::parse($attendance->check_out) : null;
+                
+                $totalHours = 'N/A';
+                if ($checkIn && $checkOut) {
+                    $totalHours = $checkIn->diff($checkOut)->format('%H:%I:%S');
+                }
+
+                fputcsv($file, [
+                    $attendance->employee->name ?? 'N/A',
+                    $attendance->employee->email ?? 'N/A',
+                    \Carbon\Carbon::parse($attendance->date)->format('d/m/Y'),
+                    $checkIn ? $checkIn->format('h:i A') : 'N/A',
+                    $checkOut ? $checkOut->format('h:i A') : 'N/A',
+                    $totalHours,
+                    $attendance->geofence->name ?? 'N/A'
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
     public function options(Request $request)
     {
         $adminId = auth()->guard('admin')->id(); // current logged-in admin id

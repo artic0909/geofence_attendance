@@ -49,8 +49,9 @@
 
 
 
-                <!-- Filter Button -->
+                <!-- Filter & Export Buttons -->
                 <div class="col-md-4 mt-3 w-100 text-end">
+                    <button type="submit" formaction="{{ route('admin.attendances.export') }}" class="btn btn-success w-20 me-2">Export to Excel</button>
                     <button type="submit" id="filterBtn" class="btn btn-primary w-20">Filter</button>
                 </div>
             </form>
