@@ -28,6 +28,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/attendances', [AttendanceController::class, 'index'])->name('attendances');
         Route::get('/attendances/options', [AttendanceController::class, 'options'])->name('attendances.options');
         Route::get('/attendances/today', [AttendanceController::class, 'todayAttedances'])->name('attendances.today');
+        Route::get('/attendances/today/export', [AttendanceController::class, 'todayExport'])->name('attendances.today.export');
         Route::get('attendances/delete', [AttendanceController::class, 'deleteAttendances'])->name('attendances.delete');
         Route::delete('attendances/bulk-delete', [AttendanceController::class, 'bulkDeleteAttendances'])->name('attendances.bulk-delete');
         Route::resource('employees', EmployeeController::class);

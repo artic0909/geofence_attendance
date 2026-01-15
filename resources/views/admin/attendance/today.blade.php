@@ -35,6 +35,7 @@
 
                 <!-- Filter Button -->
                 <div class="col-md-4 mt-3 d-flex align-items-end">
+                    <button type="submit" formaction="{{ route('admin.attendances.today.export') }}" class="btn btn-success w-50 me-2">Export to Excel</button>
                     <button type="submit" id="filterBtn" class="btn btn-primary w-50 me-2">Filter</button>
                     <a href="{{ route('admin.attendances.today') }}" class="btn w-50 btn-secondary">Reset</a>
                 </div>

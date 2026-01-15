@@ -233,6 +233,67 @@ class AttendanceController extends Controller
         return view('admin.attendance.today', compact('stats', 'recent_attendances', 'geofences'));
     }
 
+    public function todayExport(Request $request)
+    {
+        $adminId = auth()->guard('admin')->id();
+
+        // Base query - Get ALL of today's attendances for this admin, ignoring filters
+        $query = Attendance::with(['employee', 'geofence'])
+            ->where('admin_id', $adminId)
+            ->whereDate('date', today()); // Force today's date
+
+        $attendances = $query->orderBy('check_in', 'desc')->get();
+
+        $csvFileName = 'todays_attendances_' . date('Y-m-d_H-i-s') . '.csv';
+
+        $headers = [
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=$csvFileName",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        ];
+
+        $callback = function () use ($attendances) {
+            $file = fopen('php://output', 'w');
+            
+            // CSV Header
+            fputcsv($file, [
+                'Name', 
+                'Email', 
+                'Date', 
+                'Check In', 
+                'Check Out', 
+                'Total Hours', 
+                'Location'
+            ]);
+
+            foreach ($attendances as $attendance) {
+                $checkIn = $attendance->check_in ? \Carbon\Carbon::parse($attendance->check_in) : null;
+                $checkOut = $attendance->check_out ? \Carbon\Carbon::parse($attendance->check_out) : null;
+                
+                $totalHours = 'N/A';
+                if ($checkIn && $checkOut) {
+                    $totalHours = $checkIn->diff($checkOut)->format('%H:%I:%S');
+                }
+
+                fputcsv($file, [
+                    $attendance->employee->name ?? 'N/A',
+                    $attendance->employee->email ?? 'N/A',
+                    \Carbon\Carbon::parse($attendance->date)->format('d/m/Y'),
+                    $checkIn ? $checkIn->format('h:i A') : 'N/A',
+                    $checkOut ? $checkOut->format('h:i A') : 'N/A',
+                    $totalHours,
+                    $attendance->geofence->name ?? 'N/A'
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
     public function deleteAttendances(Request $request)
     {
         $adminId = auth()->guard('admin')->id();
