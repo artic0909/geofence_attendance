@@ -56,7 +56,7 @@ class AttendanceController extends Controller
         }
 
         // Fetch paginated results
-        $recent_attendances = $query->orderBy('date', 'desc')->paginate(10);
+        $recent_attendances = $query->orderBy('date', 'desc')->paginate(10)->withQueryString();
 
         return view('admin.attendance.index', compact('stats', 'recent_attendances', 'geofences'));
     }
@@ -103,7 +103,7 @@ class AttendanceController extends Controller
         }
 
         // Get attendances
-        $recent_attendances = $query->orderBy('created_at', 'desc')->paginate(10);
+        $recent_attendances = $query->orderBy('created_at', 'desc')->paginate(10)->withQueryString();
 
         return view('admin.attendance.options', compact('stats', 'recent_attendances', 'geofences'));
     }
@@ -146,7 +146,7 @@ class AttendanceController extends Controller
         }
 
         // Get attendances - ordered by check_in time
-        $recent_attendances = $query->orderBy('check_in', 'desc')->paginate(15);
+        $recent_attendances = $query->orderBy('check_in', 'desc')->paginate(15)->withQueryString();
 
         return view('admin.attendance.today', compact('stats', 'recent_attendances', 'geofences'));
     }
