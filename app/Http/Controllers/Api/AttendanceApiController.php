@@ -223,10 +223,23 @@ class AttendanceApiController extends Controller
         try {
             $employee = $request->user();
 
-            $attendances = Attendance::with('geofence')
+            // Fetch normal geofence attendances
+            $normalAttendances = Attendance::with('geofence')
                 ->where('employee_id', $employee->id)
-                ->orderBy('date', 'desc')
                 ->get();
+
+            // Fetch outside attendances
+            $outsideAttendances = \App\Models\OutsideAttendance::where('employee_id', $employee->id)
+                ->get();
+
+            // Merge collections
+            $allAttendances = $normalAttendances->concat($outsideAttendances);
+
+            // Sort by date and check_in time descending
+            $attendances = $allAttendances->sortByDesc(function ($attendance) {
+                $checkInTime = is_string($attendance->check_in) ? $attendance->check_in : ($attendance->check_in ? $attendance->check_in->toDateTimeString() : '00:00:00');
+                return $attendance->date . ' ' . $checkInTime;
+            })->values();
 
             $assignedGeofences = $employee->geofences()->where('is_active', true)->pluck('name');
 
