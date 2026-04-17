@@ -240,8 +240,16 @@ class AttendanceApiController extends Controller
                 // Ensure date is a simple 'Y-m-d' string
                 $attendance->date_formatted = is_string($attendance->date) ? substr($attendance->date, 0, 10) : $attendance->date->format('Y-m-d');
                 
-                // Add type identification
-                $attendance->type = (get_class($attendance) === 'App\\Models\\OutsideAttendance') ? 'outside' : 'normal';
+                // Add type identification and locations
+                if (get_class($attendance) === 'App\\Models\\OutsideAttendance') {
+                    $attendance->type = 'outside';
+                    $attendance->checkin_loc = $attendance->checkin_location;
+                    $attendance->checkout_loc = $attendance->checkout_location;
+                } else {
+                    $attendance->type = 'normal';
+                    $attendance->checkin_loc = $attendance->geofence->name ?? 'OFFICE HUB';
+                    $attendance->checkout_loc = $attendance->geofence->name ?? 'OFFICE HUB';
+                }
                 
                 return $attendance;
             })->sortByDesc(function ($attendance) {
