@@ -39,6 +39,11 @@ class Employee extends Authenticatable
         return $this->hasMany(Attendance::class);
     }
 
+    public function outsideAttendances()
+    {
+        return $this->hasMany(OutsideAttendance::class);
+    }
+
     // Add this relationship
     // public function geofences() {
     //     return $this->belongsToMany(Geofence::class, 'employee_geofence');

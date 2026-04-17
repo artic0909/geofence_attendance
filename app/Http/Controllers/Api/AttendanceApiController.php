@@ -272,4 +272,101 @@ class AttendanceApiController extends Controller
             'assigned_geofences' => $geofences,
         ]);
     }
+
+    public function outsideCheckIn(Request $request)
+    {
+        try {
+            $request->validate([
+                'latitude' => 'required|numeric',
+                'longitude' => 'required|numeric',
+                'photo' => 'required|image|max:5120',
+                'checkin_location' => 'nullable|string',
+            ]);
+
+            $employee = $request->user();
+            $today = now()->format('Y-m-d');
+
+            // Save photo
+            $photoPath = $request->file('photo')->store('attendance-photos', 'public');
+
+            // Create outside attendance record
+            $attendance = \App\Models\OutsideAttendance::create([
+                'admin_id' => $employee->admin_id,
+                'employee_id' => $employee->id,
+                'date' => $today,
+                'check_in' => now(),
+                'check_in_lat' => $request->latitude,
+                'check_in_lng' => $request->longitude,
+                'check_in_photo' => $photoPath,
+                'checkin_location' => $request->checkin_location ?? "{$request->latitude}, {$request->longitude}",
+                'status' => 'present',
+            ]);
+
+            Log::info("Outside CheckIn successful for employee {$employee->id}");
+
+            return response()->json([
+                'message' => 'Outside check-in successful!',
+                'attendance' => $attendance,
+                'employee_name' => $employee->name,
+                'admin_name' => $employee->admin ? $employee->admin->name : null,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Outside check-in error: ' . $e->getMessage());
+            return response()->json([
+                'error' => 'Server error: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function outsideCheckOut(Request $request)
+    {
+        try {
+            $request->validate([
+                'latitude' => 'required|numeric',
+                'longitude' => 'required|numeric',
+                'photo' => 'required|image|max:5120',
+                'checkout_location' => 'nullable|string',
+            ]);
+
+            $employee = $request->user();
+            $today = now()->format('Y-m-d');
+
+            $attendance = \App\Models\OutsideAttendance::where('employee_id', $employee->id)
+                ->where('date', $today)
+                ->whereNull('check_out')
+                ->latest()
+                ->first();
+
+            if (!$attendance) {
+                return response()->json([
+                    'error' => 'No active outside check-in found for today',
+                ], 400);
+            }
+
+            // Save photo
+            $photoPath = $request->file('photo')->store('attendance-photos', 'public');
+
+            $attendance->update([
+                'check_out' => now(),
+                'check_out_lat' => $request->latitude,
+                'check_out_lng' => $request->longitude,
+                'check_out_photo' => $photoPath,
+                'checkout_location' => $request->checkout_location ?? "{$request->latitude}, {$request->longitude}",
+            ]);
+
+            Log::info("Outside CheckOut successful for employee {$employee->id}");
+
+            return response()->json([
+                'message' => 'Outside check-out successful!',
+                'attendance' => $attendance,
+                'employee_name' => $employee->name,
+                'admin_name' => $employee->admin ? $employee->admin->name : null,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Outside check-out error: ' . $e->getMessage());
+            return response()->json([
+                'error' => 'Server error: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
 }
