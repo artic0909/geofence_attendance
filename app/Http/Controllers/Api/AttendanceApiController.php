@@ -283,21 +283,22 @@ class AttendanceApiController extends Controller
     public function getEmployeeData(Request $request)
     {
         $user = auth()->user();
-        $employee = Employee::where('id', $user->id)->first(); // adjust according to your schema
+        $today = now()->format('Y-m-d');
+        
+        // Check today's status across both tables
+        $attendance = Attendance::where('employee_id', $user->id)->where('date', $today)->first();
+        $outside = \App\Models\OutsideAttendance::where('employee_id', $user->id)->where('date', $today)->first();
 
-        if (!$employee) {
-            return response()->json([
-                'error' => 'Employee not found'
-            ], 404);
-        }
-
-        // Fetch assigned geofences if needed
-        $geofences = $user->geofences()->pluck('name'); // adjust relationship
+        $geofences = $user->geofences()->pluck('name');
 
         return response()->json([
-            'employee_name' => $employee->name,
-            'admin_name' => $user->admin->name ?? 'Admin', // adjust
+            'employee_name' => $user->name,
+            'admin_name' => $user->admin->name ?? 'Admin',
             'assigned_geofences' => $geofences,
+            'attendance_status' => [
+                'is_checked_in' => ($attendance && $attendance->check_in && !$attendance->check_out) || ($outside && $outside->check_in && !$outside->check_out),
+                'is_completed' => ($attendance && $attendance->check_out) || ($outside && $outside->check_out),
+            ]
         ]);
     }
 
