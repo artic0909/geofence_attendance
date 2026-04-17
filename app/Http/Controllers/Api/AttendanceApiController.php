@@ -215,7 +215,7 @@ class AttendanceApiController extends Controller
             $attendances = Attendance::with('geofence')
                 ->where('employee_id', $employee->id)
                 ->orderBy('date', 'desc')
-                ->pagiante(10);
+                ->get();
 
             $assignedGeofences = $employee->geofences()->where('is_active', true)->pluck('name');
 
