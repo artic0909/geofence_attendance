@@ -24,6 +24,17 @@ class AttendanceApiController extends Controller
             $employee = $request->user();
             $today = now()->format('Y-m-d');
 
+            // Check if already checked in via Outside Attendance today
+            $existsOutside = \App\Models\OutsideAttendance::where('employee_id', $employee->id)
+                ->where('date', $today)
+                ->exists();
+
+            if ($existsOutside) {
+                return response()->json([
+                    'error' => 'You have already recorded Outside Attendance for today.',
+                ], 403);
+            }
+
             // Check if already checked in today
             $existingAttendance = Attendance::where('employee_id', $employee->id)
                 ->where('date', $today)
@@ -285,6 +296,20 @@ class AttendanceApiController extends Controller
 
             $employee = $request->user();
             $today = now()->format('Y-m-d');
+
+            // Block if ANY attendance exists today (Normal or Outside)
+            $existsNormal = Attendance::where('employee_id', $employee->id)
+                ->where('date', $today)
+                ->exists();
+            $existsOutside = \App\Models\OutsideAttendance::where('employee_id', $employee->id)
+                ->where('date', $today)
+                ->exists();
+
+            if ($existsNormal || $existsOutside) {
+                return response()->json([
+                    'error' => 'You already have an attendance record for today. Multiple entries are not allowed.',
+                ], 403);
+            }
 
             // Save photo
             $photoPath = $request->file('photo')->store('attendance-photos', 'public');
