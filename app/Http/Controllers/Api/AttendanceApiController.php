@@ -235,10 +235,14 @@ class AttendanceApiController extends Controller
             // Merge collections
             $allAttendances = $normalAttendances->concat($outsideAttendances);
 
-            // Sort by date and check_in time descending
-            $attendances = $allAttendances->sortByDesc(function ($attendance) {
+            // Format dates and times to strings to prevent timezone shifts in frontend
+            $attendances = $allAttendances->map(function ($attendance) {
+                // Ensure date is a simple 'Y-m-d' string
+                $attendance->date_formatted = is_string($attendance->date) ? substr($attendance->date, 0, 10) : $attendance->date->format('Y-m-d');
+                return $attendance;
+            })->sortByDesc(function ($attendance) {
                 $checkInTime = is_string($attendance->check_in) ? $attendance->check_in : ($attendance->check_in ? $attendance->check_in->toDateTimeString() : '00:00:00');
-                return $attendance->date . ' ' . $checkInTime;
+                return $attendance->date_formatted . ' ' . $checkInTime;
             })->values();
 
             $assignedGeofences = $employee->geofences()->where('is_active', true)->pluck('name');
