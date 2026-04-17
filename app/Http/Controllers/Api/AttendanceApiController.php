@@ -239,6 +239,10 @@ class AttendanceApiController extends Controller
             $attendances = $allAttendances->map(function ($attendance) {
                 // Ensure date is a simple 'Y-m-d' string
                 $attendance->date_formatted = is_string($attendance->date) ? substr($attendance->date, 0, 10) : $attendance->date->format('Y-m-d');
+                
+                // Add type identification
+                $attendance->type = (get_class($attendance) === 'App\\Models\\OutsideAttendance') ? 'outside' : 'normal';
+                
                 return $attendance;
             })->sortByDesc(function ($attendance) {
                 $checkInTime = is_string($attendance->check_in) ? $attendance->check_in : ($attendance->check_in ? $attendance->check_in->toDateTimeString() : '00:00:00');
