@@ -298,6 +298,7 @@ class AttendanceApiController extends Controller
             'attendance_status' => [
                 'is_checked_in' => ($attendance && $attendance->check_in && !$attendance->check_out) || ($outside && $outside->check_in && !$outside->check_out),
                 'is_completed' => ($attendance && $attendance->check_out) || ($outside && $outside->check_out),
+                'is_outside' => ($outside && $outside->check_in && !$outside->check_out),
             ]
         ]);
     }
