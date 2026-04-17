@@ -245,10 +245,12 @@ class AttendanceApiController extends Controller
                     $attendance->type = 'outside';
                     $attendance->checkin_loc = $attendance->checkin_location;
                     $attendance->checkout_loc = $attendance->checkout_location;
+                    $attendance->reason = $attendance->reason;
                 } else {
                     $attendance->type = 'normal';
                     $attendance->checkin_loc = $attendance->geofence->name ?? 'OFFICE HUB';
                     $attendance->checkout_loc = $attendance->geofence->name ?? 'OFFICE HUB';
+                    $attendance->reason = null;
                 }
                 
                 return $attendance;
@@ -355,6 +357,7 @@ class AttendanceApiController extends Controller
                 'check_in_lng' => $request->longitude,
                 'check_in_photo' => $photoPath,
                 'checkin_location' => $request->checkin_location ?? "{$request->latitude}, {$request->longitude}",
+                'reason' => $request->reason,
                 'status' => 'present',
             ]);
 
@@ -382,6 +385,7 @@ class AttendanceApiController extends Controller
                 'longitude' => 'required|numeric',
                 'photo' => 'required|image|max:5120',
                 'checkout_location' => 'nullable|string',
+                'reason' => 'nullable|string',
             ]);
 
             $employee = $request->user();
@@ -408,6 +412,7 @@ class AttendanceApiController extends Controller
                 'check_out_lng' => $request->longitude,
                 'check_out_photo' => $photoPath,
                 'checkout_location' => $request->checkout_location ?? "{$request->latitude}, {$request->longitude}",
+                'reason' => $request->reason ?: $attendance->reason,
             ]);
 
             Log::info("Outside CheckOut successful for employee {$employee->id}");

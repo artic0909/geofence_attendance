@@ -23,6 +23,7 @@ class OutsideAttendance extends Model
         'check_out_lng',
         'check_out_photo',
         'checkout_location',
+        'reason',
         'status'
     ];
 
