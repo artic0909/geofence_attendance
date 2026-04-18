@@ -117,7 +117,14 @@
                             @if($attendance->attendance_type == 'normal')
                                 {{ $attendance->geofence->name ?? 'N/A' }}
                             @else
-                                <span class="text-orange-600 font-bold">{{ $attendance->checkin_location ?? $attendance->reason ?? 'Outside' }}</span>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-orange-600 font-bold">{{ $attendance->checkin_location ?? 'Outside' }}</span>
+                                    @if($attendance->reason)
+                                        <button class="px-2 py-1 bg-orange-100 text-orange-600 rounded-lg hover:bg-orange-200 transition-colors" data-bs-toggle="modal" data-bs-target="#reasonModal{{$attendance->id}}" title="View Reason">
+                                            <i class="bi bi-chat-left-text-fill text-xs"></i>
+                                        </button>
+                                    @endif
+                                </div>
                             @endif
                         </td>
                     </tr>
@@ -199,6 +206,39 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
+@endforeach
+
+<!-- Reason Modals -->
+@foreach($recent_attendances as $attendance)
+@if($attendance->attendance_type == 'outside' && $attendance->reason)
+<div class="modal fade" id="reasonModal{{$attendance->id}}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="reasonModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-orange-50">
+                <h5 class="modal-title font-bold text-orange-700" id="reasonModalLabel">Attendance Justification</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-6">
+                <div class="mb-4">
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wider">Employee</label>
+                    <p class="text-gray-900 font-medium">{{ $attendance->employee->name }}</p>
+                </div>
+                <div class="mb-4">
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wider">Site Location</label>
+                    <p class="text-gray-900 font-medium">{{ $attendance->checkin_location ?? 'N/A' }}</p>
+                </div>
+                <div class="p-4 bg-orange-50 border border-orange-100 rounded-xl">
+                    <label class="text-xs font-bold text-orange-600 uppercase tracking-wider mb-2 block">Reason for Outside Duty</label>
+                    <p class="text-gray-800 italic leading-relaxed">"{{ $attendance->reason }}"</p>
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-secondary rounded-lg" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
