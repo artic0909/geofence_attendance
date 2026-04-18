@@ -64,6 +64,7 @@ class AttendanceController extends Controller
         // Geofence filter only applies to Normal Attendance
         if ($request->filled('geofence')) {
             $normalQuery->where('geofence_id', $request->geofence);
+            $outsideQuery->whereRaw('1 = 0'); 
         }
 
         // Fetch and Merge
@@ -120,6 +121,7 @@ class AttendanceController extends Controller
 
         if ($request->filled('geofence')) {
             $normalQuery->where('geofence_id', $request->geofence);
+            $outsideQuery->whereRaw('1 = 0');
         }
 
         $attendances = $normalQuery->get()->map(function($a){ $a->attendance_type = 'normal'; return $a; })
@@ -252,6 +254,7 @@ class AttendanceController extends Controller
 
         if ($request->filled('geofence')) {
             $normalQuery->where('geofence_id', $request->geofence);
+            $outsideQuery->whereRaw('1 = 0');
         }
 
         if ($request->filled('employee_name')) {
