@@ -65,6 +65,7 @@
                 <tbody class="divide-y divide-gray-200">
                     @foreach($recent_attendances as $attendance)
                     <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ ($recent_attendances->currentPage() - 1) * $recent_attendances->perPage() + $loop->iteration }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="px-2 py-1 text-xs font-bold rounded {{ $attendance->attendance_type == 'outside' ? 'bg-orange-100 text-orange-700' : 'bg-green-100 text-green-700' }}">
                                 {{ ucfirst($attendance->attendance_type) }}
