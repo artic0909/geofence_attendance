@@ -52,7 +52,7 @@ class DashboardController extends Controller
             $pendingQuery->where('name', 'like', '%' . $request->employee_name . '%');
         }
 
-        $pending_employees = $pendingQuery->orderBy('name', 'asc')->paginate(10);
+        $pending_employees = $pendingQuery->with('geofences')->orderBy('name', 'asc')->paginate(10);
 
         return view('admin.dashboard', compact('stats', 'pending_employees', 'geofences'));
     }
@@ -72,8 +72,9 @@ class DashboardController extends Controller
             )
             ->unique();
 
-        // Fetch employees who have NOT given attendance today
-        $employees = \App\Models\Employee::where('admin_id', $adminId)
+        // Fetch employees who have NOT given attendance today with their geofences
+        $employees = \App\Models\Employee::with('geofences')
+            ->where('admin_id', $adminId)
             ->where('is_active', true)
             ->whereNotIn('id', $attendedEmployeeIds)
             ->orderBy('name', 'asc')
@@ -93,12 +94,17 @@ class DashboardController extends Controller
             $file = fopen('php://output', 'w');
             
             // CSV Headers
-            fputcsv($file, ['Employee Name', 'Email', 'Status', 'Date']);
+            fputcsv($file, ['Employee Name', 'Email', 'Employee ID', 'Assigned Geofences', 'Status', 'Date']);
 
             foreach ($employees as $employee) {
+                // Get geofence names
+                $geofenceNames = $employee->geofences->pluck('name')->implode(', ');
+
                 fputcsv($file, [
                     $employee->name,
                     $employee->email,
+                    $employee->employee_id ?? 'N/A',
+                    $geofenceNames ?: 'No Geofence Assigned',
                     'Absent / Not Checked In',
                     date('d/m/Y')
                 ]);
