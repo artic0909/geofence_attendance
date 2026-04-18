@@ -30,6 +30,7 @@
                     <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">SL</th>
                     <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Name</th>
                     <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Email</th>
+                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Phone</th>
                     <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Employee ID</th>
                     <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Assigned Geofences</th>
                     <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
@@ -44,6 +45,7 @@
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{{ $employee->name }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ $employee->email }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ $employee->phone }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-mono">{{ $employee->employee_id }}</td>
                     <td class="px-6 py-4">
                         @if($employee->geofences->count() > 0)

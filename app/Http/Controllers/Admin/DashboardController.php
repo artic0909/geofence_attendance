@@ -94,7 +94,7 @@ class DashboardController extends Controller
             $file = fopen('php://output', 'w');
             
             // CSV Headers
-            fputcsv($file, ['Employee Name', 'Email', 'Employee ID', 'Assigned Geofences', 'Status', 'Date']);
+            fputcsv($file, ['Employee Name', 'Email', 'Phone', 'Employee ID', 'Assigned Geofences', 'Status', 'Date']);
 
             foreach ($employees as $employee) {
                 // Get geofence names
@@ -103,6 +103,7 @@ class DashboardController extends Controller
                 fputcsv($file, [
                     $employee->name,
                     $employee->email,
+                    $employee->phone,
                     $employee->employee_id ?? 'N/A',
                     $geofenceNames ?: 'No Geofence Assigned',
                     'Absent / Not Checked In',
