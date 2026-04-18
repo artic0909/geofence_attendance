@@ -18,9 +18,21 @@ class EmployeeController extends Controller
         ];
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $employees = Employee::where('admin_id', auth()->guard('admin')->id())->get();
+        $query = Employee::where('admin_id', auth()->guard('admin')->id());
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('phone', 'like', "%{$search}%")
+                  ->orWhere('employee_id', 'like', "%{$search}%");
+            });
+        }
+
+        $employees = $query->with('geofences')->orderBy('name', 'asc')->paginate(10)->withQueryString();
         return view('admin.employees.index', compact('employees'));
     }
 

@@ -20,9 +20,15 @@ class GeofenceController extends Controller
     }
 
 
-    public function index()
+    public function index(Request $request)
     {
-        $geofences = Geofence::where('admin_id', auth()->guard('admin')->id())->get();
+        $query = Geofence::where('admin_id', auth()->guard('admin')->id());
+
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        $geofences = $query->orderBy('name', 'asc')->paginate(10)->withQueryString();
         return view('admin.geofences.index', compact('geofences'));
     }
 
