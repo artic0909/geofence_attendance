@@ -225,8 +225,6 @@
 </div>
 @endforeach
 
-@endforeach
-
 <!-- Reason Modals -->
 @foreach($recent_attendances as $attendance)
 @if($attendance->attendance_type == 'outside' && $attendance->reason)
