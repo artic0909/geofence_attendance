@@ -31,51 +31,29 @@ class DashboardController extends Controller
                 ->count(),
         ];
 
-        // Base query for Normal Attendance
-        $normalQuery = \App\Models\Attendance::with(['employee', 'geofence'])
-            ->where('admin_id', $adminId);
+        // Get IDs of employees who have already given attendance today (Normal or Outside)
+        $attendedEmployeeIds = \App\Models\Attendance::where('admin_id', $adminId)
+            ->whereDate('date', today())
+            ->pluck('employee_id')
+            ->concat(
+                \App\Models\OutsideAttendance::where('admin_id', $adminId)
+                    ->whereDate('date', today())
+                    ->pluck('employee_id')
+            )
+            ->unique();
 
-        // Base query for Outside Attendance
-        $outsideQuery = \App\Models\OutsideAttendance::with(['employee'])
-            ->where('admin_id', $adminId);
+        // Get employees who have NOT given attendance today
+        $pendingQuery = \App\Models\Employee::where('admin_id', $adminId)
+            ->where('is_active', true)
+            ->whereNotIn('id', $attendedEmployeeIds);
 
-        // Apply filters
-        if ($request->filled('geofence')) {
-            $normalQuery->where('geofence_id', $request->geofence);
-            $outsideQuery->whereRaw('1 = 0'); 
-        }
-
-        if ($request->filled('date')) {
-            $normalQuery->whereDate('date', $request->date);
-            $outsideQuery->whereDate('date', $request->date);
-        }
-
+        // Apply filters if any
         if ($request->filled('employee_name')) {
-            $normalQuery->whereHas('employee', function ($q) use ($request, $adminId) {
-                $q->where('admin_id', $adminId)->where('name', 'like', '%' . $request->employee_name . '%');
-            });
-            $outsideQuery->whereHas('employee', function ($q) use ($request, $adminId) {
-                $q->where('admin_id', $adminId)->where('name', 'like', '%' . $request->employee_name . '%');
-            });
+            $pendingQuery->where('name', 'like', '%' . $request->employee_name . '%');
         }
 
-        // Fetch and Merge
-        $normalRecords = $normalQuery->get()->map(function($a) { $a->attendance_type = 'normal'; return $a; });
-        $outsideRecords = $outsideQuery->get()->map(function($a) { $a->attendance_type = 'outside'; return $a; });
+        $pending_employees = $pendingQuery->orderBy('name', 'asc')->paginate(10);
 
-        $merged = $normalRecords->concat($outsideRecords)->sortByDesc('created_at')->values();
-
-        // Manual Pagination
-        $page = $request->get('page', 1);
-        $perPage = 10;
-        $recent_attendances = new \Illuminate\Pagination\LengthAwarePaginator(
-            $merged->forPage($page, $perPage),
-            $merged->count(),
-            $perPage,
-            $page,
-            ['path' => $request->url(), 'query' => $request->query()]
-        );
-
-        return view('admin.dashboard', compact('stats', 'recent_attendances', 'geofences'));
+        return view('admin.dashboard', compact('stats', 'pending_employees', 'geofences'));
     }
 }
