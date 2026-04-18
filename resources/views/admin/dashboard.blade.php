@@ -66,6 +66,105 @@
     </div>
 </div>
 
+<!-- Recent Activity Section -->
+<div class="bg-white rounded-lg shadow overflow-hidden border border-gray-200 mt-8">
+    <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+        <h2 class="text-xl font-bold text-gray-800">Recent Attendance Activity</h2>
+        <a href="{{ route('admin.attendances') }}" class="text-blue-600 hover:text-blue-700 font-medium text-sm">View All →</a>
+    </div>
+    
+    <div class="overflow-x-auto">
+        @if($recent_attendances->count() > 0)
+        <table class="w-full">
+            <thead class="bg-gray-100">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">SL</th>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Type</th>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Name</th>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date</th>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Check In</th>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Location/Reason</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+                @foreach($recent_attendances as $attendance)
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {{ ($recent_attendances->currentPage() - 1) * $recent_attendances->perPage() + $loop->iteration }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 py-1 text-xs font-bold rounded {{ $attendance->attendance_type == 'outside' ? 'bg-orange-100 text-orange-700' : 'bg-green-100 text-green-700' }}">
+                            {{ ucfirst($attendance->attendance_type) }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $attendance->employee->name }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                        {{ \Carbon\Carbon::parse($attendance->date)->format('d/m/Y') }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                        {{ $attendance->check_in ? \Carbon\Carbon::parse($attendance->check_in)->format('h:i A') : 'N/A' }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        @if($attendance->attendance_type == 'normal')
+                            <span class="text-gray-700 font-medium">{{ $attendance->geofence->name ?? 'N/A' }}</span>
+                        @else
+                            <div class="flex items-center gap-2">
+                                <span class="text-orange-600 font-bold">{{ $attendance->checkin_location ?? 'Outside' }}</span>
+                                @if($attendance->reason)
+                                    <button class="px-2 py-1 bg-orange-100 text-orange-600 rounded-lg hover:bg-orange-200 transition-colors" data-bs-toggle="modal" data-bs-target="#reasonModal{{$attendance->id}}">
+                                        Reason
+                                    </button>
+                                @endif
+                            </div>
+                        @endif
+                    </td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+        
+        <div class="px-6 py-4 border-t border-gray-200">
+            {{ $recent_attendances->links() }}
+        </div>
+        @else
+        <div class="p-12 text-center text-gray-500">
+            No recent activity found.
+        </div>
+        @endif
+    </div>
+</div>
 
+<!-- Reason Modals -->
+@foreach($recent_attendances as $attendance)
+@if($attendance->attendance_type == 'outside' && $attendance->reason)
+<div class="modal fade" id="reasonModal{{$attendance->id}}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="reasonModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-orange-50">
+                <h5 class="modal-title font-bold text-orange-700" id="reasonModalLabel">Attendance Justification</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-6">
+                <div class="mb-4">
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wider">Employee</label>
+                    <p class="text-gray-900 font-medium">{{ $attendance->employee->name }}</p>
+                </div>
+                <div class="mb-4">
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wider">Site Location</label>
+                    <p class="text-gray-900 font-medium">{{ $attendance->checkin_location ?? 'N/A' }}</p>
+                </div>
+                <div class="p-4 bg-orange-50 border border-orange-100 rounded-xl">
+                    <label class="text-xs font-bold text-orange-600 uppercase tracking-wider mb-2 block">Reason for Outside Duty</label>
+                    <p class="text-gray-800 italic leading-relaxed">"{{ $attendance->reason }}"</p>
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-secondary rounded-lg" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
+@endforeach
 
 @endsection
