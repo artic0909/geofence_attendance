@@ -121,7 +121,7 @@
                                     <span class="text-orange-600 font-bold">{{ $attendance->checkin_location ?? 'Outside' }}</span>
                                     @if($attendance->reason)
                                         <button class="px-2 py-1 bg-orange-100 text-orange-600 rounded-lg hover:bg-orange-200 transition-colors" data-bs-toggle="modal" data-bs-target="#reasonModal{{$attendance->id}}" title="View Reason">
-                                            <i class="bi bi-chat-left-text-fill text-xs"></i>
+                                            Reason
                                         </button>
                                     @endif
                                 </div>
