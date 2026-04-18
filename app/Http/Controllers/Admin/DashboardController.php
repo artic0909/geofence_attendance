@@ -56,4 +56,56 @@ class DashboardController extends Controller
 
         return view('admin.dashboard', compact('stats', 'pending_employees', 'geofences'));
     }
+
+    public function exportPending(Request $request)
+    {
+        $adminId = auth()->guard('admin')->id();
+
+        // Get IDs of employees who have already given attendance today
+        $attendedEmployeeIds = \App\Models\Attendance::where('admin_id', $adminId)
+            ->whereDate('date', today())
+            ->pluck('employee_id')
+            ->concat(
+                \App\Models\OutsideAttendance::where('admin_id', $adminId)
+                    ->whereDate('date', today())
+                    ->pluck('employee_id')
+            )
+            ->unique();
+
+        // Fetch employees who have NOT given attendance today
+        $employees = \App\Models\Employee::where('admin_id', $adminId)
+            ->where('is_active', true)
+            ->whereNotIn('id', $attendedEmployeeIds)
+            ->orderBy('name', 'asc')
+            ->get();
+
+        $fileName = 'pending_attendance_' . date('Y-m-d') . '.csv';
+
+        $headers = [
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=$fileName",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        ];
+
+        $callback = function () use ($employees) {
+            $file = fopen('php://output', 'w');
+            
+            // CSV Headers
+            fputcsv($file, ['Employee Name', 'Email', 'Status', 'Date']);
+
+            foreach ($employees as $employee) {
+                fputcsv($file, [
+                    $employee->name,
+                    $employee->email,
+                    'Absent / Not Checked In',
+                    date('d/m/Y')
+                ]);
+            }
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
 }
