@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Attendance;
 use App\Models\Employee;
 use App\Models\Geofence;
+use App\Models\OutsideAttendance;
 use Illuminate\Http\Request;
 
 class AttendanceController extends Controller
@@ -23,40 +24,68 @@ class AttendanceController extends Controller
             'total_geofences' => Geofence::where('admin_id', $adminId)->count(),
             'today_attendances' => Attendance::where('admin_id', $adminId)
                 ->whereDate('date', today())
+                ->count() + OutsideAttendance::where('admin_id', $adminId)
+                ->whereDate('date', today())
                 ->count(),
             'active_employees' => Employee::where('admin_id', $adminId)
                 ->where('is_active', true)
                 ->count(),
         ];
 
-        // Base query
-        $query = Attendance::with(['employee', 'geofence'])
+        // Base query for Normal Attendance
+        $normalQuery = Attendance::with(['employee', 'geofence'])
             ->where('admin_id', $adminId);
 
-        // Filter by geofence
-        if ($request->filled('geofence')) {
-            $query->where('geofence_id', $request->geofence);
-        }
+        // Base query for Outside Attendance
+        $outsideQuery = OutsideAttendance::with(['employee'])
+            ->where('admin_id', $adminId);
 
-        // Filter by date range
+        // Apply filters to both
         if ($request->filled('from_date') && $request->filled('to_date')) {
-            $query->whereBetween('date', [$request->from_date, $request->to_date]);
+            $normalQuery->whereBetween('date', [$request->from_date, $request->to_date]);
+            $outsideQuery->whereBetween('date', [$request->from_date, $request->to_date]);
         } elseif ($request->filled('from_date')) {
-            $query->whereDate('date', '>=', $request->from_date);
+            $normalQuery->whereDate('date', '>=', $request->from_date);
+            $outsideQuery->whereDate('date', '>=', $request->from_date);
         } elseif ($request->filled('to_date')) {
-            $query->whereDate('date', '<=', $request->to_date);
+            $normalQuery->whereDate('date', '<=', $request->to_date);
+            $outsideQuery->whereDate('date', '<=', $request->to_date);
         }
 
-        // Filter by employee name (optional)
         if ($request->filled('employee_name')) {
-            $query->whereHas('employee', function ($q) use ($request, $adminId) {
-                $q->where('admin_id', $adminId)
-                    ->where('name', 'like', '%' . $request->employee_name . '%');
+            $normalQuery->whereHas('employee', function ($q) use ($request, $adminId) {
+                $q->where('admin_id', $adminId)->where('name', 'like', '%' . $request->employee_name . '%');
+            });
+            $outsideQuery->whereHas('employee', function ($q) use ($request, $adminId) {
+                $q->where('admin_id', $adminId)->where('name', 'like', '%' . $request->employee_name . '%');
             });
         }
 
-        // Fetch paginated results
-        $recent_attendances = $query->orderBy('date', 'desc')->paginate(10)->withQueryString();
+        // Geofence filter only applies to Normal Attendance
+        if ($request->filled('geofence')) {
+            $normalQuery->where('geofence_id', $request->geofence);
+            // If geofence is selected, we might want to hide outside attendance 
+            // OR ignore the filter for them. Usually, if filtering by geofence, 
+            // outside attendance won't match anyway.
+            $outsideQuery->whereRaw('1 = 0'); 
+        }
+
+        // Fetch and Merge
+        $normalRecords = $normalQuery->get()->map(function($a) { $a->attendance_type = 'normal'; return $a; });
+        $outsideRecords = $outsideQuery->get()->map(function($a) { $a->attendance_type = 'outside'; return $a; });
+
+        $merged = $normalRecords->concat($outsideRecords)->sortByDesc('date')->values();
+
+        // Manual Pagination
+        $page = $request->get('page', 1);
+        $perPage = 10;
+        $recent_attendances = new \Illuminate\Pagination\LengthAwarePaginator(
+            $merged->forPage($page, $perPage),
+            $merged->count(),
+            $perPage,
+            $page,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
 
         return view('admin.attendance.index', compact('stats', 'recent_attendances', 'geofences'));
     }
@@ -65,33 +94,42 @@ class AttendanceController extends Controller
     {
         $adminId = auth()->guard('admin')->id();
 
-        // Base query - re-using the same logic as index logic to ensure consistency
-        $query = Attendance::with(['employee', 'geofence'])
+        // Base query - Normal
+        $normalQuery = Attendance::with(['employee', 'geofence'])
             ->where('admin_id', $adminId);
 
-        // Filter by geofence
-        if ($request->filled('geofence')) {
-            $query->where('geofence_id', $request->geofence);
-        }
+        // Base query - Outside
+        $outsideQuery = OutsideAttendance::with(['employee'])
+            ->where('admin_id', $adminId);
 
-        // Filter by date range
+        // Filters
         if ($request->filled('from_date') && $request->filled('to_date')) {
-            $query->whereBetween('date', [$request->from_date, $request->to_date]);
+            $normalQuery->whereBetween('date', [$request->from_date, $request->to_date]);
+            $outsideQuery->whereBetween('date', [$request->from_date, $request->to_date]);
         } elseif ($request->filled('from_date')) {
-            $query->whereDate('date', '>=', $request->from_date);
+            $normalQuery->whereDate('date', '>=', $request->from_date);
+            $outsideQuery->whereDate('date', '>=', $request->from_date);
         } elseif ($request->filled('to_date')) {
-            $query->whereDate('date', '<=', $request->to_date);
+            $normalQuery->whereDate('date', '<=', $request->to_date);
+            $outsideQuery->whereDate('date', '<=', $request->to_date);
         }
 
-        // Filter by employee name (optional)
         if ($request->filled('employee_name')) {
-            $query->whereHas('employee', function ($q) use ($request, $adminId) {
-                $q->where('admin_id', $adminId)
-                    ->where('name', 'like', '%' . $request->employee_name . '%');
-            });
+            $employeeFilter = function ($q) use ($request, $adminId) {
+                $q->where('admin_id', $adminId)->where('name', 'like', '%' . $request->employee_name . '%');
+            };
+            $normalQuery->whereHas('employee', $employeeFilter);
+            $outsideQuery->whereHas('employee', $employeeFilter);
         }
 
-        $attendances = $query->orderBy('date', 'desc')->get();
+        if ($request->filled('geofence')) {
+            $normalQuery->where('geofence_id', $request->geofence);
+            $outsideQuery->whereRaw('1 = 0');
+        }
+
+        $attendances = $normalQuery->get()->map(function($a){ $a->attendance_type = 'normal'; return $a; })
+            ->concat($outsideQuery->get()->map(function($a){ $a->attendance_type = 'outside'; return $a; }))
+            ->sortByDesc('date');
 
         $csvFileName = 'attendances_' . date('Y-m-d_H-i-s') . '.csv';
 
@@ -106,16 +144,7 @@ class AttendanceController extends Controller
         $callback = function () use ($attendances) {
             $file = fopen('php://output', 'w');
             
-            // CSV Header
-            fputcsv($file, [
-                'Name', 
-                'Email', 
-                'Date', 
-                'Check In', 
-                'Check Out', 
-                'Total Hours', 
-                'Location'
-            ]);
+            fputcsv($file, ['Type', 'Name', 'Email', 'Date', 'Check In', 'Check Out', 'Total Hours', 'Location/Reason']);
 
             foreach ($attendances as $attendance) {
                 $checkIn = $attendance->check_in ? \Carbon\Carbon::parse($attendance->check_in) : null;
@@ -126,17 +155,21 @@ class AttendanceController extends Controller
                     $totalHours = $checkIn->diff($checkOut)->format('%H:%I:%S');
                 }
 
+                $location = $attendance->attendance_type == 'normal' 
+                    ? ($attendance->geofence->name ?? 'N/A') 
+                    : ($attendance->checkin_location ?? $attendance->reason ?? 'Outside');
+
                 fputcsv($file, [
+                    ucfirst($attendance->attendance_type),
                     $attendance->employee->name ?? 'N/A',
                     $attendance->employee->email ?? 'N/A',
                     \Carbon\Carbon::parse($attendance->date)->format('d/m/Y'),
                     $checkIn ? $checkIn->format('h:i A') : 'N/A',
                     $checkOut ? $checkOut->format('h:i A') : 'N/A',
                     $totalHours,
-                    $attendance->geofence->name ?? 'N/A'
+                    $location
                 ]);
             }
-
             fclose($file);
         };
 
@@ -155,6 +188,8 @@ class AttendanceController extends Controller
             'total_employees' => Employee::where('admin_id', $adminId)->count(),
             'total_geofences' => Geofence::where('admin_id', $adminId)->count(),
             'today_attendances' => Attendance::where('admin_id', $adminId)
+                ->whereDate('date', today())
+                ->count() + OutsideAttendance::where('admin_id', $adminId)
                 ->whereDate('date', today())
                 ->count(),
             'active_employees' => Employee::where('admin_id', $adminId)
@@ -203,32 +238,50 @@ class AttendanceController extends Controller
             'total_geofences' => Geofence::where('admin_id', $adminId)->count(),
             'today_attendances' => Attendance::where('admin_id', $adminId)
                 ->whereDate('date', today())
+                ->count() + OutsideAttendance::where('admin_id', $adminId)
+                ->whereDate('date', today())
                 ->count(),
             'active_employees' => Employee::where('admin_id', $adminId)
                 ->where('is_active', true)
                 ->count(),
         ];
 
-        // Base query for TODAY's attendances ONLY (for this admin only)
-        $query = Attendance::with(['employee', 'geofence'])
+        // Queries for today
+        $normalQuery = Attendance::with(['employee', 'geofence'])
             ->where('admin_id', $adminId)
-            ->whereDate('date', today()); // Force today's date only
+            ->whereDate('date', today());
 
-        // Filter by geofence
+        $outsideQuery = OutsideAttendance::with(['employee'])
+            ->where('admin_id', $adminId)
+            ->whereDate('date', today());
+
         if ($request->filled('geofence')) {
-            $query->where('geofence_id', $request->geofence);
+            $normalQuery->where('geofence_id', $request->geofence);
+            $outsideQuery->whereRaw('1 = 0');
         }
 
-        // Filter by employee name (optional)
         if ($request->filled('employee_name')) {
-            $query->whereHas('employee', function ($q) use ($request, $adminId) {
-                $q->where('admin_id', $adminId)
-                    ->where('name', 'like', '%' . $request->employee_name . '%');
+            $normalQuery->whereHas('employee', function ($q) use ($request, $adminId) {
+                $q->where('admin_id', $adminId)->where('name', 'like', '%' . $request->employee_name . '%');
+            });
+            $outsideQuery->whereHas('employee', function ($q) use ($request, $adminId) {
+                $q->where('admin_id', $adminId)->where('name', 'like', '%' . $request->employee_name . '%');
             });
         }
 
-        // Get attendances - ordered by check_in time
-        $recent_attendances = $query->orderBy('check_in', 'desc')->paginate(15)->withQueryString();
+        $merged = $normalQuery->get()->map(function($a){ $a->attendance_type = 'normal'; return $a; })
+            ->concat($outsideQuery->get()->map(function($a){ $a->attendance_type = 'outside'; return $a; }))
+            ->sortByDesc('check_in')->values();
+
+        $page = $request->get('page', 1);
+        $perPage = 15;
+        $recent_attendances = new \Illuminate\Pagination\LengthAwarePaginator(
+            $merged->forPage($page, $perPage),
+            $merged->count(),
+            $perPage,
+            $page,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
 
         return view('admin.attendance.today', compact('stats', 'recent_attendances', 'geofences'));
     }
@@ -237,12 +290,19 @@ class AttendanceController extends Controller
     {
         $adminId = auth()->guard('admin')->id();
 
-        // Base query - Get ALL of today's attendances for this admin, ignoring filters
-        $query = Attendance::with(['employee', 'geofence'])
+        // Base query - Normal
+        $normalRecords = Attendance::with(['employee', 'geofence'])
             ->where('admin_id', $adminId)
-            ->whereDate('date', today()); // Force today's date
+            ->whereDate('date', today())
+            ->get()->map(function($a){ $a->attendance_type = 'normal'; return $a; });
 
-        $attendances = $query->orderBy('check_in', 'desc')->get();
+        // Base query - Outside
+        $outsideRecords = OutsideAttendance::with(['employee'])
+            ->where('admin_id', $adminId)
+            ->whereDate('date', today())
+            ->get()->map(function($a){ $a->attendance_type = 'outside'; return $a; });
+
+        $attendances = $normalRecords->concat($outsideRecords)->sortByDesc('check_in');
 
         $csvFileName = 'todays_attendances_' . date('Y-m-d_H-i-s') . '.csv';
 
@@ -259,13 +319,14 @@ class AttendanceController extends Controller
             
             // CSV Header
             fputcsv($file, [
+                'Type',
                 'Name', 
                 'Email', 
                 'Date', 
                 'Check In', 
                 'Check Out', 
                 'Total Hours', 
-                'Location'
+                'Location/Reason'
             ]);
 
             foreach ($attendances as $attendance) {
@@ -277,14 +338,19 @@ class AttendanceController extends Controller
                     $totalHours = $checkIn->diff($checkOut)->format('%H:%I:%S');
                 }
 
+                $location = $attendance->attendance_type == 'normal' 
+                    ? ($attendance->geofence->name ?? 'N/A') 
+                    : ($attendance->checkin_location ?? $attendance->reason ?? 'Outside');
+
                 fputcsv($file, [
+                    ucfirst($attendance->attendance_type),
                     $attendance->employee->name ?? 'N/A',
                     $attendance->employee->email ?? 'N/A',
                     \Carbon\Carbon::parse($attendance->date)->format('d/m/Y'),
                     $checkIn ? $checkIn->format('h:i A') : 'N/A',
                     $checkOut ? $checkOut->format('h:i A') : 'N/A',
                     $totalHours,
-                    $attendance->geofence->name ?? 'N/A'
+                    $location
                 ]);
             }
 
@@ -318,26 +384,32 @@ class AttendanceController extends Controller
             }
 
             // Build query
-            $query = Attendance::with(['employee', 'geofence'])
+            $normalQuery = Attendance::with(['employee', 'geofence'])
+                ->where('admin_id', $adminId)
+                ->whereBetween('date', [$fromDate, $toDate]);
+
+            $outsideQuery = OutsideAttendance::with(['employee'])
                 ->where('admin_id', $adminId)
                 ->whereBetween('date', [$fromDate, $toDate]);
 
             // Filter by geofence if selected
             if ($request->filled('geofence')) {
-                $query->where('geofence_id', $request->geofence);
+                $normalQuery->where('geofence_id', $request->geofence);
+                $outsideQuery->whereRaw('1 = 0');
             }
 
             // Filter by employee name if provided
             if ($request->filled('employee_name')) {
-                $query->whereHas('employee', function ($q) use ($request, $adminId) {
-                    $q->where('admin_id', $adminId)
-                        ->where('name', 'like', '%' . $request->employee_name . '%');
-                });
+                $employeeFilter = function ($q) use ($request, $adminId) {
+                    $q->where('admin_id', $adminId)->where('name', 'like', '%' . $request->employee_name . '%');
+                };
+                $normalQuery->whereHas('employee', $employeeFilter);
+                $outsideQuery->whereHas('employee', $employeeFilter);
             }
 
-            $attendances = $query->orderBy('date', 'desc')
-                ->orderBy('check_in', 'desc')
-                ->get();
+            $attendances = $normalQuery->get()->map(function($a){ $a->attendance_type = 'normal'; return $a; })
+                ->concat($outsideQuery->get()->map(function($a){ $a->attendance_type = 'outside'; return $a; }))
+                ->sortByDesc('date');
         }
 
         return view('admin.attendance.delete', compact('attendances', 'fromDate', 'toDate', 'geofences', 'selectedGeofence'));
@@ -352,25 +424,35 @@ class AttendanceController extends Controller
 
         $adminId = auth()->guard('admin')->id();
 
-        // Build delete query
-        $query = Attendance::where('admin_id', $adminId)
+        // Build delete query for Normal Attendance
+        $normalQuery = Attendance::where('admin_id', $adminId)
             ->whereBetween('date', [$request->from_date, $request->to_date]);
 
-        // Filter by geofence if selected
+        // Build delete query for Outside Attendance
+        $outsideQuery = OutsideAttendance::where('admin_id', $adminId)
+            ->whereBetween('date', [$request->from_date, $request->to_date]);
+
+        // Filter by geofence if selected (only affects Normal Attendance)
         if ($request->filled('geofence')) {
-            $query->where('geofence_id', $request->geofence);
+            $normalQuery->where('geofence_id', $request->geofence);
+            // If geofence is specified, we DON'T delete outside attendances 
+            // because they are never tied to a geofence.
+            $outsideQuery->whereRaw('1 = 0');
         }
 
         // Filter by employee name if provided
         if ($request->filled('employee_name')) {
-            $query->whereHas('employee', function ($q) use ($request, $adminId) {
+            $employeeFilter = function ($q) use ($request, $adminId) {
                 $q->where('admin_id', $adminId)
                     ->where('name', 'like', '%' . $request->employee_name . '%');
-            });
+            };
+            $normalQuery->whereHas('employee', $employeeFilter);
+            $outsideQuery->whereHas('employee', $employeeFilter);
         }
 
-        $count = $query->count();
-        $query->delete();
+        $count = $normalQuery->count() + $outsideQuery->count();
+        $normalQuery->delete();
+        $outsideQuery->delete();
 
         return redirect()->route('admin.attendances.delete')
             ->with('success', "Successfully deleted {$count} attendance record(s).");

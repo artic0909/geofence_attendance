@@ -50,6 +50,7 @@
                 <thead class="bg-gray-50">
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">SL</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
@@ -58,13 +59,17 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Check Out</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Check Out Image</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total Hours</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Location</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Location/Reason</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
                     @foreach($recent_attendances as $attendance)
                     <tr>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ $loop->iteration }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 py-1 text-xs font-bold rounded {{ $attendance->attendance_type == 'outside' ? 'bg-orange-100 text-orange-700' : 'bg-green-100 text-green-700' }}">
+                                {{ ucfirst($attendance->attendance_type) }}
+                            </span>
+                        </td>
                         <td class="px-6 py-4 whitespace-nowrap">{{ $attendance->employee->name }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">{{ $attendance->employee->email }}</td>
                         <td class="px-6 py-4 whitespace-nowrap font-bold">
@@ -107,7 +112,13 @@
                             @endphp
                             {{ $totalHours }}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap font-bold">{{ $attendance->geofence->name }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap font-bold">
+                            @if($attendance->attendance_type == 'normal')
+                                {{ $attendance->geofence->name ?? 'N/A' }}
+                            @else
+                                <span class="text-orange-600 font-bold">{{ $attendance->checkin_location ?? $attendance->reason ?? 'Outside' }}</span>
+                            @endif
+                        </td>
                     </tr>
                     @endforeach
                 </tbody>
