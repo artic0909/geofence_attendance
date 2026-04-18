@@ -32,6 +32,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/attendances/today/export', [AttendanceController::class, 'todayExport'])->name('attendances.today.export');
         Route::get('attendances/delete', [AttendanceController::class, 'deleteAttendances'])->name('attendances.delete');
         Route::delete('attendances/bulk-delete', [AttendanceController::class, 'bulkDeleteAttendances'])->name('attendances.bulk-delete');
+        Route::get('/employees/{employee}/track', [EmployeeController::class, 'track'])->name('employees.track');
+        Route::get('/employees/{employee}/latest-location', [EmployeeController::class, 'getLatestLocation'])->name('employees.latest-location');
         Route::resource('employees', EmployeeController::class);
         Route::resource('geofences', GeofenceController::class);
 

@@ -54,6 +54,17 @@
             </div>
 
             <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="tracking_radius">Tracking Radius (meters)</label>
+                <input type="number" name="tracking_radius" id="tracking_radius" min="0" placeholder="e.g. 10000"
+                    class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
+                    value="{{ old('tracking_radius', $geofence->tracking_radius) }}">
+                <p class="text-xs text-gray-500 mt-1">Leave empty if tracking is not required for this site.</p>
+                @error('tracking_radius')
+                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div class="mb-4">
                 <label class="block text-gray-700 text-sm font-bold mb-2" for="address">Address</label>
                 <textarea name="address" id="address" required 
                           class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500">{{ old('address', $geofence->address) }}</textarea>

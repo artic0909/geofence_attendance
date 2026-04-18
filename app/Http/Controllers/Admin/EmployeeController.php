@@ -116,4 +116,32 @@ class EmployeeController extends Controller
         return redirect()->route('admin.employees.index')
             ->with('success', 'Employee deleted successfully.');
     }
+
+    public function track(Employee $employee)
+    {
+        // Load geofences for this employee to show them on the map
+        $employee->load('geofences');
+        
+        return view('admin.employees.track', compact('employee'));
+    }
+
+    public function getLatestLocation(Employee $employee)
+    {
+        $location = \App\Models\EmployeeLocation::where('employee_id', $employee->id)->first();
+        
+        if ($location) {
+            // Check if the location is "stale" (optional, but good for UX)
+            // if ($location->updated_at->diffInMinutes(now()) > 5) {
+            //     return response()->json(['status' => 'offline']);
+            // }
+
+            return response()->json([
+                'latitude' => (float)$location->latitude,
+                'longitude' => (float)$location->longitude,
+                'updated_at' => $location->updated_at->format('h:i:s A - d/m/Y')
+            ]);
+        }
+        
+        return response()->json(['error' => 'No data found'], 404);
+    }
 }

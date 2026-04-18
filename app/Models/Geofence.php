@@ -16,7 +16,8 @@ class Geofence extends Model
         'longitude',
         'radius',
         'address',
-        'is_active'
+        'is_active',
+        'tracking_radius'
     ];
 
     public function attendances()

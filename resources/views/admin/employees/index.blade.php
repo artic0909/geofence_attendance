@@ -66,6 +66,7 @@
                         </span>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm space-x-3">
+                        <a href="{{ route('admin.employees.track', $employee) }}" target="_blank" class="text-green-600 hover:text-green-800 font-bold bg-green-50 px-2 py-1 rounded border border-green-100 italic transition-all shadow-sm">Track Live</a>
                         <a href="{{ route('admin.employees.edit', $employee) }}" class="text-blue-500 hover:text-blue-700 font-medium">Edit</a>
                         <form action="{{ route('admin.employees.destroy', $employee) }}" method="POST" class="inline">
                             @csrf

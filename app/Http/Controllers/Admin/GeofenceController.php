@@ -45,6 +45,7 @@ class GeofenceController extends Controller
             'latitude' => 'required|numeric',
             'longitude' => 'required|numeric',
             'radius' => 'required|integer|min:50',
+            'tracking_radius' => 'nullable|integer|min:0',
             'address' => 'required|string',
         ]);
 
@@ -66,6 +67,7 @@ class GeofenceController extends Controller
             'latitude' => 'required|numeric',
             'longitude' => 'required|numeric',
             'radius' => 'required|integer|min:50',
+            'tracking_radius' => 'nullable|integer|min:0',
             'address' => 'required|string',
         ]);
 
