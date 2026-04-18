@@ -258,16 +258,7 @@
 @endif
 @endforeach
 
-<script>
-    // Only attach to filter form
-    document.getElementById('filterForm').addEventListener('submit', function(e) {
-        const geofence = document.getElementById('geofence').value;
-        if (!geofence) {
-            e.preventDefault();
-            alert('Please select a Geofence before filtering.');
-        }
-    });
-</script>
+
 
 
 @endsection

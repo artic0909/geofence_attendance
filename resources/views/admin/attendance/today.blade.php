@@ -246,12 +246,6 @@
 @endif
 @endforeach
 
-<script>
-    // Optional: Remove validation if you want to allow filtering without selecting geofence
-    document.getElementById('filterForm').addEventListener('submit', function(e) {
-        // Allow form submission without validation
-        // You can add custom validation here if needed
-    });
-</script>
+
 
 @endsection
