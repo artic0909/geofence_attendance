@@ -62,8 +62,11 @@
     // Initialize map
     var map = L.map('map').setView([20.5937, 78.9629], 5); // Default India center
     
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    // Using Google Satellite Hybrid (Satellite + Labels)
+    L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
+        maxZoom: 20,
+        subdomains:['mt0','mt1','mt2','mt3'],
+        attribution: '&copy; Google Maps'
     }).addTo(map);
 
     var employeeMarker = null;
