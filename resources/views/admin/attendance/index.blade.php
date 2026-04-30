@@ -19,7 +19,7 @@
                 <div class="col-md-12">
                     <label for="geofence" class="form-label">Geofence</label>
                     <select name="geofence" id="geofence" class="form-select">
-                        <option value="">Select Geofence</option>
+                        <option value="" {{ request('geofence') == '' ? 'selected' : '' }}>ALL</option>
                         @foreach($geofences as $geofence)
                         <option value="{{ $geofence->id }}" {{ request('geofence') == $geofence->id ? 'selected' : '' }}>
                             {{ $geofence->name }}
