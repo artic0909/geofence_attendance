@@ -48,3 +48,18 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/about', function () {
+    return view('pages.about');
+});
+
+Route::get('/pricing', function () {
+    return view('pages.pricing');
+});
+
+Route::get('/terms', function () {
+    return view('pages.terms');
+});
+
+Route::get('/privacy-policy', function () {
+    return view('pages.privacy');
+});
