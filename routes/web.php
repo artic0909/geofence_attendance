@@ -44,7 +44,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     });
 });
 
-// Redirect root to admin login
 Route::get('/', function () {
-    return redirect()->route('admin.login');
+    return view('welcome');
 });
+
