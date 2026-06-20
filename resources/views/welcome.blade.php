@@ -62,7 +62,7 @@
     </section>
 
     <!-- Core Capabilities / Features Section -->
-    <section id="features" class="py-16 md:py-24 bg-white">
+    <section id="features" class="py-16 md:py-24 bg-cover bg-center bg-no-repeat" style="background-image: url('{{ asset('world-map-bg.png') }}');">
         <div class="container mx-auto px-4">
             <div class="text-center mb-16">
                 <h3 class="text-3xl md:text-4xl font-bold text-navy mb-4">Powerful Core Capabilities</h3>
@@ -113,7 +113,7 @@
             </div>
         </div>
     <!-- Pricing & Subscriptions Section -->
-    <section id="pricing" class="py-16 md:py-24 bg-lightbg border-t border-gray-200">
+    <section id="pricing" class="py-16 md:py-24 border-t border-gray-200 bg-cover bg-center bg-no-repeat" style="background-image: url('{{ asset('world-map-bg.png') }}');">
         <div class="container mx-auto px-4 max-w-7xl">
             <div class="text-center mb-16">
                 <h3 class="text-3xl md:text-4xl font-bold text-navy mb-4">Subscription Plans</h3>
@@ -257,7 +257,7 @@
     </section>
 
     <!-- Testimonials Carousel -->
-    <section class="py-16 md:py-24 bg-white relative overflow-hidden">
+    <section class="py-16 md:py-24 relative overflow-hidden bg-cover bg-center bg-no-repeat" style="background-image: url('{{ asset('world-map-bg.png') }}');">
         <div class="container mx-auto px-4 max-w-6xl">
             <div class="text-center mb-16">
                 <h3 class="text-3xl md:text-4xl font-bold text-navy mb-4">What Our Clients Say</h3>
