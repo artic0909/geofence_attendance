@@ -3,8 +3,30 @@
 @section('title', 'About Us - Geofence Attendance Portal')
 
 @section('content')
+<div class="bg-gray-100 border-b border-gray-300 py-2.5">
+    <div class="container mx-auto px-4">
+        <nav class="flex text-sm text-gray-600" aria-label="Breadcrumb">
+            <ol class="inline-flex items-center space-x-1 md:space-x-2">
+                <li class="inline-flex items-center">
+                    <a href="{{ url('/') }}" class="inline-flex items-center text-blue-800 hover:text-blue-900 hover:underline font-medium">
+                        <svg class="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path></svg>
+                        Home
+                    </a>
+                </li>
+                <li>
+                    <div class="flex items-center">
+                        <span class="mx-1 text-gray-400">»</span>
+                        <span class="ml-1 text-gray-800 font-medium md:ml-2">About Us</span>
+                    </div>
+                </li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
 <div class="bg-navy py-12 border-b-4 border-saffron">
     <div class="container mx-auto px-4 text-center">
+        
         <h1 class="text-3xl md:text-5xl font-bold text-white mb-4">About the Platform</h1>
         <p class="text-gray-300 text-lg max-w-2xl mx-auto">Learn about our mission to revolutionize centralized workforce management.</p>
     </div>
