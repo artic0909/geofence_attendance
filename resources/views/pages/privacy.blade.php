@@ -10,7 +10,7 @@
 </div>
 
 <div class="container mx-auto px-4 py-16 max-w-4xl">
-    <div class="bg-white p-8 md:p-12 rounded-xl shadow-sm border border-gray-200">
+    <div class="p-8 md:p-12 rounded-xl shadow-sm border border-gray-200 bg-cover bg-center bg-no-repeat" style="background-color: white; background-image: url('{{ asset('world-map-bg.png') }}');">
         <div class="prose max-w-none text-gray-700">
             <p class="mb-6"><strong>Last Updated:</strong> {{ date('F d, Y') }}</p>
 

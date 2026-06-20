@@ -11,7 +11,7 @@
 </div>
 
 <div class="container mx-auto px-4 py-16 max-w-4xl">
-    <div class="bg-white p-8 md:p-12 rounded-xl shadow-sm border border-gray-200">
+    <div class="p-8 md:p-12 rounded-xl shadow-sm border border-gray-200 bg-cover bg-center bg-no-repeat" style="background-color: white; background-image: url('{{ asset('world-map-bg.png') }}');">
         <h2 class="text-2xl font-bold text-navy mb-6">Our Mission</h2>
         <p class="text-gray-700 leading-relaxed mb-6">
             The Official Geofence Attendance Portal was built with a singular vision: to bring absolute transparency and accountability to workforce management across all sectors. Whether you operate a corporate office, a construction site, or a public administration facility, ensuring that staff are exactly where they need to be is critical.

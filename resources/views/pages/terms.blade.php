@@ -10,7 +10,7 @@
 </div>
 
 <div class="container mx-auto px-4 py-16 max-w-4xl">
-    <div class="bg-white p-8 md:p-12 rounded-xl shadow-sm border border-gray-200">
+    <div class="p-8 md:p-12 rounded-xl shadow-sm border border-gray-200 bg-cover bg-center bg-no-repeat" style="background-color: white; background-image: url('{{ asset('world-map-bg.png') }}');">
         <div class="prose max-w-none text-gray-700">
             <h2 class="text-xl font-bold text-navy mb-4">1. Acceptance of Terms</h2>
             <p class="mb-6">By accessing and using the Official Geofence Attendance Portal, you accept and agree to be bound by the terms and provision of this agreement. In addition, when using these particular services, you shall be subject to any posted guidelines or rules applicable to such services.</p>

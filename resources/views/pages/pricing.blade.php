@@ -15,7 +15,7 @@
         <!-- SaaS Plans Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
             <!-- 6 Months -->
-            <div class="bg-white rounded-xl p-8 border border-gray-200 shadow-sm hover:shadow-lg transition-shadow flex flex-col relative overflow-hidden group">
+            <div class="rounded-xl p-8 border border-gray-200 shadow-sm hover:shadow-lg transition-shadow flex flex-col relative overflow-hidden group bg-cover bg-center bg-no-repeat" style="background-color: white; background-image: url('{{ asset('world-map-bg.png') }}');">
                 <div class="absolute top-0 left-0 w-full h-1 bg-navy transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
                 <h4 class="text-xl font-bold text-navy mb-2">Starter</h4>
                 <div class="text-saffron font-bold mb-6 text-2xl">6 Months</div>
@@ -32,7 +32,7 @@
             </div>
 
             <!-- 1 Year -->
-            <div class="bg-white rounded-xl p-8 border-2 border-saffron shadow-lg transform lg:-translate-y-4 flex flex-col relative">
+            <div class="rounded-xl p-8 border-2 border-saffron shadow-lg transform lg:-translate-y-4 flex flex-col relative bg-cover bg-center bg-no-repeat" style="background-color: white; background-image: url('{{ asset('world-map-bg.png') }}');">
                 <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-saffron text-white text-xs font-bold px-4 py-1 rounded-full uppercase tracking-wider">Most Popular</div>
                 <h4 class="text-xl font-bold text-navy mb-2">Annual</h4>
                 <div class="text-saffron font-bold mb-6 text-2xl">1 Year</div>
@@ -49,7 +49,7 @@
             </div>
 
             <!-- 2 Years -->
-            <div class="bg-white rounded-xl p-8 border border-gray-200 shadow-sm hover:shadow-lg transition-shadow flex flex-col relative overflow-hidden group">
+            <div class="rounded-xl p-8 border border-gray-200 shadow-sm hover:shadow-lg transition-shadow flex flex-col relative overflow-hidden group bg-cover bg-center bg-no-repeat" style="background-color: white; background-image: url('{{ asset('world-map-bg.png') }}');">
                 <div class="absolute top-0 left-0 w-full h-1 bg-navy transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
                 <h4 class="text-xl font-bold text-navy mb-2">Growth</h4>
                 <div class="text-saffron font-bold mb-6 text-2xl">2 Years</div>
@@ -66,7 +66,7 @@
             </div>
 
             <!-- 5 Years -->
-            <div class="bg-white rounded-xl p-8 border border-gray-200 shadow-sm hover:shadow-lg transition-shadow flex flex-col relative overflow-hidden group">
+            <div class="rounded-xl p-8 border border-gray-200 shadow-sm hover:shadow-lg transition-shadow flex flex-col relative overflow-hidden group bg-cover bg-center bg-no-repeat" style="background-color: white; background-image: url('{{ asset('world-map-bg.png') }}');">
                 <div class="absolute top-0 left-0 w-full h-1 bg-navy transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
                 <h4 class="text-xl font-bold text-navy mb-2">Enterprise</h4>
                 <div class="text-saffron font-bold mb-6 text-2xl">5 Years</div>
@@ -84,7 +84,7 @@
         </div>
 
         <!-- Permanent Tier -->
-        <div class="bg-white border-2 border-saffron rounded-xl p-8 md:p-12 max-w-5xl mx-auto shadow-xl text-center relative overflow-hidden">
+        <div class="border-2 border-saffron rounded-xl p-8 md:p-12 max-w-5xl mx-auto shadow-xl text-center relative overflow-hidden bg-cover bg-center bg-no-repeat" style="background-color: white; background-image: url('{{ asset('world-map-bg.png') }}');">
             <div class="absolute top-0 left-0 w-full h-2 bg-saffron"></div>
             <div class="inline-block px-4 py-1 rounded bg-orange-100 text-saffron text-sm font-bold uppercase tracking-widest mb-4">
                 Enterprise Ownership
