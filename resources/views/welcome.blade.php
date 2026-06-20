@@ -125,7 +125,10 @@
                     <ul class="space-y-4 mb-8 text-sm text-gray-700">
                         <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Multi-tenant Access</li>
                         <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Core Geofencing</li>
-                        <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Standard Support</li>
+                        <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Live Location Tracking</li>
+                        <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Advanced Analytics</li>
+                        <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Mobile App Access</li>
+                        <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Priority Support</li>
                     </ul>
                     <button class="w-full py-3 rounded text-navy font-bold border-2 border-navy hover:bg-navy hover:text-white transition">Select Plan</button>
                 </div>
@@ -137,8 +140,11 @@
                     <div class="text-saffron font-bold mb-6 text-2xl">1 Year</div>
                     <div class="text-gray-600 text-sm mb-8 flex-grow">Ideal for growing companies needing reliable annual compliance.</div>
                     <ul class="space-y-4 mb-8 text-sm text-gray-700">
-                        <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> All Starter Features</li>
+                        <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Multi-tenant Access</li>
+                        <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Core Geofencing</li>
                         <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Live Location Tracking</li>
+                        <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Advanced Analytics</li>
+                        <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Mobile App Access</li>
                         <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Priority Support</li>
                     </ul>
                     <button class="w-full py-3 rounded bg-navy text-white font-bold hover:bg-blue-800 transition shadow">Select Plan</button>
@@ -151,9 +157,12 @@
                     <div class="text-saffron font-bold mb-6 text-2xl">2 Years</div>
                     <div class="text-gray-600 text-sm mb-8 flex-grow">Best value for established organizations securing long-term ops.</div>
                     <ul class="space-y-4 mb-8 text-sm text-gray-700">
-                        <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Discounted Rate</li>
+                        <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Multi-tenant Access</li>
+                        <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Core Geofencing</li>
+                        <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Live Location Tracking</li>
                         <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Advanced Analytics</li>
-                        <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Dedicated Manager</li>
+                        <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Mobile App Access</li>
+                        <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Priority Support</li>
                     </ul>
                     <button class="w-full py-3 rounded text-navy font-bold border-2 border-navy hover:bg-navy hover:text-white transition">Select Plan</button>
                 </div>
@@ -165,9 +174,12 @@
                     <div class="text-saffron font-bold mb-6 text-2xl">5 Years</div>
                     <div class="text-gray-600 text-sm mb-8 flex-grow">Massive operational stability with maximum cost efficiency.</div>
                     <ul class="space-y-4 mb-8 text-sm text-gray-700">
-                        <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Maximum Discount</li>
-                        <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Custom Integrations</li>
-                        <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> 24/7 SLA Support</li>
+                        <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Multi-tenant Access</li>
+                        <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Core Geofencing</li>
+                        <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Live Location Tracking</li>
+                        <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Advanced Analytics</li>
+                        <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Mobile App Access</li>
+                        <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Priority Support</li>
                     </ul>
                     <button class="w-full py-3 rounded text-navy font-bold border-2 border-navy hover:bg-navy hover:text-white transition">Select Plan</button>
                 </div>
@@ -382,71 +394,96 @@
     </section>
 
     <!-- App Download Section -->
-    <section class="py-16 md:py-24 bg-lightbg border-t border-gray-200 overflow-hidden relative">
-        <div class="absolute inset-0 bg-navy opacity-5" style="background-image: repeating-linear-gradient(45deg, #000080 25%, transparent 25%, transparent 75%, #000080 75%, #000080), repeating-linear-gradient(45deg, #000080 25%, transparent 25%, transparent 75%, #000080 75%, #000080); background-position: 0 0, 10px 10px; background-size: 20px 20px;"></div>
+    <section class="py-20 md:py-32 bg-navy relative overflow-hidden shadow-2xl border-t-8 border-saffron">
+        <!-- Abstract Animated Background -->
+        <div class="absolute inset-0 overflow-hidden pointer-events-none">
+            <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[50%] bg-blue-600/30 rounded-full blur-[100px] animate-pulse"></div>
+            <div class="absolute bottom-[-10%] right-[-10%] w-[50%] h-[60%] bg-saffron/20 rounded-full blur-[120px] animate-pulse" style="animation-delay: 2s;"></div>
+            <div class="absolute inset-0" style="background-image: radial-gradient(rgba(255,255,255,0.1) 1px, transparent 1px); background-size: 30px 30px;"></div>
+        </div>
+
         <div class="container mx-auto px-4 max-w-6xl relative z-10 flex flex-col lg:flex-row items-center justify-between">
-            <div class="lg:w-1/2 text-center lg:text-left mb-10 lg:mb-0">
-                <div class="inline-block px-3 py-1 bg-green/20 text-green font-bold rounded-full text-xs uppercase tracking-wide mb-4 border border-green/30">Available Everywhere</div>
-                <h3 class="text-3xl md:text-5xl font-bold text-navy mb-6 leading-tight">Take Control of Your <br><span class="text-saffron">Workforce On-The-Go</span></h3>
-                <p class="text-gray-600 text-lg mb-8 max-w-lg mx-auto lg:mx-0">Empower your employees to check in instantly using our secure, battery-optimized mobile applications. Get real-time alerts and manage approvals directly from your pocket.</p>
+            <div class="lg:w-1/2 text-center lg:text-left mb-16 lg:mb-0">
+                <div class="inline-block px-4 py-1.5 bg-green/20 text-green-400 font-bold rounded-full text-xs uppercase tracking-widest mb-6 border border-green-400/30 backdrop-blur-sm shadow-[0_0_15px_rgba(52,168,83,0.3)]">Available Everywhere</div>
+                <h3 class="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-6 leading-tight drop-shadow-lg">Take Control of Your <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-saffron to-orange-400">Workforce On-The-Go</span></h3>
+                <p class="text-gray-300 text-lg md:text-xl mb-10 max-w-lg mx-auto lg:mx-0 leading-relaxed">Empower your employees to check in instantly using our secure, battery-optimized mobile applications. Get real-time alerts and manage approvals directly from your pocket.</p>
                 
-                <div class="flex flex-col sm:flex-row justify-center lg:justify-start space-y-4 sm:space-y-0 sm:space-x-4">
-                    <a href="#" class="flex items-center justify-center bg-navy hover:bg-blue-800 text-white rounded-lg px-6 py-3 transition shadow-lg transform hover:-translate-y-1">
-                        <svg class="w-8 h-8 mr-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12c0-5.523-4.477-10-10-10z" style="display:none;"/><path d="M16.365 7.043c-.458.74-1.268 1.258-2.186 1.298-.073-1.042.434-2.164 1.135-2.825.684-.64 1.632-1.036 2.457-1.002.083 1.066-.464 2.115-1.406 2.529M17.151 16.93c-1.144.02-2.19-.808-3.32-.808-1.128 0-2.02.828-3.318.828-1.506 0-2.873-1.282-3.774-2.617-1.85-2.73-2.223-7.556-.25-10.222.97-1.31 2.39-2.128 3.868-2.147 1.408-.02 2.68 1.01 3.54 1.01.86 0 2.4-1.251 4.108-1.05 1.765.207 3.32 1.082 4.198 2.378-3.415 1.95-2.825 6.786.666 8.163-.82 2.106-2.02 4.364-3.766 4.444-1.93.08-2.182-1.334-3.812-1.334-1.632 0-2.182 1.272-3.81 1.333z"/></svg>
+                <div class="flex flex-col sm:flex-row justify-center lg:justify-start space-y-4 sm:space-y-0 sm:space-x-6">
+                    <a href="#" class="flex items-center justify-center bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-md text-white rounded-xl px-8 py-4 transition-all duration-300 shadow-[0_10px_25px_rgba(0,0,0,0.3)] transform hover:-translate-y-2 hover:shadow-[0_15px_35px_rgba(0,0,0,0.4)] group">
+                        <svg class="w-10 h-10 mr-4 text-white group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12c0-5.523-4.477-10-10-10z" style="display:none;"/><path d="M16.365 7.043c-.458.74-1.268 1.258-2.186 1.298-.073-1.042.434-2.164 1.135-2.825.684-.64 1.632-1.036 2.457-1.002.083 1.066-.464 2.115-1.406 2.529M17.151 16.93c-1.144.02-2.19-.808-3.32-.808-1.128 0-2.02.828-3.318.828-1.506 0-2.873-1.282-3.774-2.617-1.85-2.73-2.223-7.556-.25-10.222.97-1.31 2.39-2.128 3.868-2.147 1.408-.02 2.68 1.01 3.54 1.01.86 0 2.4-1.251 4.108-1.05 1.765.207 3.32 1.082 4.198 2.378-3.415 1.95-2.825 6.786.666 8.163-.82 2.106-2.02 4.364-3.766 4.444-1.93.08-2.182-1.334-3.812-1.334-1.632 0-2.182 1.272-3.81 1.333z"/></svg>
                         <div class="text-left">
-                            <div class="text-xs font-semibold text-gray-300">Download on the</div>
-                            <div class="text-lg font-bold leading-none">App Store</div>
+                            <div class="text-xs font-semibold text-gray-400 group-hover:text-gray-300">Download on the</div>
+                            <div class="text-xl font-bold leading-none tracking-wide">App Store</div>
                         </div>
                     </a>
                     
-                    <a href="#" class="flex items-center justify-center bg-white border-2 border-gray-200 hover:border-saffron hover:bg-gray-50 text-navy rounded-lg px-6 py-3 transition shadow transform hover:-translate-y-1 group">
-                        <svg class="w-8 h-8 mr-3" viewBox="0 0 24 24"><path fill="#EA4335" d="M12.005 14.536L3.992 5.068C4.545 4.437 5.4 4 6.368 4h11.265c.968 0 1.823.437 2.376 1.068l-8.004 9.468z"/><path fill="#FBBC04" d="M20.008 5.068A3.498 3.498 0 0121.265 7v10c0 .968-.437 1.823-1.068 2.376l-8.192-9.689 8.003-4.619z"/><path fill="#34A853" d="M12.005 14.536l8.192-4.848a3.498 3.498 0 011.068 2.376v10c0 .968-.437 1.823-1.068 2.376H6.368a3.498 3.498 0 01-2.376-1.068l8.013-8.836z"/><path fill="#4285F4" d="M3.992 5.068L12.005 14.536 3.992 23.376A3.498 3.498 0 012.735 21V7c0-.968.437-1.823 1.068-2.376z"/></svg>
+                    <a href="#" class="flex items-center justify-center bg-white hover:bg-gray-50 border-2 border-transparent hover:border-saffron text-navy rounded-xl px-8 py-4 transition-all duration-300 shadow-[0_10px_25px_rgba(0,0,0,0.3)] transform hover:-translate-y-2 hover:shadow-[0_15px_35px_rgba(234,179,8,0.2)] group">
+                        <svg class="w-10 h-10 mr-4 group-hover:scale-110 transition-transform" viewBox="0 0 24 24"><path fill="#EA4335" d="M12.005 14.536L3.992 5.068C4.545 4.437 5.4 4 6.368 4h11.265c.968 0 1.823.437 2.376 1.068l-8.004 9.468z"/><path fill="#FBBC04" d="M20.008 5.068A3.498 3.498 0 0121.265 7v10c0 .968-.437 1.823-1.068 2.376l-8.192-9.689 8.003-4.619z"/><path fill="#34A853" d="M12.005 14.536l8.192-4.848a3.498 3.498 0 011.068 2.376v10c0 .968-.437 1.823-1.068 2.376H6.368a3.498 3.498 0 01-2.376-1.068l8.013-8.836z"/><path fill="#4285F4" d="M3.992 5.068L12.005 14.536 3.992 23.376A3.498 3.498 0 012.735 21V7c0-.968.437-1.823 1.068-2.376z"/></svg>
                         <div class="text-left">
-                            <div class="text-xs font-semibold text-gray-500 group-hover:text-gray-700">GET IT ON</div>
-                            <div class="text-lg font-bold leading-none">Google Play</div>
+                            <div class="text-xs font-semibold text-gray-500">GET IT ON</div>
+                            <div class="text-xl font-bold leading-none tracking-wide text-navy">Google Play</div>
                         </div>
                     </a>
                 </div>
             </div>
             
             <div class="lg:w-1/2 flex justify-center lg:justify-end relative">
+                <!-- Glowing effect behind phone -->
+                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-gradient-to-tr from-saffron/30 to-blue-500/30 blur-3xl rounded-full z-0 pointer-events-none"></div>
+
                 <!-- Mockup Graphic -->
-                <div class="relative w-64 md:w-80 h-[500px] bg-navy rounded-[3rem] border-[8px] border-gray-800 shadow-2xl overflow-hidden transform rotate-[-5deg] hover:rotate-0 transition-transform duration-500 z-10 flex flex-col">
-                    <div class="absolute top-0 w-full h-6 bg-gray-800 rounded-b-xl flex justify-center z-20">
-                        <div class="w-20 h-4 bg-black rounded-b-lg"></div>
+                <div class="relative w-64 md:w-[340px] h-[600px] bg-gray-900 rounded-[3.5rem] border-[12px] border-gray-800 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.7)] overflow-hidden transform rotate-[-8deg] hover:rotate-0 hover:scale-105 transition-all duration-700 ease-out z-10 flex flex-col group">
+                    <div class="absolute top-0 w-full h-7 bg-gray-800 rounded-b-xl flex justify-center z-20">
+                        <div class="w-24 h-5 bg-black rounded-b-2xl"></div>
                     </div>
                     <!-- App UI mock -->
-                    <div class="flex-1 bg-lightbg pt-10 px-4 pb-4 overflow-hidden">
-                        <div class="flex items-center justify-between mb-6">
+                    <div class="flex-1 bg-lightbg pt-12 px-6 pb-6 overflow-hidden flex flex-col">
+                        <div class="flex items-center justify-between mb-8">
                             <div>
-                                <h4 class="font-bold text-navy text-lg leading-tight">Welcome back,</h4>
-                                <p class="text-gray-500 text-xs">Rajiv K.</p>
+                                <h4 class="font-extrabold text-navy text-xl leading-tight">Welcome back,</h4>
+                                <p class="text-gray-500 text-sm mt-1">Rajiv K.</p>
                             </div>
-                            <div class="w-10 h-10 rounded-full bg-saffron text-white flex items-center justify-center font-bold text-sm">RK</div>
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-saffron to-orange-500 text-white flex items-center justify-center font-bold text-lg shadow-md">RK</div>
                         </div>
                         
-                        <div class="bg-white rounded-xl p-4 shadow-sm mb-4 border border-gray-100">
-                            <div class="flex justify-between items-center mb-2">
-                                <span class="text-xs font-bold text-gray-400 uppercase">Status</span>
-                                <span class="px-2 py-1 bg-green/10 text-green text-[10px] font-bold rounded-full">Inside Geofence</span>
+                        <div class="bg-white rounded-2xl p-5 shadow-lg shadow-gray-200/50 mb-6 border border-gray-100 transform group-hover:scale-105 transition-transform duration-500">
+                            <div class="flex justify-between items-center mb-3">
+                                <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Status</span>
+                                <span class="px-3 py-1 bg-green/10 text-green text-xs font-extrabold rounded-full border border-green/20">Inside Geofence</span>
                             </div>
-                            <div class="text-2xl font-bold text-navy">Ready to Check-in</div>
-                            <p class="text-[10px] text-gray-500 mt-1">Lat: 28.6139, Long: 77.2090</p>
+                            <div class="text-3xl font-black text-navy mb-1 tracking-tight">Ready to Check-in</div>
+                            <p class="text-xs text-gray-500 flex items-center">
+                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                Lat: 28.6139, Long: 77.2090
+                            </p>
                         </div>
                         
-                        <div class="w-full h-32 bg-blue-100 rounded-xl mb-6 relative overflow-hidden flex items-center justify-center">
-                            <svg class="w-full h-full text-blue-200" fill="currentColor" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0 50 Q 25 30, 50 50 T 100 50 L 100 100 L 0 100 Z"/></svg>
-                            <div class="absolute w-12 h-12 bg-green/20 rounded-full flex items-center justify-center animate-ping"></div>
-                            <div class="absolute w-6 h-6 bg-green rounded-full border-2 border-white shadow-md"></div>
+                        <div class="w-full h-40 bg-gradient-to-b from-blue-50 to-blue-100 rounded-2xl mb-8 relative overflow-hidden flex items-center justify-center border border-blue-200/50 shadow-inner">
+                            <!-- Map waves -->
+                            <div class="absolute inset-0 opacity-30">
+                                <svg class="w-full h-full text-blue-300" fill="currentColor" viewBox="0 0 100 100" preserveAspectRatio="none">
+                                    <path d="M0 50 Q 25 30, 50 50 T 100 50 L 100 100 L 0 100 Z"/>
+                                    <path d="M0 60 Q 25 40, 50 60 T 100 60 L 100 100 L 0 100 Z" opacity="0.5"/>
+                                </svg>
+                            </div>
+                            <!-- Pulse effect -->
+                            <div class="absolute w-20 h-20 bg-green/20 rounded-full flex items-center justify-center animate-ping" style="animation-duration: 2s;"></div>
+                            <div class="absolute w-12 h-12 bg-green/30 rounded-full flex items-center justify-center animate-pulse"></div>
+                            <div class="absolute w-6 h-6 bg-green rounded-full border-[3px] border-white shadow-[0_0_15px_rgba(52,168,83,0.6)]"></div>
                         </div>
                         
-                        <button class="w-full py-3 bg-saffron text-white font-bold rounded-lg shadow hover:bg-orange-600 transition">SWIPE TO CHECK-IN</button>
+                        <div class="mt-auto">
+                            <button class="w-full py-4 bg-gradient-to-r from-saffron to-orange-500 text-white font-extrabold text-lg rounded-xl shadow-[0_10px_20px_rgba(234,179,8,0.3)] hover:shadow-[0_15px_25px_rgba(234,179,8,0.4)] hover:from-orange-500 hover:to-saffron transform hover:-translate-y-1 transition-all active:scale-95 flex justify-center items-center">
+                                SWIPE TO CHECK-IN
+                                <svg class="w-5 h-5 ml-2 animate-bounce" style="animation-direction: alternate;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path></svg>
+                            </button>
+                        </div>
                     </div>
                 </div>
                 
                 <!-- Decorative Elements -->
-                <div class="absolute -right-10 top-20 w-32 h-32 bg-green/10 rounded-full blur-2xl"></div>
-                <div class="absolute left-10 -bottom-10 w-40 h-40 bg-saffron/10 rounded-full blur-2xl"></div>
+                <div class="absolute -right-16 top-10 w-40 h-40 bg-green/20 rounded-full blur-3xl"></div>
+                <div class="absolute left-0 -bottom-16 w-48 h-48 bg-saffron/20 rounded-full blur-3xl"></div>
             </div>
         </div>
     </section>
