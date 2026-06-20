@@ -63,3 +63,7 @@ Route::get('/terms', function () {
 Route::get('/privacy-policy', function () {
     return view('pages.privacy');
 });
+
+Route::get('/industries', function () {
+    return view('pages.industries');
+});

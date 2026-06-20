@@ -72,6 +72,7 @@
             
             <div class="hidden lg:flex items-center space-x-6">
                 <a href="{{ url('/about') }}" class="text-navy hover:text-saffron font-semibold transition">About</a>
+                <a href="{{ url('/industries') }}" class="text-navy hover:text-saffron font-semibold transition">Industries</a>
                 <a href="{{ url('/#features') }}" class="text-navy hover:text-saffron font-semibold transition">Features</a>
                 <a href="{{ url('/pricing') }}" class="text-navy hover:text-saffron font-semibold transition">Pricing</a>
                 
@@ -93,6 +94,7 @@
             <!-- Mobile Menu -->
             <div class="w-full lg:hidden flex justify-center mt-2 space-x-4">
                 <a href="{{ url('/about') }}" class="text-navy font-semibold">About</a>
+                <a href="{{ url('/industries') }}" class="text-navy font-semibold">Industries</a>
                 <a href="{{ route('admin.login') }}" class="text-navy font-semibold">Login</a>
             </div>
         </div>
