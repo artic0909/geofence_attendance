@@ -23,6 +23,19 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
+        'admin_id',
+        'phone',
+        'employee_id',
+        'business_name',
+        'gst_number',
+        'address_line_1',
+        'address_line_2',
+        'city',
+        'state',
+        'zip_code',
+        'business_type',
+        'is_active',
     ];
 
     /**
@@ -45,6 +58,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_active' => 'boolean',
         ];
     }
 
@@ -58,5 +72,51 @@ class User extends Authenticatable
             ->take(2)
             ->map(fn ($word) => Str::substr($word, 0, 1))
             ->implode('');
+    }
+
+    public function geofences()
+    {
+        return $this->hasMany(Geofence::class, 'admin_id');
+    }
+
+    public function employees()
+    {
+        return $this->hasMany(User::class, 'admin_id');
+    }
+
+    public function admin()
+    {
+        return $this->belongsTo(User::class, 'admin_id');
+    }
+
+    public function employeeGeofences()
+    {
+        return $this->belongsToMany(Geofence::class, 'employee_geofence', 'employee_id', 'geofence_id');
+    }
+
+    public function attendances()
+    {
+        return $this->hasMany(Attendance::class, 'employee_id');
+    }
+
+    public function outsideAttendances()
+    {
+        return $this->hasMany(OutsideAttendance::class, 'employee_id');
+    }
+
+    // Role checks
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin' || $this->role === 'superadmin';
+    }
+
+    public function isSuperadmin(): bool
+    {
+        return $this->role === 'superadmin';
+    }
+
+    public function isEmployee(): bool
+    {
+        return $this->role === 'employee';
     }
 }

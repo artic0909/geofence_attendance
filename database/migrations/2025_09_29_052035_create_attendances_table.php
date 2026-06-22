@@ -7,8 +7,8 @@ return new class extends Migration {
     public function up(): void {
         Schema::create('attendances', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('admin_id')->constrained()->onDelete('cascade');
-            $table->foreignId('employee_id')->constrained()->onDelete('cascade');
+            $table->foreignId('admin_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('employee_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('geofence_id')->constrained()->onDelete('cascade');
             $table->date('date');
             $table->timestamp('check_in')->nullable();

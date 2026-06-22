@@ -41,20 +41,10 @@ return [
             'provider' => 'users',
         ],
 
-        'admin' => [  // Add this guard
-            'driver' => 'session',
-            'provider' => 'admins',
-        ],
-
         'api' => [
-            'driver' => 'token',
+            'driver' => 'sanctum',
             'provider' => 'users',
             'hash' => false,
-        ],
-
-        'employee' => [  // Add employee guard for API
-            'driver' => 'sanctum',
-            'provider' => 'employees',
         ],
     ],
 
@@ -62,16 +52,6 @@ return [
         'users' => [
             'driver' => 'eloquent',
             'model' => App\Models\User::class,
-        ],
-
-        'admins' => [  // Add this provider
-            'driver' => 'eloquent',
-            'model' => App\Models\Admin::class,
-        ],
-
-        'employees' => [  // Add employee provider
-            'driver' => 'eloquent',
-            'model' => App\Models\Employee::class,
         ],
     ],
 
@@ -97,20 +77,6 @@ return [
     'passwords' => [
         'users' => [
             'provider' => 'users',
-            'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
-            'expire' => 60,
-            'throttle' => 60,
-        ],
-
-        'admins' => [  // Add this provider
-            'provider' => 'admins',
-            'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
-            'expire' => 60,
-            'throttle' => 60,
-        ],
-
-        'employees' => [  // Add employee provider
-            'provider' => 'employees',
             'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
             'expire' => 60,
             'throttle' => 60,

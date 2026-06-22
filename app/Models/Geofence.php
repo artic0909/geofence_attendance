@@ -25,14 +25,13 @@ class Geofence extends Model
         return $this->hasMany(Attendance::class);
     }
 
-    // Add this relationship
     public function admin()
     {
-        return $this->belongsTo(Admin::class);
+        return $this->belongsTo(User::class, 'admin_id');
     }
 
     public function employees()
     {
-        return $this->belongsToMany(Employee::class, 'employee_geofence');
+        return $this->belongsToMany(User::class, 'employee_geofence', 'geofence_id', 'employee_id');
     }
 }

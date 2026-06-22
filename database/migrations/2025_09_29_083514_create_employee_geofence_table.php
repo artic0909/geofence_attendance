@@ -7,7 +7,7 @@ return new class extends Migration {
     public function up(): void {
         Schema::create('employee_geofence', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('employee_id')->constrained()->onDelete('cascade');
+            $table->foreignId('employee_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('geofence_id')->constrained()->onDelete('cascade');
             $table->timestamps();
             

@@ -85,8 +85,8 @@
                     </button>
                     <!-- Dropdown Menu -->
                     <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-xl py-2 z-50 invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-300 border border-gray-100 origin-top">
-                        <a href="{{ route('admin.login') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-saffron font-medium">Admin Login</a>
-                        <a href="{{ route('admin.register') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-saffron font-medium">Register Organization</a>
+                        <a href="{{ route('login') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-saffron font-medium">Login</a>
+                        <a href="{{ route('register') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-saffron font-medium">Create Account</a>
                     </div>
                 </div>
             </div>
@@ -95,7 +95,7 @@
             <div class="w-full lg:hidden flex justify-center mt-2 space-x-4">
                 <a href="{{ url('/about') }}" class="text-navy font-semibold">About</a>
                 <a href="{{ url('/industries') }}" class="text-navy font-semibold">Industries</a>
-                <a href="{{ route('admin.login') }}" class="text-navy font-semibold">Login</a>
+                <a href="{{ route('login') }}" class="text-navy font-semibold">Login</a>
             </div>
         </div>
     </header>

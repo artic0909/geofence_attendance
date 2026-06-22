@@ -5,10 +5,10 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class AdminLoginController extends Controller
+class LoginController extends Controller
 {
     public function showLoginForm() {
-        return view('auth.admin-login');
+        return view('auth.login');
     }
 
     public function login(Request $request) {
@@ -19,7 +19,7 @@ class AdminLoginController extends Controller
 
         $credentials = $request->only('email', 'password');
 
-        if (Auth::guard('admin')->attempt($credentials, $request->remember)) {
+        if (Auth::attempt($credentials, $request->remember)) {
             return redirect()->intended('/admin/dashboard');
         }
 
@@ -29,7 +29,7 @@ class AdminLoginController extends Controller
     }
 
     public function logout() {
-        Auth::guard('admin')->logout();
-        return redirect('/admin/login');
+        Auth::logout();
+        return redirect('/login');
     }
 }

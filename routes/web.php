@@ -4,43 +4,40 @@ use App\Http\Controllers\Admin\AttendanceController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\GeofenceController;
-use App\Http\Controllers\Auth\AdminLoginController;
-use App\Http\Controllers\Auth\AdminRegisterController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RegisterController;
 use Illuminate\Support\Facades\Route;
 
-// Admin Auth Routes
-Route::prefix('admin')->name('admin.')->group(function () {
-    // Login Routes
-    Route::get('/login', [AdminLoginController::class, 'showLoginForm'])->name('login');
-    Route::get('/register', [AdminRegisterController::class, 'showRegistrationForm'])->name('register');
-    Route::post('/login', [AdminLoginController::class, 'login'])->name('login.submit');
-    Route::post('/register', [AdminRegisterController::class, 'register'])->name('register.submit');
-    Route::post('/logout', [AdminLoginController::class, 'logout'])->name('logout');
+// Auth Routes
+Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
+Route::post('/login', [LoginController::class, 'login'])->name('login.submit');
+Route::post('/register', [RegisterController::class, 'register'])->name('register.submit');
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-    Route::get('/privacy-policy', function () {
-        return view('auth.privacy');
-    });
+Route::get('/privacy-policy', function () {
+    return view('auth.privacy');
+});
 
-    // Protected Admin Routes
-    Route::middleware(['admin'])->group(function () {
-        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-        Route::get('/dashboard/export-pending', [DashboardController::class, 'exportPending'])->name('dashboard.export-pending');
-        Route::get('/attendances/export', [AttendanceController::class, 'export'])->name('attendances.export');
-        Route::get('/attendances', [AttendanceController::class, 'index'])->name('attendances');
-        Route::get('/attendances/options', [AttendanceController::class, 'options'])->name('attendances.options');
-        Route::get('/attendances/today', [AttendanceController::class, 'todayAttedances'])->name('attendances.today');
-        Route::get('/attendances/today/export', [AttendanceController::class, 'todayExport'])->name('attendances.today.export');
-        Route::get('attendances/delete', [AttendanceController::class, 'deleteAttendances'])->name('attendances.delete');
-        Route::delete('attendances/bulk-delete', [AttendanceController::class, 'bulkDeleteAttendances'])->name('attendances.bulk-delete');
-        Route::get('/employees/{employee}/track', [EmployeeController::class, 'track'])->name('employees.track');
-        Route::get('/employees/{employee}/latest-location', [EmployeeController::class, 'getLatestLocation'])->name('employees.latest-location');
-        Route::resource('employees', EmployeeController::class);
-        Route::resource('geofences', GeofenceController::class);
+// Protected Admin Routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+    Route::get('/dashboard/export-pending', [DashboardController::class, 'exportPending'])->name('admin.dashboard.export-pending');
+    Route::get('/attendances/export', [AttendanceController::class, 'export'])->name('admin.attendances.export');
+    Route::get('/attendances', [AttendanceController::class, 'index'])->name('admin.attendances');
+    Route::get('/attendances/options', [AttendanceController::class, 'options'])->name('admin.attendances.options');
+    Route::get('/attendances/today', [AttendanceController::class, 'todayAttedances'])->name('admin.attendances.today');
+    Route::get('/attendances/today/export', [AttendanceController::class, 'todayExport'])->name('admin.attendances.today.export');
+    Route::get('attendances/delete', [AttendanceController::class, 'deleteAttendances'])->name('admin.attendances.delete');
+    Route::delete('attendances/bulk-delete', [AttendanceController::class, 'bulkDeleteAttendances'])->name('admin.attendances.bulk-delete');
+    Route::get('/employees/{employee}/track', [EmployeeController::class, 'track'])->name('admin.employees.track');
+    Route::get('/employees/{employee}/latest-location', [EmployeeController::class, 'getLatestLocation'])->name('admin.employees.latest-location');
+    Route::resource('admin/employees', EmployeeController::class, ['as' => 'admin']);
+    Route::resource('admin/geofences', GeofenceController::class, ['as' => 'admin']);
 
-        // Redirect admin root to dashboard
-        Route::get('/', function () {
-            return redirect()->route('admin.dashboard');
-        });
+    // Redirect admin root to dashboard
+    Route::get('/admin', function () {
+        return redirect()->route('admin.dashboard');
     });
 });
 
