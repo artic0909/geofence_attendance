@@ -1,7 +1,6 @@
 @extends('admin.layout')
 
 @section('content')
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
 <style>
     #map { height: 600px; width: 100%; border-radius: 12px; border: 4px solid white; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
     .pulse { border-radius: 50%; height: 20px; width: 20px; background: #22c55e; box-shadow: 0 0 0 0 rgba(34, 197, 94, 1); animation: pulse-green 2s infinite; }
@@ -57,52 +56,88 @@
     </div>
 </div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDWRO8RCysDN9UMY1wUfydwLR5fD8CHB34"></script>
 <script>
-    // Initialize map
-    var map = L.map('map').setView([20.5937, 78.9629], 5); // Default India center
-    
-    // Using Google Satellite Hybrid (Satellite + Labels)
-    L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
-        maxZoom: 20,
-        subdomains:['mt0','mt1','mt2','mt3'],
-        attribution: '&copy; Google Maps'
-    }).addTo(map);
-
+    var map;
     var employeeMarker = null;
-    var geofenceCircles = [];
+    var infoWindow;
 
-    // Add geofences to map
-    @foreach($employee->employeeGeofences as $geofence)
-        // Attendance Radius (Blue)
-        L.circle([{{ $geofence->latitude }}, {{ $geofence->longitude }}], {
-            color: '#3b82f6',
-            fillColor: '#3b82f6',
-            fillOpacity: 0.1,
-            radius: {{ $geofence->radius }}
-        }).addTo(map).bindPopup('<b>{{ $geofence->name }}</b> (Attendance Area)');
+    function initMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+            center: {lat: 20.5937, lng: 78.9629},
+            zoom: 5,
+            mapTypeId: 'hybrid' // Matches Satellite with Labels
+        });
+        
+        infoWindow = new google.maps.InfoWindow();
+        var bounds = new google.maps.LatLngBounds();
 
-        // Tracking Radius (Orange - Dashed)
-        @if($geofence->tracking_radius)
-            L.circle([{{ $geofence->latitude }}, {{ $geofence->longitude }}], {
-                color: '#f97316',
-                fillOpacity: 0.05,
-                radius: {{ $geofence->tracking_radius }},
-                dashArray: '5, 10'
-            }).addTo(map).bindPopup('<b>{{ $geofence->name }}</b> Tracking Area ({{ $geofence->tracking_radius }}m)');
-        @endif
-    @endforeach
+        // Add geofences to map
+        @foreach($employee->employeeGeofences as $geofence)
+            // Attendance Radius (Blue)
+            var attendanceCircle = new google.maps.Circle({
+                strokeColor: '#3b82f6',
+                strokeOpacity: 0.8,
+                strokeWeight: 2,
+                fillColor: '#3b82f6',
+                fillOpacity: 0.1,
+                map: map,
+                center: {lat: {{ $geofence->latitude }}, lng: {{ $geofence->longitude }}},
+                radius: {{ $geofence->radius }}
+            });
+            
+            // Add center of circle to bounds
+            bounds.extend(new google.maps.LatLng({{ $geofence->latitude }}, {{ $geofence->longitude }}));
+
+            google.maps.event.addListener(attendanceCircle, 'click', function(ev) {
+                infoWindow.setPosition(ev.latLng);
+                infoWindow.setContent('<b>{{ $geofence->name }}</b> (Attendance Area)');
+                infoWindow.open(map);
+            });
+
+            // Tracking Radius (Orange)
+            @if($geofence->tracking_radius)
+                var trackingCircle = new google.maps.Circle({
+                    strokeColor: '#f97316',
+                    strokeOpacity: 0.8,
+                    strokeWeight: 2,
+                    fillColor: '#f97316',
+                    fillOpacity: 0.05,
+                    map: map,
+                    center: {lat: {{ $geofence->latitude }}, lng: {{ $geofence->longitude }}},
+                    radius: {{ $geofence->tracking_radius }}
+                });
+                google.maps.event.addListener(trackingCircle, 'click', function(ev) {
+                    infoWindow.setPosition(ev.latLng);
+                    infoWindow.setContent('<b>{{ $geofence->name }}</b> Tracking Area ({{ $geofence->tracking_radius }}m)');
+                    infoWindow.open(map);
+                });
+            @endif
+        @endforeach
+
+        // Fit map to geofences if they exist
+        if (!bounds.isEmpty()) {
+            map.fitBounds(bounds);
+            // Optionally set a max zoom so it doesn't zoom too close if there's only one geofence
+            google.maps.event.addListenerOnce(map, 'bounds_changed', function() {
+                if (map.getZoom() > 16) {
+                    map.setZoom(16);
+                }
+            });
+        }
+
+        updateLiveLocation();
+        setInterval(updateLiveLocation, 10000);
+    }
 
     function updateLiveLocation() {
         fetch('{{ route("admin.employees.latest-location", $employee) }}')
             .then(response => response.json())
             .then(data => {
                 if (data.latitude && data.longitude) {
-                    var pos = [data.latitude, data.longitude];
+                    var pos = {lat: parseFloat(data.latitude), lng: parseFloat(data.longitude)};
                     
                     // Parse the updated_at time safely
-                    // Expected format: h:i:s A - d/m/Y
-                    // Convert to a JS Date object for comparison
                     var parts = data.updated_at.split(' - ');
                     var timePart = parts[0];
                     var datePart = parts[1];
@@ -132,12 +167,34 @@
                     }
 
                     if (!employeeMarker) {
-                        employeeMarker = L.marker(pos).addTo(map)
-                            .bindPopup('<b>{{ $employee->name }}</b><br>Currently Tracking Live')
-                            .openPopup();
-                        map.setView(pos, 15);
+                        employeeMarker = new google.maps.Marker({
+                            position: pos,
+                            map: map,
+                            title: '{{ $employee->name }}',
+                            icon: {
+                                path: google.maps.SymbolPath.CIRCLE,
+                                scale: 8,
+                                fillColor: '#22c55e',
+                                fillOpacity: 1,
+                                strokeColor: '#ffffff',
+                                strokeWeight: 2,
+                            }
+                        });
+                        
+                        var markerInfoWindow = new google.maps.InfoWindow({
+                            content: '<b>{{ $employee->name }}</b><br>Currently Tracking Live'
+                        });
+                        
+                        employeeMarker.addListener('click', function() {
+                            markerInfoWindow.open(map, employeeMarker);
+                        });
+                        
+                        markerInfoWindow.open(map, employeeMarker);
+                        
+                        map.setCenter(pos);
+                        map.setZoom(15);
                     } else {
-                        employeeMarker.setLatLng(pos);
+                        employeeMarker.setPosition(pos);
                     }
                 } else {
                     document.getElementById('status-badge').innerHTML = '<span class="w-3 h-3 bg-red-400 rounded-full"></span> Outside Tracking Area';
@@ -152,8 +209,6 @@
             });
     }
 
-    // Update every 10 seconds
-    setInterval(updateLiveLocation, 10000);
-    updateLiveLocation();
+    window.onload = initMap;
 </script>
 @endsection
