@@ -74,3 +74,7 @@ Route::get('/privacy-policy', function () {
 Route::get('/industries', function () {
     return view('pages.industries');
 });
+
+Route::get('/contact', function () {
+    return view('pages.contact');
+});

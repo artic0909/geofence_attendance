@@ -73,8 +73,8 @@
             <div class="hidden lg:flex items-center space-x-6">
                 <a href="{{ url('/about') }}" class="text-navy hover:text-saffron font-semibold transition">About</a>
                 <a href="{{ url('/industries') }}" class="text-navy hover:text-saffron font-semibold transition">Industries</a>
-                <a href="{{ url('/#features') }}" class="text-navy hover:text-saffron font-semibold transition">Features</a>
                 <a href="{{ url('/pricing') }}" class="text-navy hover:text-saffron font-semibold transition">Pricing</a>
+                <a href="{{ url('/contact') }}" class="text-navy hover:text-saffron font-semibold transition">Contact</a>
                 
                 <!-- Account Dropdown like MilesWeb -->
                 <div class="relative group">
