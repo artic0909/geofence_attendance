@@ -132,7 +132,7 @@
             
             <div class="text-center text-xs text-gray-400 border-t border-blue-900 pt-8 max-w-4xl mx-auto">
                 <p>Content owned, maintained and updated by the Administration Department. All queries/comments regarding the content on this site may be sent to the Web Information Manager.</p>
-                <p class="mt-3 font-semibold text-gray-300">&copy; {{ date('Y') }} All Rights Reserved. Designed & Developed for Digital Compliance.</p>
+                <p class="mt-3 font-semibold text-gray-300">&copy; {{ date('Y') }} All Rights Reserved By Sumatra Sale Pvt. Ltd. Designed & Developed for Digital Compliance.</p>
             </div>
         </div>
     </footer>
