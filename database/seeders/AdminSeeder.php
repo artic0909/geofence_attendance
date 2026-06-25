@@ -8,10 +8,12 @@ use Illuminate\Support\Facades\Hash;
 class AdminSeeder extends Seeder
 {
     public function run(): void {
-        Admin::create([
-            'name' => 'Palgeo Admin',
-            'email' => 'admin@mail.com',
-            'password' => Hash::make('12345678'),
-        ]);
+        Admin::updateOrCreate(
+            ['email' => 'super@mail.com'],
+            [
+                'name' => 'Super Admin',
+                'password' => Hash::make('12345'),
+            ]
+        );
     }
 }

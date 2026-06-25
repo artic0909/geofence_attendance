@@ -12,7 +12,7 @@ class DashboardController extends Controller
 {
     public function index(Request $request)
     {
-        $adminId = auth()->guard('admin')->id();
+        $adminId = auth()->id();
 
         // Get admin's geofences
         $geofences = \App\Models\Geofence::where('admin_id', $adminId)->get();
@@ -59,7 +59,7 @@ class DashboardController extends Controller
 
     public function exportPending(Request $request)
     {
-        $adminId = auth()->guard('admin')->id();
+        $adminId = auth()->id();
 
         // Get IDs of employees who have already given attendance today
         $attendedEmployeeIds = \App\Models\Attendance::where('admin_id', $adminId)

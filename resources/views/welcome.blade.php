@@ -127,73 +127,27 @@
             
             <!-- SaaS Plans Grid -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-                <!-- 6 Months -->
+                @forelse($plans as $plan)
                 <div class="bg-white rounded-xl p-8 border border-gray-200 shadow-sm hover:shadow-lg transition-shadow flex flex-col relative overflow-hidden group">
                     <div class="absolute top-0 left-0 w-full h-1 bg-navy transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
-                    <h4 class="text-xl font-bold text-navy mb-2">Starter</h4>
-                    <div class="text-saffron font-bold mb-6 text-2xl">6 Months</div>
-                    <div class="text-gray-600 text-sm mb-8 flex-grow">Perfect for small teams testing the ecosystem before scaling.</div>
+                    <h4 class="text-xl font-bold text-navy mb-2">{{ $plan->name }}</h4>
+                    <div class="text-saffron font-bold mb-2 text-2xl">₹{{ number_format($plan->monthly_price, 2) }} / mo</div>
+                    <div class="text-gray-500 font-semibold mb-6 text-md">₹{{ number_format($plan->yearly_price, 2) }} / yr</div>
+                    <div class="text-gray-600 text-sm mb-8 flex-grow">{{ $plan->description }}</div>
+                    @if($plan->features)
                     <ul class="space-y-4 mb-8 text-sm text-gray-700">
-                        <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Multi-tenant Access</li>
-                        <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Core Geofencing</li>
-                        <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Live Location Tracking</li>
-                        <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Advanced Analytics</li>
-                        <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Mobile App Access</li>
-                        <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Priority Support</li>
+                        @foreach($plan->features as $feature)
+                        <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> {{ $feature }}</li>
+                        @endforeach
                     </ul>
-                    <button class="w-full py-3 rounded text-navy font-bold border-2 border-navy hover:bg-navy hover:text-white transition">Select Plan</button>
+                    @endif
+                    <a href="{{ route('register') }}" class="w-full py-3 rounded text-center text-navy font-bold border-2 border-navy hover:bg-navy hover:text-white transition">Get Started</a>
                 </div>
-
-                <!-- 1 Year -->
-                <div class="bg-white rounded-xl p-8 border-2 border-saffron shadow-lg transform lg:-translate-y-4 flex flex-col relative">
-                    <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-saffron text-white text-xs font-bold px-4 py-1 rounded-full uppercase tracking-wider">Most Popular</div>
-                    <h4 class="text-xl font-bold text-navy mb-2">Annual</h4>
-                    <div class="text-saffron font-bold mb-6 text-2xl">1 Year</div>
-                    <div class="text-gray-600 text-sm mb-8 flex-grow">Ideal for growing companies needing reliable annual compliance.</div>
-                    <ul class="space-y-4 mb-8 text-sm text-gray-700">
-                        <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Multi-tenant Access</li>
-                        <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Core Geofencing</li>
-                        <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Live Location Tracking</li>
-                        <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Advanced Analytics</li>
-                        <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Mobile App Access</li>
-                        <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Priority Support</li>
-                    </ul>
-                    <button class="w-full py-3 rounded bg-navy text-white font-bold hover:bg-blue-800 transition shadow">Select Plan</button>
+                @empty
+                <div class="col-span-full text-center py-12">
+                    <p class="text-gray-500">No subscription plans available at the moment. Please contact support.</p>
                 </div>
-
-                <!-- 2 Years -->
-                <div class="bg-white rounded-xl p-8 border border-gray-200 shadow-sm hover:shadow-lg transition-shadow flex flex-col relative overflow-hidden group">
-                    <div class="absolute top-0 left-0 w-full h-1 bg-navy transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
-                    <h4 class="text-xl font-bold text-navy mb-2">Growth</h4>
-                    <div class="text-saffron font-bold mb-6 text-2xl">2 Years</div>
-                    <div class="text-gray-600 text-sm mb-8 flex-grow">Best value for established organizations securing long-term ops.</div>
-                    <ul class="space-y-4 mb-8 text-sm text-gray-700">
-                        <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Multi-tenant Access</li>
-                        <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Core Geofencing</li>
-                        <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Live Location Tracking</li>
-                        <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Advanced Analytics</li>
-                        <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Mobile App Access</li>
-                        <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Priority Support</li>
-                    </ul>
-                    <button class="w-full py-3 rounded text-navy font-bold border-2 border-navy hover:bg-navy hover:text-white transition">Select Plan</button>
-                </div>
-
-                <!-- 5 Years -->
-                <div class="bg-white rounded-xl p-8 border border-gray-200 shadow-sm hover:shadow-lg transition-shadow flex flex-col relative overflow-hidden group">
-                    <div class="absolute top-0 left-0 w-full h-1 bg-navy transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
-                    <h4 class="text-xl font-bold text-navy mb-2">Enterprise</h4>
-                    <div class="text-saffron font-bold mb-6 text-2xl">5 Years</div>
-                    <div class="text-gray-600 text-sm mb-8 flex-grow">Massive operational stability with maximum cost efficiency.</div>
-                    <ul class="space-y-4 mb-8 text-sm text-gray-700">
-                        <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Multi-tenant Access</li>
-                        <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Core Geofencing</li>
-                        <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Live Location Tracking</li>
-                        <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Advanced Analytics</li>
-                        <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Mobile App Access</li>
-                        <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Priority Support</li>
-                    </ul>
-                    <button class="w-full py-3 rounded text-navy font-bold border-2 border-navy hover:bg-navy hover:text-white transition">Select Plan</button>
-                </div>
+                @endforelse
             </div>
 
             <!-- Permanent Tier Highlight -->

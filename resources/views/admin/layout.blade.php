@@ -18,13 +18,13 @@
 <body class="bg-gray-100">
     <nav class="bg-blue-600 text-white p-4">
         <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-xl font-bold">Site Sync</h1>
+            <h1 class="text-xl font-bold">Organization Panel</h1>
             <div class="flex items-center space-x-4">
                 <a href="{{ route('admin.dashboard') }}" class="hover:text-blue-200 {{ request()->routeIs('admin.dashboard') ? 'text-blue-200' : '' }}">Dashboard</a>
                 <a href="{{ route('admin.geofences.index') }}" class="hover:text-blue-200 {{ request()->routeIs('admin.geofences.*') ? 'text-blue-200' : '' }}">Sites(Geofences)</a>
                 <a href="{{ route('admin.employees.index') }}" class="hover:text-blue-200 {{ request()->routeIs('admin.employees.*') ? 'text-blue-200' : '' }}">Employees</a>
                 <a href="{{ route('admin.attendances.options') }}" class="hover:text-blue-200 {{ request()->routeIs('admin.attendances.options') ? 'text-blue-200' : '' }}">Attendances</a>
-                <form action="{{ route('admin.logout') }}" method="POST" class="inline">
+                <form action="{{ route('logout') }}" method="POST" class="inline">
                     @csrf
                     <button type="submit" class="hover:text-blue-200">Logout</button>
                 </form>

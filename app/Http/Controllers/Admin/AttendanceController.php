@@ -13,7 +13,7 @@ class AttendanceController extends Controller
 {
     public function index(Request $request)
     {
-        $adminId = auth()->guard('admin')->id();
+        $adminId = auth()->id();
 
         // Get admin's geofences
         $geofences = Geofence::where('admin_id', $adminId)->get();
@@ -89,7 +89,7 @@ class AttendanceController extends Controller
 
     public function export(Request $request)
     {
-        $adminId = auth()->guard('admin')->id();
+        $adminId = auth()->id();
 
         // Base query - Normal
         $normalQuery = Attendance::with(['employee', 'geofence'])
@@ -175,7 +175,7 @@ class AttendanceController extends Controller
 
     public function options(Request $request)
     {
-        $adminId = auth()->guard('admin')->id(); // current logged-in admin id
+        $adminId = auth()->id(); // current logged-in admin id
 
         // Get only this admin’s geofences
         $geofences = Geofence::where('admin_id', $adminId)->get();
@@ -224,7 +224,7 @@ class AttendanceController extends Controller
 
     public function todayAttedances(Request $request)
     {
-        $adminId = auth()->guard('admin')->id();
+        $adminId = auth()->id();
 
         // Get only this admin's geofences
         $geofences = Geofence::where('admin_id', $adminId)->get();
@@ -285,7 +285,7 @@ class AttendanceController extends Controller
 
     public function todayExport(Request $request)
     {
-        $adminId = auth()->guard('admin')->id();
+        $adminId = auth()->id();
 
         // Base query - Normal
         $normalRecords = Attendance::with(['employee', 'geofence'])
@@ -359,7 +359,7 @@ class AttendanceController extends Controller
 
     public function deleteAttendances(Request $request)
     {
-        $adminId = auth()->guard('admin')->id();
+        $adminId = auth()->id();
 
         // Get geofences for filter
         $geofences = Geofence::where('admin_id', $adminId)->get();
@@ -419,7 +419,7 @@ class AttendanceController extends Controller
             'to_date' => 'required|date|after_or_equal:from_date',
         ]);
 
-        $adminId = auth()->guard('admin')->id();
+        $adminId = auth()->id();
 
         // Build delete query for Normal Attendance
         $normalQuery = Attendance::where('admin_id', $adminId)

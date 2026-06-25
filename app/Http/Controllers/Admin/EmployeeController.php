@@ -20,7 +20,7 @@ class EmployeeController extends Controller
 
     public function index(Request $request)
     {
-        $query = Employee::where('admin_id', auth()->guard('admin')->id());
+        $query = Employee::where('admin_id', auth()->id());
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -39,7 +39,7 @@ class EmployeeController extends Controller
     public function create()
     {
         $geofences = Geofence::where('is_active', true)
-            ->where('admin_id', auth()->guard('admin')->id())
+            ->where('admin_id', auth()->id())
             ->get();
 
         return view('admin.employees.create', compact('geofences'));
@@ -57,7 +57,7 @@ class EmployeeController extends Controller
         ]);
 
         $employee = Employee::create([
-            'admin_id'    => auth()->guard('admin')->id(),
+            'admin_id'    => auth()->id(),
             'name'        => $request->name,
             'email'       => $request->email,
             'phone'       => $request->phone,
@@ -76,7 +76,7 @@ class EmployeeController extends Controller
     public function edit(Employee $employee)
     {
         $geofences = Geofence::where('is_active', true)
-            ->where('admin_id', auth()->guard('admin')->id())
+            ->where('admin_id', auth()->id())
             ->get();
 
         return view('admin.employees.edit', compact('employee', 'geofences'));

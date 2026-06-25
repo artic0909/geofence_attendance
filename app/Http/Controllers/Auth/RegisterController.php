@@ -53,8 +53,11 @@ class RegisterController extends Controller
         // set role as admin by default for self-registrations
         $validated['role'] = 'admin';
 
-        User::create($validated);
+        $user = User::create($validated);
 
-        return redirect()->route('login')->with('success', 'Registration successful. Please login.');
+        auth()->login($user);
+
+        // Redirect to plan selection instead of dashboard
+        return redirect()->route('pricing.select')->with('success', 'Registration successful! Please select a plan to continue.');
     }
 }

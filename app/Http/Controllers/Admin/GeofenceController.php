@@ -22,7 +22,7 @@ class GeofenceController extends Controller
 
     public function index(Request $request)
     {
-        $query = Geofence::where('admin_id', auth()->guard('admin')->id());
+        $query = Geofence::where('admin_id', auth()->id());
 
         if ($request->filled('search')) {
             $query->where('name', 'like', '%' . $request->search . '%');
