@@ -9,13 +9,16 @@
             color: #4b5563; /* Grey/Dark Grey */
             font-size: 14px;
             line-height: 1.5;
-            background-color: #f9fafb; /* Off-White background */
+            background-color: #ffffff; /* White background to avoid grey sections */
         }
         .invoice-box {
             max-width: 800px;
-            margin: 40px auto;
-            padding: 40px;
+            margin: 0 auto;
+            padding: 30px;
             background-color: #ffffff;
+            background-image: linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)), url('data:image/png;base64,{{ base64_encode(file_get_contents(public_path("world-map-bg.png"))) }}');
+            background-size: cover;
+            background-position: center;
             border-top: 4px solid #F58220; /* Orange/Amber top border */
             border-radius: 8px; /* Rounded corners */
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
@@ -43,7 +46,7 @@
             font-weight: 700;
         }
         .invoice-box table tr.information table td {
-            padding-bottom: 40px;
+            padding-bottom: 20px;
         }
         .invoice-box table tr.heading td {
             background: #0A1172; /* Dark Blue/Navy */
@@ -68,7 +71,7 @@
             color: #F58220; /* Orange/Amber for total */
         }
         .footer {
-            margin-top: 50px;
+            margin-top: 20px;
             text-align: center;
             font-size: 12px;
             color: #6b7280;
@@ -161,9 +164,13 @@
             </tr>
         </table>
         
+        <div style="margin: 30px -30px 20px -30px;">
+            <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('empty-map.png'))) }}" alt="Service Map" style="width: 100%; height: 200px; object-fit: cover; opacity: 0.9; display: block;">
+        </div>
+
         <div class="footer">
             <p>This is a computer-generated invoice and does not require a physical signature.</p>
-            <p>Thank you for doing business with {{ config('app.name', 'Geofence Attendance System') }}.</p>
+            <p>Thank you for doing business with Geofence Attendance System | Sumatra Sales Private Limited.</p>
         </div>
     </div>
 </body>
