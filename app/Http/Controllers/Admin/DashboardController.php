@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Employee;
+use App\Models\User;
 use App\Models\Geofence;
 use App\Models\Attendance;
 use Illuminate\Http\Request;
@@ -19,14 +19,14 @@ class DashboardController extends Controller
 
         // Stats
         $stats = [
-            'total_employees' => \App\Models\Employee::where('admin_id', $adminId)->count(),
+            'total_employees' => \App\Models\User::where('role', 'employee')->where('admin_id', $adminId)->count(),
             'total_geofences' => \App\Models\Geofence::where('admin_id', $adminId)->count(),
             'today_attendances' => \App\Models\Attendance::where('admin_id', $adminId)
                 ->whereDate('date', today())
                 ->count() + \App\Models\OutsideAttendance::where('admin_id', $adminId)
                 ->whereDate('date', today())
                 ->count(),
-            'active_employees' => \App\Models\Employee::where('admin_id', $adminId)
+            'active_employees' => \App\Models\User::where('role', 'employee')->where('admin_id', $adminId)
                 ->where('is_active', true)
                 ->count(),
         ];
@@ -43,7 +43,7 @@ class DashboardController extends Controller
             ->unique();
 
         // Get employees who have NOT given attendance today
-        $pendingQuery = \App\Models\Employee::where('admin_id', $adminId)
+        $pendingQuery = \App\Models\User::where('role', 'employee')->where('admin_id', $adminId)
             ->where('is_active', true)
             ->whereNotIn('id', $attendedEmployeeIds);
 
@@ -73,7 +73,8 @@ class DashboardController extends Controller
             ->unique();
 
         // Fetch employees who have NOT given attendance today with their geofences
-        $employees = \App\Models\Employee::with('geofences')
+        $employees = \App\Models\User::with('geofences')
+            ->where('role', 'employee')
             ->where('admin_id', $adminId)
             ->where('is_active', true)
             ->whereNotIn('id', $attendedEmployeeIds)

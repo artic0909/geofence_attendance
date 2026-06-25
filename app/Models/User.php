@@ -36,6 +36,9 @@ class User extends Authenticatable
         'zip_code',
         'business_type',
         'is_active',
+        'plan_id',
+        'subscription_status',
+        'subscription_expires_at',
     ];
 
     /**
@@ -59,6 +62,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_active' => 'boolean',
+            'subscription_expires_at' => 'datetime',
         ];
     }
 

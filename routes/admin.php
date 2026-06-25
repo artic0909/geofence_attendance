@@ -7,7 +7,7 @@ use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\GeofenceController;
 
 // Protected Admin Routes (Organization Panel)
-Route::middleware(['auth', 'subscribed'])->group(function () {
+Route::middleware(['auth', 'subscribed'])->prefix('admin')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
     Route::get('/dashboard/export-pending', [DashboardController::class, 'exportPending'])->name('admin.dashboard.export-pending');
     Route::get('/attendances/export', [AttendanceController::class, 'export'])->name('admin.attendances.export');
@@ -19,11 +19,11 @@ Route::middleware(['auth', 'subscribed'])->group(function () {
     Route::delete('attendances/bulk-delete', [AttendanceController::class, 'bulkDeleteAttendances'])->name('admin.attendances.bulk-delete');
     Route::get('/employees/{employee}/track', [EmployeeController::class, 'track'])->name('admin.employees.track');
     Route::get('/employees/{employee}/latest-location', [EmployeeController::class, 'getLatestLocation'])->name('admin.employees.latest-location');
-    Route::resource('admin/employees', EmployeeController::class, ['as' => 'admin']);
-    Route::resource('admin/geofences', GeofenceController::class, ['as' => 'admin']);
+    Route::resource('employees', EmployeeController::class, ['as' => 'admin']);
+    Route::resource('geofences', GeofenceController::class, ['as' => 'admin']);
 
     // Redirect admin root to dashboard
-    Route::get('/admin', function () {
+    Route::get('/', function () {
         return redirect()->route('admin.dashboard');
     });
 });
