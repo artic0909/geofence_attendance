@@ -27,7 +27,7 @@
             <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-xl px-6 py-4 flex gap-8 shadow-inner">
                 <div>
                     <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold mb-1">Current Plan</p>
-                    <p class="font-bold text-xl text-saffron">{{ $current_plan->name ?? 'Free / Trial' }}</p>
+                    <p class="font-bold text-xl text-saffron">{{ $current_plan->plan_name ?? 'Free / Trial' }}</p>
                 </div>
                 <div>
                     <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold mb-1">Expires On</p>

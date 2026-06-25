@@ -46,6 +46,7 @@
             background: #94a3b8;
         }
     </style>
+    @stack('styles')
 </head>
 
 <body class="bg-gray-50 text-gray-800 antialiased font-sans flex h-screen overflow-hidden">
@@ -176,6 +177,7 @@
         @endif
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    @stack('scripts')
 </body>
 
 </html>

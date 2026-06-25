@@ -152,8 +152,8 @@
 
             <tr class="item last">
                 <td>
-                    Subscription Plan: <strong>{{ $transaction->plan->name ?? 'Custom Plan' }}</strong><br>
-                    <small>Validity: {{ $transaction->plan->duration_days ?? 30 }} days</small>
+                    Subscription Plan: <strong>{{ $transaction->subscription->plan_name ?? $transaction->plan->name ?? 'Custom Plan' }}</strong><br>
+                    <small>Validity: {{ $transaction->subscription->duration_days ?? $transaction->plan->duration_days ?? 30 }} days</small>
                 </td>
                 <td>Rs. {{ number_format($transaction->amount, 2) }}</td>
             </tr>

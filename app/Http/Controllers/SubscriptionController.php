@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 
 use App\Models\Plan;
 use App\Models\Transaction;
+use App\Models\Subscription;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Razorpay\Api\Api;
@@ -76,7 +77,7 @@ class SubscriptionController extends Controller
             $amount = $plan->price;
 
             // Record transaction
-            Transaction::create([
+            $transaction = Transaction::create([
                 'user_id' => $user->id,
                 'plan_id' => $plan->id,
                 'razorpay_payment_id' => $request->razorpay_payment_id,
@@ -89,6 +90,22 @@ class SubscriptionController extends Controller
             // Update user subscription
             $expiresAt = Carbon::now()->addDays($plan->duration_days);
             
+            // Invalidate previous subscriptions
+            Subscription::where('user_id', $user->id)->where('status', 'active')->update(['status' => 'expired']);
+
+            // Create new snapshot subscription
+            Subscription::create([
+                'user_id' => $user->id,
+                'transaction_id' => $transaction->id,
+                'plan_name' => $plan->name,
+                'features' => $plan->features,
+                'price' => $amount,
+                'duration_days' => $plan->duration_days,
+                'starts_at' => Carbon::now(),
+                'expires_at' => $expiresAt,
+                'status' => 'active',
+            ]);
+
             $user->update([
                 'plan_id' => $plan->id,
                 'subscription_status' => 'active',

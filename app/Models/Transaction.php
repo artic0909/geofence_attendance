@@ -25,4 +25,9 @@ class Transaction extends Model
     {
         return $this->belongsTo(Plan::class);
     }
+
+    public function subscription()
+    {
+        return $this->hasOne(Subscription::class);
+    }
 }

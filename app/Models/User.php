@@ -122,6 +122,11 @@ class User extends Authenticatable
         return $this->belongsTo(Designation::class, 'designation_id');
     }
 
+    public function activeSubscription()
+    {
+        return $this->hasOne(Subscription::class)->where('status', 'active')->latest('expires_at');
+    }
+
     // Role checks
     public function isAdmin(): bool
     {

@@ -55,7 +55,7 @@ class DashboardController extends Controller
         $pending_employees = $pendingQuery->with('employeeGeofences')->orderBy('name', 'asc')->paginate(10);
 
         // Fetch current subscription plan
-        $current_plan = \App\Models\Plan::find(auth()->user()->plan_id);
+        $current_plan = auth()->user()->activeSubscription;
 
         return view('admin.dashboard', compact('stats', 'pending_employees', 'geofences', 'current_plan'));
     }

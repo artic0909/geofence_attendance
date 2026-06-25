@@ -45,7 +45,7 @@
                             <div class="text-xs text-gray-500">{{ $sub->user->email ?? '' }}</div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {{ $sub->plan->name ?? 'N/A' }}
+                            {{ $sub->subscription->plan_name ?? $sub->plan->name ?? 'N/A' }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="text-sm font-medium text-gray-900">₹{{ number_format($sub->amount, 2) }}</div>

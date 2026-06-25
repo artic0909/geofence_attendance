@@ -32,7 +32,7 @@
                         <div class="font-mono text-xs text-gray-500">{{ $transaction->razorpay_payment_id ?? $transaction->id }}</div>
                     </td>
                     <td class="px-6 py-4">
-                        <div class="font-bold text-navy">{{ $transaction->plan->name ?? 'Custom Plan' }}</div>
+                        <div class="font-bold text-navy">{{ $transaction->subscription->plan_name ?? $transaction->plan->name ?? 'Custom Plan' }}</div>
                     </td>
                     <td class="px-6 py-4 font-semibold text-gray-900">
                         ₹{{ number_format($transaction->amount, 2) }}

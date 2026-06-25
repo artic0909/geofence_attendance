@@ -61,7 +61,7 @@
                         <div class="text-sm font-medium text-gray-900">{{ $transaction->user->business_name ?? $transaction->user->name ?? 'N/A' }}</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {{ $transaction->plan->name ?? 'N/A' }}
+                        {{ $transaction->subscription->plan_name ?? $transaction->plan->name ?? 'N/A' }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                         ₹{{ number_format($transaction->amount, 2) }}
