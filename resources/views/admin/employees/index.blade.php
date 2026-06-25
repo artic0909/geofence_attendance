@@ -39,6 +39,7 @@
                     <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Email</th>
                     <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Phone</th>
                     <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Employee ID</th>
+                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Dept & Desig</th>
                     <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Assigned Geofences</th>
                     <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
                     <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Actions</th>
@@ -55,6 +56,10 @@
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ $employee->phone }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-mono">{{ $employee->employee_id }}</td>
                     <td class="px-6 py-4">
+                        <div class="text-sm font-semibold text-gray-800">{{ $employee->department ? $employee->department->name : 'N/A' }}</div>
+                        <div class="text-xs text-gray-500">{{ $employee->designation ? $employee->designation->name : 'N/A' }}</div>
+                    </td>
+                    <td class="px-6 py-4">
                         @if($employee->employeeGeofences->count() > 0)
                             <div class="flex flex-wrap gap-1">
                                 @foreach($employee->employeeGeofences as $geofence)
@@ -68,9 +73,15 @@
                         @endif
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="px-2 py-1 inline-flex text-xs leading-5 font-bold rounded-full {{ $employee->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                        <span class="px-2 py-1 mb-1 inline-flex text-xs leading-5 font-bold rounded-full {{ $employee->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
                             {{ $employee->is_active ? 'Active' : 'Inactive' }}
                         </span>
+                        @if($employee->phone_used_restricted)
+                            <br>
+                            <span class="px-2 py-1 inline-flex text-xs leading-5 font-bold rounded-full bg-purple-100 text-purple-800">
+                                Phone Restricted
+                            </span>
+                        @endif
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm space-x-3">
                         <a href="{{ route('admin.employees.track', $employee) }}" target="_blank" class="text-green-600 hover:text-green-800 font-bold bg-green-50 px-2 py-1 rounded border border-green-100 italic transition-all shadow-sm">Track Live</a>

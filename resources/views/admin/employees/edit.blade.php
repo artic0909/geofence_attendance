@@ -1,6 +1,26 @@
 @extends('admin.layout')
 @section('header_title', 'Edit Employee')
 
+@push('styles')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+    .select2-container--default .select2-selection--single {
+        height: 46px;
+        padding: 8px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 0.5rem;
+        background-color: #f9fafb;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 44px;
+    }
+    .select2-container--default .select2-selection--single:focus {
+        border-color: #f6c449;
+        box-shadow: 0 0 0 2px rgba(246, 196, 73, 0.2);
+    }
+</style>
+@endpush
+
 @section('content')
 <div class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
     <div>
@@ -47,6 +67,28 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1" for="employee_id">Employee ID <span class="text-red-500">*</span></label>
                     <input type="text" name="employee_id" id="employee_id" required class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-saffron focus:border-saffron outline-none transition-all" value="{{ old('employee_id', $employee->employee_id) }}">
                     @error('employee_id')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1" for="department_id">Department</label>
+                    <select name="department_id" id="department_id" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg select2">
+                        <option value="">Select Department</option>
+                        @foreach($departments as $department)
+                            <option value="{{ $department->id }}" {{ old('department_id', $employee->department_id) == $department->id ? 'selected' : '' }}>{{ $department->name }}</option>
+                        @endforeach
+                    </select>
+                    @error('department_id')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1" for="designation_id">Designation</label>
+                    <select name="designation_id" id="designation_id" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg select2">
+                        <option value="">Select Designation</option>
+                        @foreach($designations as $designation)
+                            <option value="{{ $designation->id }}" {{ old('designation_id', $employee->designation_id) == $designation->id ? 'selected' : '' }}>{{ $designation->name }}</option>
+                        @endforeach
+                    </select>
+                    @error('designation_id')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                 </div>
             </div>
         </div>
@@ -105,6 +147,11 @@
             @endif
 
             <div class="mt-8 pt-6 border-t border-gray-100">
+                <label class="flex items-center cursor-pointer mb-4">
+                    <input type="checkbox" name="phone_used_restricted" value="1" {{ old('phone_used_restricted', $employee->phone_used_restricted) ? 'checked' : '' }} class="w-5 h-5 rounded border-gray-300 text-navy focus:ring focus:ring-navy focus:ring-opacity-20">
+                    <span class="ml-3 text-sm font-bold text-gray-700">Phone Use Restricted</span>
+                </label>
+
                 <label class="flex items-center cursor-pointer">
                     <input type="checkbox" name="is_active" value="1" {{ old('is_active', $employee->is_active) ? 'checked' : '' }} class="w-5 h-5 rounded border-gray-300 text-navy focus:ring focus:ring-navy focus:ring-opacity-20">
                     <span class="ml-3 text-sm font-bold text-gray-700">Account is Active</span>
@@ -125,3 +172,16 @@
     </div>
 </form>
 @endsection
+
+@push('scripts')
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('.select2').select2({
+            placeholder: "Select an option",
+            allowClear: true
+        });
+    });
+</script>
+@endpush

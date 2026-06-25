@@ -32,7 +32,7 @@ class EmployeeController extends Controller
             });
         }
 
-        $employees = $query->with('employeeGeofences')->orderBy('name', 'asc')->paginate(10)->withQueryString();
+        $employees = $query->with(['employeeGeofences', 'department', 'designation'])->orderBy('name', 'asc')->paginate(10)->withQueryString();
         return view('admin.employees.index', compact('employees'));
     }
 
@@ -41,8 +41,11 @@ class EmployeeController extends Controller
         $geofences = Geofence::where('is_active', true)
             ->where('admin_id', auth()->id())
             ->get();
+            
+        $departments = \App\Models\Department::where('admin_id', auth()->id())->get();
+        $designations = \App\Models\Designation::where('admin_id', auth()->id())->get();
 
-        return view('admin.employees.create', compact('geofences'));
+        return view('admin.employees.create', compact('geofences', 'departments', 'designations'));
     }
 
     public function store(Request $request)
@@ -54,6 +57,8 @@ class EmployeeController extends Controller
             'employee_id' => 'required|string|max:50',
             'password'    => 'required|string|min:6',
             'geofences'   => 'nullable|array',
+            'department_id' => 'nullable|exists:departments,id',
+            'designation_id' => 'nullable|exists:designations,id',
         ]);
 
         $employee = User::create([
@@ -64,6 +69,9 @@ class EmployeeController extends Controller
             'phone'       => $request->phone,
             'employee_id' => $request->employee_id,
             'password'    => Hash::make($request->password),
+            'department_id' => $request->department_id,
+            'designation_id' => $request->designation_id,
+            'phone_used_restricted' => $request->has('phone_used_restricted'),
         ]);
 
         if ($request->filled('geofences')) {
@@ -79,8 +87,11 @@ class EmployeeController extends Controller
         $geofences = Geofence::where('is_active', true)
             ->where('admin_id', auth()->id())
             ->get();
+            
+        $departments = \App\Models\Department::where('admin_id', auth()->id())->get();
+        $designations = \App\Models\Designation::where('admin_id', auth()->id())->get();
 
-        return view('admin.employees.edit', compact('employee', 'geofences'));
+        return view('admin.employees.edit', compact('employee', 'geofences', 'departments', 'designations'));
     }
 
     public function update(Request $request, User $employee)
@@ -92,9 +103,12 @@ class EmployeeController extends Controller
             'employee_id' => 'required|string|max:50',
             'password'    => 'nullable|string|min:6',
             'geofences'   => 'nullable|array',
+            'department_id' => 'nullable|exists:departments,id',
+            'designation_id' => 'nullable|exists:designations,id',
         ]);
 
-        $data = $request->only(['name', 'email', 'phone', 'employee_id']);
+        $data = $request->only(['name', 'email', 'phone', 'employee_id', 'department_id', 'designation_id']);
+        $data['phone_used_restricted'] = $request->has('phone_used_restricted');
 
         if ($request->filled('password')) {
             $data['password'] = Hash::make($request->password);
