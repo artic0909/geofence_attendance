@@ -1,4 +1,4 @@
-@extends('admin.layout')
+@extends('superadmin.layouts.app')
 @section('header_title', 'Create Site (Geofence)')
 
 @section('content')
@@ -7,13 +7,13 @@
         <h1 class="text-3xl font-bold text-gray-800">New Site</h1>
         <p class="text-gray-600 mt-1">Add a new geographical boundary for check-ins.</p>
     </div>
-    <a href="{{ route('admin.geofences.index') }}" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+    <a href="{{ route('superadmin.organizations.geofences.index', $org->id) }}" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
         <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
         Back to Sites
     </a>
 </div>
 
-<form action="{{ route('admin.geofences.store') }}" method="POST" class="space-y-8 max-w-4xl validate-form">
+<form action="{{ route('superadmin.organizations.geofences.store', $org->id) }}" method="POST" class="space-y-8 max-w-4xl validate-form">
     @csrf
     
     <input type="hidden" name="admin_id" value="{{ auth()->id() }}">

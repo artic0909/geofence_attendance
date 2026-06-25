@@ -1,4 +1,4 @@
-@extends('admin.layout')
+@extends('superadmin.layouts.app')
 @section('header_title', 'Edit Site (Geofence)')
 
 @section('content')
@@ -7,13 +7,13 @@
         <h1 class="text-3xl font-bold text-gray-800">Edit Site</h1>
         <p class="text-gray-600 mt-1">Update geographical boundaries and details.</p>
     </div>
-    <a href="{{ route('admin.geofences.index') }}" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+    <a href="{{ route('superadmin.organizations.geofences.index', $org->id) }}" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
         <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
         Back to Sites
     </a>
 </div>
 
-<form action="{{ route('admin.geofences.update', $geofence) }}" method="POST" class="space-y-8 max-w-4xl validate-form">
+<form action="{{ route('superadmin.organizations.geofences.update', [$org->id, $geofence]) }}" method="POST" class="space-y-8 max-w-4xl validate-form">
     @csrf
     @method('PUT')
     
@@ -101,7 +101,7 @@
     </div>
 
     <div class="flex justify-end pt-2 pb-16 space-x-4">
-        <a href="{{ route('admin.geofences.index') }}" class="px-6 py-3 bg-white text-gray-700 border border-gray-300 font-bold rounded-xl shadow-sm hover:bg-gray-50 transition-all duration-300">
+        <a href="{{ route('superadmin.organizations.geofences.index', $org->id) }}" class="px-6 py-3 bg-white text-gray-700 border border-gray-300 font-bold rounded-xl shadow-sm hover:bg-gray-50 transition-all duration-300">
             Cancel
         </a>
         <button type="submit" class="px-8 py-3 bg-navy text-white font-bold rounded-xl shadow-lg hover:bg-[#233554] transition-all duration-300 transform hover:-translate-y-1 flex items-center">

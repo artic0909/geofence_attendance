@@ -20,6 +20,10 @@ Route::prefix('superadmin')->name('superadmin.')->group(function () {
         
         Route::resource('plans', PlanController::class)->except(['show']);
         Route::resource('organizations', \App\Http\Controllers\Superadmin\OrganizationController::class);
+        Route::get('organizations/{organization}/employees/{employee}/track', [\App\Http\Controllers\Superadmin\OrganizationEmployeeController::class, 'track'])->name('organizations.employees.track');
+        Route::get('organizations/{organization}/employees/{employee}/latest-location', [\App\Http\Controllers\Superadmin\OrganizationEmployeeController::class, 'latestLocation'])->name('organizations.employees.latest-location');
+        Route::resource('organizations.employees', \App\Http\Controllers\Superadmin\OrganizationEmployeeController::class);
+        Route::resource('organizations.geofences', \App\Http\Controllers\Superadmin\OrganizationGeofenceController::class);
         Route::resource('subscriptions', \App\Http\Controllers\Superadmin\SubscriptionController::class);
         
         Route::get('settings', [\App\Http\Controllers\Superadmin\SettingController::class, 'index'])->name('settings.index');

@@ -1,4 +1,4 @@
-@extends('admin.layout')
+@extends('superadmin.layouts.app')
 
 @section('content')
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
@@ -94,7 +94,7 @@
     @endforeach
 
     function updateLiveLocation() {
-        fetch('{{ route("admin.employees.latest-location", $employee) }}')
+        fetch('{{ route('superadmin.organizations.employees.latest-location', [$org->id, $employee]) }}')
             .then(response => response.json())
             .then(data => {
                 if (data.latitude && data.longitude) {
