@@ -39,6 +39,9 @@ class User extends Authenticatable
         'plan_id',
         'subscription_status',
         'subscription_expires_at',
+        'department_id',
+        'designation_id',
+        'phone_used_restricted',
     ];
 
     /**
@@ -62,6 +65,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_active' => 'boolean',
+            'phone_used_restricted' => 'boolean',
             'subscription_expires_at' => 'datetime',
         ];
     }
@@ -106,6 +110,16 @@ class User extends Authenticatable
     public function outsideAttendances()
     {
         return $this->hasMany(OutsideAttendance::class, 'employee_id');
+    }
+
+    public function department()
+    {
+        return $this->belongsTo(Department::class, 'department_id');
+    }
+
+    public function designation()
+    {
+        return $this->belongsTo(Designation::class, 'designation_id');
     }
 
     // Role checks
