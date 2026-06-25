@@ -4,14 +4,22 @@ namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-
 use App\Models\Plan;
 
 class PlanController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $plans = Plan::all();
+        $query = Plan::query()->latest();
+
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $query->where('name', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+        }
+
+        $plans = $query->paginate(10)->withQueryString();
+        
         return view('superadmin.plans.index', compact('plans'));
     }
 
@@ -25,10 +33,10 @@ class PlanController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'monthly_price' => 'required|numeric|min:0',
-            'yearly_price' => 'required|numeric|min:0',
+            'price' => 'required|numeric|min:0',
             'features' => 'nullable|string', // comma separated
-            'active' => 'boolean'
+            'active' => 'boolean',
+            'is_popular' => 'boolean',
         ]);
 
         if ($request->has('features') && !empty($request->features)) {
@@ -36,6 +44,9 @@ class PlanController extends Controller
         } else {
             $validated['features'] = [];
         }
+
+        $validated['active'] = $request->has('active');
+        $validated['is_popular'] = $request->has('is_popular');
 
         Plan::create($validated);
 
@@ -52,10 +63,10 @@ class PlanController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'monthly_price' => 'required|numeric|min:0',
-            'yearly_price' => 'required|numeric|min:0',
+            'price' => 'required|numeric|min:0',
             'features' => 'nullable|string',
-            'active' => 'boolean'
+            'active' => 'boolean',
+            'is_popular' => 'boolean',
         ]);
 
         if ($request->has('features') && !empty($request->features)) {
@@ -65,6 +76,7 @@ class PlanController extends Controller
         }
         
         $validated['active'] = $request->has('active');
+        $validated['is_popular'] = $request->has('is_popular');
 
         $plan->update($validated);
 

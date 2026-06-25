@@ -16,11 +16,14 @@ Route::prefix('superadmin')->name('superadmin.')->group(function () {
     Route::post('/logout', [SuperadminAuthController::class, 'logout'])->name('logout');
 
     Route::middleware('auth:admin')->group(function () {
-        Route::get('/', function () {
-            return redirect()->route('superadmin.plans.index');
-        })->name('dashboard');
+        Route::get('/', [\App\Http\Controllers\Superadmin\DashboardController::class, 'index'])->name('dashboard');
         
         Route::resource('plans', PlanController::class)->except(['show']);
+        Route::resource('organizations', \App\Http\Controllers\Superadmin\OrganizationController::class);
+        Route::resource('subscriptions', \App\Http\Controllers\Superadmin\SubscriptionController::class);
+        
+        Route::get('settings', [\App\Http\Controllers\Superadmin\SettingController::class, 'index'])->name('settings.index');
+        Route::post('settings', [\App\Http\Controllers\Superadmin\SettingController::class, 'update'])->name('settings.update');
     });
 });
 

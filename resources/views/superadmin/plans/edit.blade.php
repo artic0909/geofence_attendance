@@ -27,13 +27,8 @@
                     </div>
 
                     <div class="col-span-6 sm:col-span-3">
-                        <label for="monthly_price" class="block text-sm font-medium text-gray-700">Monthly Price (₹)</label>
-                        <input type="number" step="0.01" name="monthly_price" id="monthly_price" value="{{ $plan->monthly_price }}" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-navy focus:border-navy sm:text-sm">
-                    </div>
-
-                    <div class="col-span-6 sm:col-span-3">
-                        <label for="yearly_price" class="block text-sm font-medium text-gray-700">Yearly Price (₹)</label>
-                        <input type="number" step="0.01" name="yearly_price" id="yearly_price" value="{{ $plan->yearly_price }}" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-navy focus:border-navy sm:text-sm">
+                        <label for="price" class="block text-sm font-medium text-gray-700">Price (₹)</label>
+                        <input type="number" step="0.01" name="price" id="price" value="{{ $plan->price }}" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-navy focus:border-navy sm:text-sm">
                     </div>
 
                     <div class="col-span-6 sm:col-span-6">
@@ -41,7 +36,7 @@
                         <input type="text" name="features" id="features" value="{{ is_array($plan->features) ? implode(', ', $plan->features) : '' }}" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-navy focus:border-navy sm:text-sm">
                     </div>
 
-                    <div class="col-span-6 sm:col-span-6">
+                    <div class="col-span-6 sm:col-span-3">
                         <div class="flex items-start">
                             <div class="flex items-center h-5">
                                 <input id="active" name="active" type="checkbox" value="1" {{ $plan->active ? 'checked' : '' }} class="focus:ring-navy h-4 w-4 text-navy border-gray-300 rounded">
@@ -49,6 +44,18 @@
                             <div class="ml-3 text-sm">
                                 <label for="active" class="font-medium text-gray-700">Active</label>
                                 <p class="text-gray-500">Is this plan visible to users?</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-span-6 sm:col-span-3">
+                        <div class="flex items-start">
+                            <div class="flex items-center h-5">
+                                <input id="is_popular" name="is_popular" type="checkbox" value="1" {{ $plan->is_popular ? 'checked' : '' }} class="focus:ring-navy h-4 w-4 text-navy border-gray-300 rounded">
+                            </div>
+                            <div class="ml-3 text-sm">
+                                <label for="is_popular" class="font-medium text-gray-700">Popular</label>
+                                <p class="text-gray-500">Highlight this plan on the frontend.</p>
                             </div>
                         </div>
                     </div>

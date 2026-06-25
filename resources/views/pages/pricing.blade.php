@@ -37,11 +37,15 @@
         <!-- SaaS Plans Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
             @forelse($plans as $plan)
-            <div class="bg-white rounded-xl p-8 border border-gray-200 shadow-sm hover:shadow-lg transition-shadow flex flex-col relative overflow-hidden group bg-cover bg-center bg-no-repeat" style="background-image: url('{{ asset('world-map-bg.png') }}');">
-                <div class="absolute top-0 left-0 w-full h-1 bg-navy transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
-                <h4 class="text-xl font-bold text-navy mb-2">{{ $plan->name }}</h4>
-                <div class="text-saffron font-bold mb-2 text-2xl">₹{{ number_format($plan->monthly_price, 2) }} / mo</div>
-                <div class="text-gray-500 font-semibold mb-6 text-md">₹{{ number_format($plan->yearly_price, 2) }} / yr</div>
+            <div class="bg-white rounded-xl p-8 border {{ $plan->is_popular ? 'border-saffron shadow-xl -translate-y-2 relative z-10' : 'border-gray-200 shadow-sm' }} hover:shadow-lg transition-all flex flex-col relative overflow-hidden group bg-cover bg-center bg-no-repeat" style="background-image: url('{{ asset('world-map-bg.png') }}');">
+                @if($plan->is_popular)
+                    <div class="absolute top-0 right-0 bg-saffron text-white text-xs font-bold px-3 py-1 rounded-bl-lg">MOST POPULAR</div>
+                    <div class="absolute top-0 left-0 w-full h-1 bg-saffron"></div>
+                @else
+                    <div class="absolute top-0 left-0 w-full h-1 bg-navy transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
+                @endif
+                <h4 class="text-xl font-bold text-navy mb-2 mt-2">{{ $plan->name }}</h4>
+                <div class="text-saffron font-bold mb-6 text-3xl">₹{{ number_format($plan->price, 2) }}</div>
                 <div class="text-gray-600 text-sm mb-8 flex-grow">{{ $plan->description }}</div>
                 @if($plan->features)
                 <ul class="space-y-4 mb-8 text-sm text-gray-700">

@@ -9,14 +9,15 @@ class Plan extends Model
     protected $fillable = [
         'name',
         'description',
-        'monthly_price',
-        'yearly_price',
+        'price',
         'features',
         'active',
+        'is_popular',
     ];
 
     protected $casts = [
         'features' => 'array',
         'active' => 'boolean',
+        'is_popular' => 'boolean',
     ];
 }
