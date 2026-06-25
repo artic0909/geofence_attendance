@@ -1,256 +1,216 @@
 @extends('admin.layout')
+@section('header_title', 'All Attendances')
 
 @section('content')
-<div class="mb-8">
-    <h1 class="text-3xl font-bold text-gray-800">All Attendances</h1>
-    <p class="text-gray-600">Welcome to Site Sync <span class="font-bold text-danger" style="text-transform: capitalize;">{{ auth()->user()->name }}</span> Panel</p>
+<div class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div>
+        <h1 class="text-3xl font-bold text-gray-800">All Attendances</h1>
+        <p class="text-gray-600 mt-1">Welcome to Site Sync <span class="font-bold text-navy" style="text-transform: capitalize;">{{ auth()->user()->name }}</span> Panel</p>
+    </div>
+    
+    <div class="flex gap-2">
+        <a href="{{ route('admin.attendances.export') }}" class="inline-flex items-center px-4 py-2 bg-green-600 text-white font-medium rounded-lg shadow-sm hover:bg-green-700 transition-colors text-sm">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+            Export Excel
+        </a>
+    </div>
 </div>
 
-
-<!-- Recent Attendance -->
-<div class="bg-white rounded-lg shadow">
-    <div class="px-6 py-4 border-b border-gray-200">
-
-
-        <div class="searchbar mb-2">
-            <form method="GET" id="filterForm" action="{{ route('admin.attendances') }}" class="row">
-                <h2 class="font-bold">Filter Search</h2>
-                <!-- Geofence Dropdown -->
-                <div class="col-md-12">
-                    <label for="geofence" class="form-label">Geofence</label>
-                    <select name="geofence" id="geofence" class="form-select">
-                        <option value="" {{ request('geofence') == '' ? 'selected' : '' }}>ALL</option>
-                        @foreach($geofences as $geofence)
-                        <option value="{{ $geofence->id }}" {{ request('geofence') == $geofence->id ? 'selected' : '' }}>
-                            {{ $geofence->name }}
-                        </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <!-- From Date -->
-                <div class="col-md-4 mt-3">
-                    <label for="from_date" class="form-label">From Date</label>
-                    <input type="date" name="from_date" id="from_date" class="form-control" value="{{ request('from_date') }}">
-                </div>
-
-                <!-- To Date -->
-                <div class="col-md-4 mt-3">
-                    <label for="to_date" class="form-label">To Date</label>
-                    <input type="date" name="to_date" id="to_date" class="form-control" value="{{ request('to_date') }}">
-                </div>
-
-
-                <!-- Employee Name (optional) -->
-                <div class="col-md-4 mt-3">
-                    <label for="employee_name" class="form-label">Employee Name</label>
-                    <input type="text" name="employee_name" id="employee_name" class="form-control" placeholder="Optional" value="{{ request('employee_name') }}">
-                </div>
-
-
-
-                <!-- Buttons -->
-                <div class="col-12 mt-3 text-end">
-                    <button type="submit" id="filterBtn" class="btn btn-primary">Filter</button>
-                    <button type="submit" formaction="{{ route('admin.attendances.export') }}" class="btn btn-success mx-2">Export to Excel</button>
-                    <a href="{{ route('admin.attendances') }}" class="btn btn-secondary">Reset</a>
-                </div>
-            </form>
-
-        </div>
-
-
-
-
+<div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-6">
+    <div class="px-6 py-5 border-b border-gray-100 bg-gray-50/50">
+        <h2 class="font-bold text-navy">Filter Search</h2>
     </div>
+    
     <div class="p-6">
-        @if($recent_attendances->count() > 0)
-        <div class="overflow-x-auto">
-            <table class="w-full">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">SL</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Check In</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ChaeckIn Image</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Check Out</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ChaeckOut Image</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total Hours</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Location/Reason</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-200">
-                    @foreach($recent_attendances as $attendance)
-                    <tr>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ ($recent_attendances->currentPage() - 1) * $recent_attendances->perPage() + $loop->iteration }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-2 py-1 text-xs font-bold rounded {{ $attendance->attendance_type == 'outside' ? 'bg-orange-100 text-orange-700' : 'bg-green-100 text-green-700' }}">
-                                {{ ucfirst($attendance->attendance_type) }}
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ $attendance->employee->name }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ $attendance->employee->email }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            {{ \Carbon\Carbon::parse($attendance->date)->format('d/m/Y') }}
-                        </td>
+        <form method="GET" id="filterForm" action="{{ route('admin.attendances') }}" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+            <!-- Geofence Dropdown -->
+            <div>
+                <label for="geofence" class="block text-sm font-medium text-gray-700 mb-1">Site / Geofence</label>
+                <select name="geofence" id="geofence" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-saffron focus:border-saffron bg-gray-50">
+                    <option value="" {{ request('geofence') == '' ? 'selected' : '' }}>ALL</option>
+                    @foreach($geofences as $geofence)
+                    <option value="{{ $geofence->id }}" {{ request('geofence') == $geofence->id ? 'selected' : '' }}>
+                        {{ $geofence->name }}
+                    </option>
+                    @endforeach
+                </select>
+            </div>
 
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            {{ $attendance->check_in ? \Carbon\Carbon::parse($attendance->check_in)->format('h:i A') : 'N/A' }}
-                        </td>
+            <!-- From Date -->
+            <div>
+                <label for="from_date" class="block text-sm font-medium text-gray-700 mb-1">From Date</label>
+                <input type="date" name="from_date" id="from_date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-saffron focus:border-saffron bg-gray-50" value="{{ request('from_date') }}">
+            </div>
 
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdropCheckIn{{$attendance->id}}">View</button>
-                        </td>
+            <!-- To Date -->
+            <div>
+                <label for="to_date" class="block text-sm font-medium text-gray-700 mb-1">To Date</label>
+                <input type="date" name="to_date" id="to_date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-saffron focus:border-saffron bg-gray-50" value="{{ request('to_date') }}">
+            </div>
 
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            {{ $attendance->check_out ? \Carbon\Carbon::parse($attendance->check_out)->format('h:i A') : 'N/A' }}
-                        </td>
+            <!-- Employee Name -->
+            <div>
+                <label for="employee_name" class="block text-sm font-medium text-gray-700 mb-1">Employee Name</label>
+                <input type="text" name="employee_name" id="employee_name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-saffron focus:border-saffron bg-gray-50" placeholder="Optional" value="{{ request('employee_name') }}">
+            </div>
 
-                        <td class="px-6 py-4 whitespace-nowrap"><button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdropCheckOut{{$attendance->id}}">View</button></td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            @php
-                            if ($attendance->check_in && $attendance->check_out) {
+            <!-- Buttons -->
+            <div class="md:col-span-4 flex justify-end gap-3 mt-2">
+                <a href="{{ route('admin.attendances') }}" class="px-5 py-2.5 border border-gray-300 text-gray-700 font-bold rounded-lg hover:bg-gray-50 transition-colors flex items-center">
+                    Reset
+                </a>
+                <button type="submit" id="filterBtn" class="px-5 py-2.5 bg-navy text-white font-bold rounded-lg hover:bg-[#233554] transition-colors shadow-sm flex items-center">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
+                    Filter Search
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+    @if($recent_attendances->count() > 0)
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm text-left">
+            <thead class="text-xs text-gray-500 uppercase bg-gray-50/50 border-b border-gray-100">
+                <tr>
+                    <th class="px-6 py-4 font-semibold tracking-wider">Type</th>
+                    <th class="px-6 py-4 font-semibold tracking-wider">Employee</th>
+                    <th class="px-6 py-4 font-semibold tracking-wider">Date</th>
+                    <th class="px-6 py-4 font-semibold tracking-wider">Check In</th>
+                    <th class="px-6 py-4 font-semibold tracking-wider">Check Out</th>
+                    <th class="px-6 py-4 font-semibold tracking-wider">Hours</th>
+                    <th class="px-6 py-4 font-semibold tracking-wider">Location</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                @foreach($recent_attendances as $attendance)
+                <tr class="hover:bg-gray-50/80 transition-colors">
+                    <td class="px-6 py-4">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold {{ $attendance->attendance_type == 'outside' ? 'bg-orange-100 text-orange-700 border border-orange-200' : 'bg-green-100 text-green-700 border border-green-200' }}">
+                            {{ ucfirst($attendance->attendance_type) }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="font-bold text-navy">{{ $attendance->employee->name }}</div>
+                        <div class="text-xs text-gray-500">{{ $attendance->employee->email }}</div>
+                    </td>
+                    <td class="px-6 py-4 font-medium text-gray-900">
+                        {{ \Carbon\Carbon::parse($attendance->date)->format('d/m/Y') }}
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="font-medium text-gray-900">{{ $attendance->check_in ? \Carbon\Carbon::parse($attendance->check_in)->format('h:i A') : '--:--' }}</div>
+                        @if($attendance->check_in_photo)
+                        <button class="text-xs text-blue-600 hover:text-blue-800 underline mt-1" data-bs-toggle="modal" data-bs-target="#staticBackdropCheckIn{{$attendance->id}}">View Photo</button>
+                        @endif
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="font-medium text-gray-900">{{ $attendance->check_out ? \Carbon\Carbon::parse($attendance->check_out)->format('h:i A') : '--:--' }}</div>
+                        @if($attendance->check_out_photo)
+                        <button class="text-xs text-blue-600 hover:text-blue-800 underline mt-1" data-bs-toggle="modal" data-bs-target="#staticBackdropCheckOut{{$attendance->id}}">View Photo</button>
+                        @endif
+                    </td>
+                    <td class="px-6 py-4">
+                        @php
+                        if ($attendance->check_in && $attendance->check_out) {
                             $checkIn = \Carbon\Carbon::parse($attendance->check_in);
                             $checkOut = \Carbon\Carbon::parse($attendance->check_out);
                             $totalHours = $checkIn->diff($checkOut)->format('%H:%I:%S');
-                            } else {
-                            $totalHours = 'N/A';
-                            }
-                            @endphp
-                            {{ $totalHours }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            @if($attendance->attendance_type == 'normal')
-                                {{ $attendance->geofence->name ?? 'N/A' }}
-                            @else
-                                <div class="flex items-center gap-2">
-                                    <span class="text-orange-600 font-bold">{{ $attendance->checkin_location ?? 'Outside' }}</span>
-                                    @if($attendance->reason)
-                                        <button class="px-2 py-1 bg-orange-100 text-orange-600 rounded-lg hover:bg-orange-200 transition-colors" data-bs-toggle="modal" data-bs-target="#reasonModal{{$attendance->id}}" title="View Reason">
-                                            Reason
-                                        </button>
-                                    @endif
-                                </div>
-                            @endif
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-
-                <tfoot>
-                    <tr>
-                        <td colspan="10">
-                            <div class="flex justify-center items-center gap-3 py-3">
-
-                                <!-- Prev Button -->
-                                <button
-                                    class="btn btn-secondary"
-                                    {{ $recent_attendances->onFirstPage() ? 'disabled' : '' }}
-                                    onclick="window.location='{{ $recent_attendances->previousPageUrl() }}'">
-                                    Prev
-                                </button>
-
-                                <!-- Page Indicator -->
-                                <div class="flex items-center gap-1">
-                                    <input type="text" readonly class="w-10 text-center form-control border rounded" value="{{ $recent_attendances->currentPage() }}">
-                                    <span>/</span>
-                                    <input type="text" readonly class="w-10 text-center form-control border rounded" value="{{ $recent_attendances->lastPage() }}">
-                                </div>
-
-                                <!-- Next Button -->
-                                <button
-                                    class="btn btn-secondary"
-                                    {{ $recent_attendances->currentPage() == $recent_attendances->lastPage() ? 'disabled' : '' }}
-                                    onclick="window.location='{{ $recent_attendances->nextPageUrl() }}'">
-                                    Next
-                                </button>
-
+                        } else {
+                            $totalHours = '--:--:--';
+                        }
+                        @endphp
+                        <span class="font-mono text-gray-700 bg-gray-100 px-2 py-1 rounded text-xs">{{ $totalHours }}</span>
+                    </td>
+                    <td class="px-6 py-4">
+                        @if($attendance->attendance_type == 'normal')
+                            <span class="font-medium text-gray-700">{{ $attendance->geofence->name ?? 'N/A' }}</span>
+                        @else
+                            <div class="flex items-center gap-2">
+                                <span class="text-orange-600 font-bold text-xs">{{ $attendance->checkin_location ?? 'Outside' }}</span>
+                                @if($attendance->reason)
+                                    <button class="px-2 py-1 bg-orange-50 text-orange-600 rounded text-xs border border-orange-100 hover:bg-orange-100 transition-colors" data-bs-toggle="modal" data-bs-target="#reasonModal{{$attendance->id}}" title="View Reason">
+                                        Reason
+                                    </button>
+                                @endif
                             </div>
-                        </td>
-                    </tr>
-                </tfoot>
-
-            </table>
-        </div>
-        @else
-        <p class="text-gray-500 text-center py-4">No attendance records found.</p>
-        @endif
+                        @endif
+                    </td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
     </div>
+    
+    <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/30">
+        {{ $recent_attendances->links() }}
+    </div>
+    @else
+    <div class="py-16 text-center">
+        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-50 text-gray-400 mb-4 shadow-sm border border-gray-100">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        </div>
+        <h3 class="text-lg font-bold text-navy mb-1">No Records Found</h3>
+        <p class="text-gray-500 text-sm">No attendances have been found with the current filters.</p>
+    </div>
+    @endif
 </div>
 
-<!-- Check In Image Modal -->
+<!-- Modals for Photos -->
 @foreach($recent_attendances as $attendance)
-<div class="modal fade" id="staticBackdropCheckIn{{$attendance->id}}" data-bs-toggle="modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+@if($attendance->check_in_photo)
+<div class="modal fade" id="staticBackdropCheckIn{{$attendance->id}}" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="staticBackdropLabel">Check In Image</h5>
+        <div class="modal-content border-0 shadow-lg rounded-2xl overflow-hidden">
+            <div class="modal-header bg-gray-50 border-b border-gray-100">
+                <h5 class="modal-title font-bold text-navy">Check-In Photo: {{ $attendance->employee->name }}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                <img src="{{ Storage::url($attendance->check_in_photo) }}" class="w-full" alt="">
-
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Understood</button>
+            <div class="modal-body p-0">
+                <img src="{{ Storage::url($attendance->check_in_photo) }}" class="w-full h-auto" alt="Check In Photo">
             </div>
         </div>
     </div>
 </div>
-@endforeach
+@endif
 
-<!-- Check Out Image Modal -->
-@foreach($recent_attendances as $attendance)
-<div class="modal fade" id="staticBackdropCheckOut{{$attendance->id}}" data-bs-toggle="modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+@if($attendance->check_out_photo)
+<div class="modal fade" id="staticBackdropCheckOut{{$attendance->id}}" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="staticBackdropLabel">Check Out Image</h5>
+        <div class="modal-content border-0 shadow-lg rounded-2xl overflow-hidden">
+            <div class="modal-header bg-gray-50 border-b border-gray-100">
+                <h5 class="modal-title font-bold text-navy">Check-Out Photo: {{ $attendance->employee->name }}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                <img src="{{ Storage::url($attendance->check_out_photo) }}" class="w-full" alt="">
-
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Understood</button>
+            <div class="modal-body p-0">
+                <img src="{{ Storage::url($attendance->check_out_photo) }}" class="w-full h-auto" alt="Check Out Photo">
             </div>
         </div>
     </div>
 </div>
-@endforeach
+@endif
 
-<!-- Reason Modals -->
-@foreach($recent_attendances as $attendance)
 @if($attendance->attendance_type == 'outside' && $attendance->reason)
-<div class="modal fade" id="reasonModal{{$attendance->id}}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="reasonModalLabel" aria-hidden="true">
+<div class="modal fade" id="reasonModal{{$attendance->id}}" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header bg-orange-50">
-                <h5 class="modal-title font-bold text-orange-700" id="reasonModalLabel">Attendance Justification</h5>
+        <div class="modal-content border-0 shadow-lg rounded-2xl overflow-hidden">
+            <div class="modal-header bg-orange-50 border-b border-orange-100">
+                <h5 class="modal-title font-bold text-orange-700">Outside Justification</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-6">
                 <div class="mb-4">
-                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wider">Employee</label>
-                    <p class="text-gray-900 font-medium">{{ $attendance->employee->name }}</p>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Employee</label>
+                    <p class="text-navy font-medium">{{ $attendance->employee->name }}</p>
                 </div>
                 <div class="mb-4">
-                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wider">Site Location</label>
-                    <p class="text-gray-900 font-medium">{{ $attendance->checkin_location ?? 'N/A' }}</p>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Location</label>
+                    <p class="text-navy font-medium">{{ $attendance->checkin_location ?? 'N/A' }}</p>
                 </div>
                 <div class="p-4 bg-orange-50 border border-orange-100 rounded-xl">
-                    <label class="text-xs font-bold text-orange-600 uppercase tracking-wider mb-2 block">Reason for Outside Duty</label>
+                    <label class="text-xs font-bold text-orange-700 uppercase tracking-wider mb-2 block">Reason</label>
                     <p class="text-gray-800 italic leading-relaxed">"{{ $attendance->reason }}"</p>
                 </div>
-            </div>
-            <div class="modal-footer border-0">
-                <button type="button" class="btn btn-secondary rounded-lg" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
@@ -258,7 +218,16 @@
 @endif
 @endforeach
 
-
-
+<script>
+    // Set max date for to_date based on from_date selection
+    const fromDateInput = document.getElementById('from_date');
+    const toDateInput = document.getElementById('to_date');
+    
+    if(fromDateInput && toDateInput) {
+        fromDateInput.addEventListener('change', function() {
+            toDateInput.setAttribute('min', this.value);
+        });
+    }
+</script>
 
 @endsection

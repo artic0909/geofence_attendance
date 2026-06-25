@@ -5,17 +5,20 @@
     <title>Invoice - {{ $transaction->razorpay_payment_id ?? $transaction->id }}</title>
     <style>
         body {
-            font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
-            color: #333;
+            font-family: 'Inter', 'Roboto', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+            color: #4b5563; /* Grey/Dark Grey */
             font-size: 14px;
             line-height: 1.5;
+            background-color: #f9fafb; /* Off-White background */
         }
         .invoice-box {
             max-width: 800px;
-            margin: auto;
-            padding: 30px;
-            border: 1px solid #eee;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+            margin: 40px auto;
+            padding: 40px;
+            background-color: #ffffff;
+            border-top: 4px solid #F58220; /* Orange/Amber top border */
+            border-radius: 8px; /* Rounded corners */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
         .invoice-box table {
             width: 100%;
@@ -34,18 +37,20 @@
             padding-bottom: 20px;
         }
         .invoice-box table tr.top table td.title {
-            font-size: 30px;
+            font-size: 32px;
             line-height: 45px;
-            color: #1a2639;
-            font-weight: bold;
+            color: #0A1172; /* Dark Blue/Navy */
+            font-weight: 700;
         }
         .invoice-box table tr.information table td {
             padding-bottom: 40px;
         }
         .invoice-box table tr.heading td {
-            background: #eee;
-            border-bottom: 1px solid #ddd;
-            font-weight: bold;
+            background: #0A1172; /* Dark Blue/Navy */
+            color: #ffffff; /* White text */
+            border-bottom: 1px solid #0A1172;
+            font-weight: 600;
+            padding: 10px;
         }
         .invoice-box table tr.details td {
             padding-bottom: 20px;
@@ -57,25 +62,28 @@
             border-bottom: none;
         }
         .invoice-box table tr.total td:nth-child(2) {
-            border-top: 2px solid #eee;
-            font-weight: bold;
+            border-top: 2px solid #e5e7eb;
+            font-weight: 700;
+            font-size: 16px;
+            color: #F58220; /* Orange/Amber for total */
         }
         .footer {
             margin-top: 50px;
             text-align: center;
             font-size: 12px;
-            color: #777;
-            border-top: 1px solid #eee;
-            padding-top: 10px;
+            color: #6b7280;
+            border-top: 1px solid #e5e7eb;
+            padding-top: 20px;
         }
         .badge {
-            background-color: #d1fae5;
-            color: #065f46;
-            padding: 4px 8px;
-            border-radius: 4px;
+            background-color: #ecfdf5; /* Light green */
+            color: #047857; /* Dark green */
+            padding: 4px 10px;
+            border-radius: 9999px; /* Fully rounded pill */
             font-size: 12px;
-            font-weight: bold;
+            font-weight: 600;
             display: inline-block;
+            border: 1px solid #34d399;
         }
     </style>
 </head>
@@ -92,7 +100,7 @@
                             <td>
                                 Invoice #: {{ $transaction->razorpay_payment_id ?? $transaction->id }}<br>
                                 Created: {{ $transaction->created_at->format('F d, Y') }}<br>
-                                Status: <span class="badge">PAID</span>
+                                Status: <strong class="text-success">PAID</strong>
                             </td>
                         </tr>
                     </table>
@@ -103,15 +111,14 @@
                 <td colspan="2">
                     <table>
                         <tr>
-                            <td>
-                                <strong>Billed From:</strong><br>
+                            <td style="color: #0A1172;">
+                                <strong style="color: #0A1172;">Billed From:</strong><br>
                                 Geofence Attendance System<br>
-                                (A product of Tech Innovations)<br>
-                                GSTIN: 27AAAAA0000A1Z5<br>
-                                contact@geofence-attendance.test
+                                <span style="color: #F58220;">{{ config('app.url', 'https://geofence_attendance.test/') }}</span><br>
+                                Sumatra Sales Private Limited
                             </td>
-                            <td>
-                                <strong>Billed To:</strong><br>
+                            <td style="color: #4b5563;">
+                                <strong style="color: #0A1172;">Billed To:</strong><br>
                                 {{ $user->business_name ?? $user->name }}<br>
                                 {{ $user->name }}<br>
                                 {{ $user->email }}<br>
@@ -145,18 +152,18 @@
                     Subscription Plan: <strong>{{ $transaction->plan->name ?? 'Custom Plan' }}</strong><br>
                     <small>Validity: {{ $transaction->plan->duration_days ?? 30 }} days</small>
                 </td>
-                <td>₹{{ number_format($transaction->amount, 2) }}</td>
+                <td>Rs. {{ number_format($transaction->amount, 2) }}</td>
             </tr>
 
             <tr class="total">
                 <td></td>
-                <td>Total: ₹{{ number_format($transaction->amount, 2) }}</td>
+                <td>Total: Rs. {{ number_format($transaction->amount, 2) }}</td>
             </tr>
         </table>
         
         <div class="footer">
             <p>This is a computer-generated invoice and does not require a physical signature.</p>
-            <p>Thank you for doing business with Geofence Attendance System.</p>
+            <p>Thank you for doing business with {{ config('app.name', 'Geofence Attendance System') }}.</p>
         </div>
     </div>
 </body>

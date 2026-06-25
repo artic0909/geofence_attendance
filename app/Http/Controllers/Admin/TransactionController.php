@@ -30,6 +30,10 @@ class TransactionController extends Controller
         
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('admin.transactions.invoice', compact('transaction', 'user'));
         
+        if (request()->has('view')) {
+            return $pdf->stream('Invoice-' . ($transaction->razorpay_payment_id ?? $transaction->id) . '.pdf');
+        }
+        
         return $pdf->download('Invoice-' . ($transaction->razorpay_payment_id ?? $transaction->id) . '.pdf');
     }
 }
