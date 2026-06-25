@@ -186,7 +186,7 @@
                         </div>
                     </div>
                 </div>
-                <a href="#" class="inline-block bg-navy text-white px-8 py-3 rounded text-lg font-bold shadow hover:bg-blue-800 transition">Contact For Pricing</a>
+                <a href="/contact" class="inline-block bg-navy text-white px-8 py-3 rounded text-lg font-bold shadow hover:bg-blue-800 transition">Contact For Pricing</a>
             </div>
         </div>
     </section>
