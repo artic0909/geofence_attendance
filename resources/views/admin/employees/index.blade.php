@@ -48,9 +48,9 @@
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ $employee->phone }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-mono">{{ $employee->employee_id }}</td>
                     <td class="px-6 py-4">
-                        @if($employee->geofences->count() > 0)
+                        @if($employee->employeeGeofences->count() > 0)
                             <div class="flex flex-wrap gap-1">
-                                @foreach($employee->geofences as $geofence)
+                                @foreach($employee->employeeGeofences as $geofence)
                                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
                                         {{ $geofence->name }}
                                     </span>

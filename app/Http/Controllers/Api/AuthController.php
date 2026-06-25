@@ -2,8 +2,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Employee;
-use App\Models\Admin;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
@@ -18,7 +17,7 @@ class AuthController extends Controller
             'device_name' => 'required',
         ]);
 
-        $employee = Employee::where('email', $request->email)->first();
+        $employee = User::where('role', 'employee')->where('email', $request->email)->first();
 
         if (!$employee || !Hash::check($request->password, $employee->password)) {
             throw ValidationException::withMessages([
@@ -27,7 +26,7 @@ class AuthController extends Controller
         }
 
         // Get admin name using admin_id from employee table
-        $admin = $employee->admin_id ? Admin::find($employee->admin_id) : null;
+        $admin = $employee->admin_id ? User::find($employee->admin_id) : null;
 
         // Create access token
         $token = $employee->createToken($request->device_name)->plainTextToken;

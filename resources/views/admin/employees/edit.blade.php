@@ -15,7 +15,7 @@
             @method('PUT')
 
             <!-- Hidden input field for admin_id guard admins -->
-            <input type="hidden" name="admin_id" value="{{ auth()->guard('admin')->user()->id }}">
+            <input type="hidden" name="admin_id" value="{{ auth()->user()->id }}">
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
@@ -80,8 +80,8 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-48 overflow-y-auto border rounded-lg p-4">
                     @foreach($geofences as $geofence)
                     <label class="flex items-center space-x-2">
-                        <input type="radio" name="geofences[]" value="{{ $geofence->id }}"
-                            {{ $employee->geofences->contains($geofence->id) ? 'checked' : '' }}
+                        <input type="checkbox" name="geofences[]" value="{{ $geofence->id }}"
+                            {{ $employee->employeeGeofences->contains($geofence->id) ? 'checked' : '' }}
                             class="rounded border-gray-300 text-blue-600 focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                         <span class="text-sm">
                             {{ $geofence->name }}

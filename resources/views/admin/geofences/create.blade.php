@@ -8,8 +8,8 @@
         <form action="{{ route('admin.geofences.store') }}" method="POST">
             @csrf
 
-            <!-- Hidden input field for admin_id guard admins -->
-            <input type="hidden" name="admin_id" value="{{ auth()->guard('admin')->user()->id }}">
+            <!-- Hidden input field for admin_id -->
+            <input type="hidden" name="admin_id" value="{{ auth()->id() }}">
 
             <div class="mb-4">
                 <label class="block text-gray-700 text-sm font-bold mb-2" for="name">Site Name</label>

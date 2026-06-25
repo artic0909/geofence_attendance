@@ -47,7 +47,7 @@ class AttendanceApiController extends Controller
             }
 
             // Get assigned geofences
-            $geofences = $employee->geofences()->where('is_active', true)->get();
+            $geofences = $employee->employeeGeofences()->where('is_active', true)->get();
 
             if ($geofences->isEmpty()) {
                 return response()->json([
@@ -200,7 +200,7 @@ class AttendanceApiController extends Controller
             Log::info("CheckOut successful for employee {$employee->id}");
 
             // Fetch all assigned geofences for employee
-            $assignedGeofences = $employee->geofences()->where('is_active', true)->pluck('name');
+            $assignedGeofences = $employee->employeeGeofences()->where('is_active', true)->pluck('name');
 
             return response()->json([
                 'message' => 'Check-out successful!',
@@ -259,7 +259,7 @@ class AttendanceApiController extends Controller
                 return $attendance->date_formatted . ' ' . $checkInTime;
             })->values();
 
-            $assignedGeofences = $employee->geofences()->where('is_active', true)->pluck('name');
+            $assignedGeofences = $employee->employeeGeofences()->where('is_active', true)->pluck('name');
 
             return response()->json([
                 'employee_name' => $employee->name,
@@ -303,7 +303,7 @@ class AttendanceApiController extends Controller
         $attendance = Attendance::where('employee_id', $user->id)->where('date', $today)->first();
         $outside = \App\Models\OutsideAttendance::where('employee_id', $user->id)->where('date', $today)->first();
 
-        $geofences = $user->geofences()->pluck('name');
+        $geofences = $user->employeeGeofences()->pluck('name');
 
         return response()->json([
             'employee_name' => $user->name,
@@ -444,7 +444,7 @@ class AttendanceApiController extends Controller
             $lng = (float) $request->longitude;
 
             // Get assigned geofences that have a tracking_radius set
-            $geofences = $employee->geofences()
+            $geofences = $employee->employeeGeofences()
                 ->where('is_active', true)
                 ->whereNotNull('tracking_radius')
                 ->get();

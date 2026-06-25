@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Employee;
+use App\Models\User;
 use App\Models\Geofence;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Http\Request;
@@ -20,7 +20,7 @@ class EmployeeController extends Controller
 
     public function index(Request $request)
     {
-        $query = Employee::where('admin_id', auth()->id());
+        $query = User::where('role', 'employee')->where('admin_id', auth()->id());
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -32,7 +32,7 @@ class EmployeeController extends Controller
             });
         }
 
-        $employees = $query->with('geofences')->orderBy('name', 'asc')->paginate(10)->withQueryString();
+        $employees = $query->with('employeeGeofences')->orderBy('name', 'asc')->paginate(10)->withQueryString();
         return view('admin.employees.index', compact('employees'));
     }
 
@@ -49,14 +49,15 @@ class EmployeeController extends Controller
     {
         $request->validate([
             'name'        => 'required|string|max:255',
-            'email'       => 'required|email|unique:employees,email',
+            'email'       => 'required|email|unique:users,email',
             'phone'       => 'required|string|max:20',
             'employee_id' => 'required|string|max:50',
             'password'    => 'required|string|min:6',
             'geofences'   => 'nullable|array',
         ]);
 
-        $employee = Employee::create([
+        $employee = User::create([
+            'role'        => 'employee',
             'admin_id'    => auth()->id(),
             'name'        => $request->name,
             'email'       => $request->email,
@@ -66,14 +67,14 @@ class EmployeeController extends Controller
         ]);
 
         if ($request->filled('geofences')) {
-            $employee->geofences()->sync($request->geofences);
+            $employee->employeeGeofences()->sync($request->geofences);
         }
 
         return redirect()->route('admin.employees.index')
             ->with('success', 'Employee created successfully.');
     }
 
-    public function edit(Employee $employee)
+    public function edit(User $employee)
     {
         $geofences = Geofence::where('is_active', true)
             ->where('admin_id', auth()->id())
@@ -82,11 +83,11 @@ class EmployeeController extends Controller
         return view('admin.employees.edit', compact('employee', 'geofences'));
     }
 
-    public function update(Request $request, Employee $employee)
+    public function update(Request $request, User $employee)
     {
         $request->validate([
             'name'        => 'required|string|max:255',
-            'email'       => 'required|email|unique:employees,email,' . $employee->id,
+            'email'       => 'required|email|unique:users,email,' . $employee->id,
             'phone'       => 'required|string|max:20',
             'employee_id' => 'required|string|max:50',
             'password'    => 'nullable|string|min:6',
@@ -102,14 +103,14 @@ class EmployeeController extends Controller
         $employee->update($data);
 
         if ($request->filled('geofences')) {
-            $employee->geofences()->sync($request->geofences);
+            $employee->employeeGeofences()->sync($request->geofences);
         }
 
         return redirect()->route('admin.employees.index')
             ->with('success', 'Employee updated successfully.');
     }
 
-    public function destroy(Employee $employee)
+    public function destroy(User $employee)
     {
         $employee->delete();
 
@@ -117,15 +118,15 @@ class EmployeeController extends Controller
             ->with('success', 'Employee deleted successfully.');
     }
 
-    public function track(Employee $employee)
+    public function track(User $employee)
     {
         // Load geofences for this employee to show them on the map
-        $employee->load('geofences');
+        $employee->load('employeeGeofences');
         
         return view('admin.employees.track', compact('employee'));
     }
 
-    public function getLatestLocation(Employee $employee)
+    public function getLatestLocation(User $employee)
     {
         $location = \App\Models\EmployeeLocation::where('employee_id', $employee->id)->first();
         

@@ -40,7 +40,7 @@ class GeofenceController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'admin_id' => 'required|exists:admins,id',
+            'admin_id' => 'required|exists:users,id',
             'name' => 'required|string|max:255',
             'latitude' => 'required|numeric',
             'longitude' => 'required|numeric',
@@ -62,7 +62,7 @@ class GeofenceController extends Controller
     public function update(Request $request, Geofence $geofence)
     {
         $request->validate([
-            'admin_id' => 'required|exists:admins,id',
+            'admin_id' => 'required|exists:users,id',
             'name' => 'required|string|max:255',
             'latitude' => 'required|numeric',
             'longitude' => 'required|numeric',

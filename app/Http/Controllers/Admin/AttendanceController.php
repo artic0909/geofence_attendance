@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
-use App\Models\Employee;
+use App\Models\User;
 use App\Models\Geofence;
 use App\Models\OutsideAttendance;
 use Illuminate\Http\Request;
@@ -20,14 +20,14 @@ class AttendanceController extends Controller
 
         // Stats
         $stats = [
-            'total_employees' => Employee::where('admin_id', $adminId)->count(),
+            'total_employees' => User::where('role', 'employee')->where('admin_id', $adminId)->count(),
             'total_geofences' => Geofence::where('admin_id', $adminId)->count(),
             'today_attendances' => Attendance::where('admin_id', $adminId)
                 ->whereDate('date', today())
                 ->count() + OutsideAttendance::where('admin_id', $adminId)
                 ->whereDate('date', today())
                 ->count(),
-            'active_employees' => Employee::where('admin_id', $adminId)
+            'active_employees' => User::where('role', 'employee')->where('admin_id', $adminId)
                 ->where('is_active', true)
                 ->count(),
         ];
@@ -182,14 +182,14 @@ class AttendanceController extends Controller
 
         // Stats for this admin only
         $stats = [
-            'total_employees' => Employee::where('admin_id', $adminId)->count(),
+            'total_employees' => User::where('role', 'employee')->where('admin_id', $adminId)->count(),
             'total_geofences' => Geofence::where('admin_id', $adminId)->count(),
             'today_attendances' => Attendance::where('admin_id', $adminId)
                 ->whereDate('date', today())
                 ->count() + OutsideAttendance::where('admin_id', $adminId)
                 ->whereDate('date', today())
                 ->count(),
-            'active_employees' => Employee::where('admin_id', $adminId)
+            'active_employees' => User::where('role', 'employee')->where('admin_id', $adminId)
                 ->where('is_active', true)
                 ->count(),
         ];
@@ -231,14 +231,14 @@ class AttendanceController extends Controller
 
         // Stats for this admin only
         $stats = [
-            'total_employees' => Employee::where('admin_id', $adminId)->count(),
+            'total_employees' => User::where('role', 'employee')->where('admin_id', $adminId)->count(),
             'total_geofences' => Geofence::where('admin_id', $adminId)->count(),
             'today_attendances' => Attendance::where('admin_id', $adminId)
                 ->whereDate('date', today())
                 ->count() + OutsideAttendance::where('admin_id', $adminId)
                 ->whereDate('date', today())
                 ->count(),
-            'active_employees' => Employee::where('admin_id', $adminId)
+            'active_employees' => User::where('role', 'employee')->where('admin_id', $adminId)
                 ->where('is_active', true)
                 ->count(),
         ];
