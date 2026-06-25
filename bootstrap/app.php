@@ -16,6 +16,13 @@ return Application::configure(basePath: dirname(__DIR__))
         },
     )
     ->withMiddleware(function (Middleware $middleware) {
+        $middleware->redirectGuestsTo(function (\Illuminate\Http\Request $request) {
+            if ($request->is('superadmin') || $request->is('superadmin/*')) {
+                return route('superadmin.login');
+            }
+            return route('login');
+        });
+
         $middleware->alias([
             'subscribed' => \App\Http\Middleware\CheckSubscription::class,
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
