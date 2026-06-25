@@ -13,7 +13,7 @@
     </a>
 </div>
 
-<form action="{{ route('admin.geofences.store') }}" method="POST" class="space-y-8 max-w-4xl">
+<form action="{{ route('admin.geofences.store') }}" method="POST" class="space-y-8 max-w-4xl validate-form">
     @csrf
     
     <input type="hidden" name="admin_id" value="{{ auth()->id() }}">
@@ -26,25 +26,25 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-gray-700 mb-1" for="name">Site Name <span class="text-red-500">*</span></label>
-                    <input type="text" name="name" id="name" required class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-saffron focus:border-saffron outline-none transition-all" value="{{ old('name') }}">
+                    <input type="text" name="name" id="name" data-rule-required="true" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-saffron focus:border-saffron outline-none transition-all" value="{{ old('name') }}">
                     @error('name')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                 </div>
 
                 <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-gray-700 mb-1" for="address">Full Address <span class="text-red-500">*</span></label>
-                    <textarea name="address" id="address" required rows="3" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-saffron focus:border-saffron outline-none transition-all">{{ old('address') }}</textarea>
+                    <textarea name="address" id="address" data-rule-required="true" rows="3" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-saffron focus:border-saffron outline-none transition-all">{{ old('address') }}</textarea>
                     @error('address')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1" for="latitude">Latitude <span class="text-red-500">*</span></label>
-                    <input type="text" name="latitude" id="latitude" required class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-saffron focus:border-saffron outline-none transition-all font-mono text-sm" value="{{ old('latitude') }}">
+                    <input type="text" name="latitude" id="latitude" data-rule-required="true" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-saffron focus:border-saffron outline-none transition-all font-mono text-sm" value="{{ old('latitude') }}">
                     @error('latitude')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                 </div>
                 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1" for="longitude">Longitude <span class="text-red-500">*</span></label>
-                    <input type="text" name="longitude" id="longitude" required class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-saffron focus:border-saffron outline-none transition-all font-mono text-sm" value="{{ old('longitude') }}">
+                    <input type="text" name="longitude" id="longitude" data-rule-required="true" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-saffron focus:border-saffron outline-none transition-all font-mono text-sm" value="{{ old('longitude') }}">
                     @error('longitude')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                 </div>
                 
@@ -72,7 +72,7 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1" for="radius">Check-in Radius (meters) <span class="text-red-500">*</span></label>
                     <div class="relative">
-                        <input type="number" name="radius" id="radius" required min="50" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-saffron focus:border-saffron outline-none transition-all pr-12" value="{{ old('radius', 100) }}">
+                        <input type="number" name="radius" id="radius" data-rule-required="true" min="50" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-saffron focus:border-saffron outline-none transition-all pr-12" value="{{ old('radius', 100) }}">
                         <span class="absolute right-4 top-2.5 text-gray-400 font-medium">m</span>
                     </div>
                     <p class="text-xs text-gray-500 mt-1">The maximum distance allowed from the center to check in.</p>

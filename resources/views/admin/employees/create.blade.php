@@ -33,7 +33,7 @@
     </a>
 </div>
 
-<form action="{{ route('admin.employees.store') }}" method="POST" class="space-y-8 max-w-5xl">
+<form action="{{ route('admin.employees.store') }}" method="POST" id="employeeForm" class="space-y-8 max-w-5xl validate-form">
     @csrf
     
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
@@ -44,7 +44,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1" for="name">Full Name <span class="text-red-500">*</span></label>
-                    <input type="text" name="name" id="name" required class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-saffron focus:border-saffron outline-none transition-all" value="{{ old('name') }}">
+                    <input type="text" name="name" id="name" data-rule-required="true" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-saffron focus:border-saffron outline-none transition-all" value="{{ old('name') }}">
                     @error('name')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                 </div>
 
@@ -52,25 +52,25 @@
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1" for="email">Email Address <span class="text-red-500">*</span></label>
-                    <input type="email" name="email" id="email" required class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-saffron focus:border-saffron outline-none transition-all" value="{{ old('email') }}">
+                    <input type="email" name="email" id="email" data-rule-required="true" data-rule-email="true" autocomplete="off" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-saffron focus:border-saffron outline-none transition-all" value="{{ old('email') }}">
                     @error('email')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1" for="phone">Phone Number <span class="text-red-500">*</span></label>
-                    <input type="text" name="phone" id="phone" required class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-saffron focus:border-saffron outline-none transition-all" value="{{ old('phone') }}">
+                    <input type="text" name="phone" id="phone" data-rule-required="true" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-saffron focus:border-saffron outline-none transition-all" value="{{ old('phone') }}">
                     @error('phone')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1" for="employee_id">Employee ID <span class="text-red-500">*</span></label>
-                    <input type="text" name="employee_id" id="employee_id" required class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-saffron focus:border-saffron outline-none transition-all" value="{{ old('employee_id') }}">
+                    <input type="text" name="employee_id" id="employee_id" data-rule-required="true" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-saffron focus:border-saffron outline-none transition-all" value="{{ old('employee_id') }}">
                     @error('employee_id')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1" for="department_id">Department</label>
-                    <select name="department_id" id="department_id" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg select2">
+                    <label class="block text-sm font-medium text-gray-700 mb-1" for="department_id">Department <span class="text-red-500">*</span></label>
+                    <select name="department_id" id="department_id" data-rule-required="true" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg select2">
                         <option value="">Select Department</option>
                         @foreach($departments as $department)
                             <option value="{{ $department->id }}" {{ old('department_id') == $department->id ? 'selected' : '' }}>{{ $department->name }}</option>
@@ -80,8 +80,8 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1" for="designation_id">Designation</label>
-                    <select name="designation_id" id="designation_id" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg select2">
+                    <label class="block text-sm font-medium text-gray-700 mb-1" for="designation_id">Designation <span class="text-red-500">*</span></label>
+                    <select name="designation_id" id="designation_id" data-rule-required="true" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg select2">
                         <option value="">Select Designation</option>
                         @foreach($designations as $designation)
                             <option value="{{ $designation->id }}" {{ old('designation_id') == $designation->id ? 'selected' : '' }}>{{ $designation->name }}</option>
@@ -101,13 +101,23 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1" for="password">Password <span class="text-red-500">*</span></label>
-                    <input type="password" name="password" id="password" required class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-saffron focus:border-saffron outline-none transition-all">
+                    <div class="relative">
+                        <input type="password" name="password" id="password" data-rule-required="true" autocomplete="new-password" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-saffron focus:border-saffron outline-none transition-all pr-12">
+                        <button type="button" class="absolute inset-y-0 right-0 px-4 flex items-center text-gray-500 hover:text-navy toggle-password" data-target="password">
+                            <svg class="w-5 h-5 eye-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                        </button>
+                    </div>
                     @error('password')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1" for="password_confirmation">Confirm Password <span class="text-red-500">*</span></label>
-                    <input type="password" name="password_confirmation" id="password_confirmation" required class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-saffron focus:border-saffron outline-none transition-all">
+                    <div class="relative">
+                        <input type="password" name="password_confirmation" id="password_confirmation" data-rule-required="true" autocomplete="new-password" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-saffron focus:border-saffron outline-none transition-all pr-12">
+                        <button type="button" class="absolute inset-y-0 right-0 px-4 flex items-center text-gray-500 hover:text-navy toggle-password" data-target="password_confirmation">
+                            <svg class="w-5 h-5 eye-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -174,6 +184,36 @@
         $('.select2').select2({
             placeholder: "Select an option",
             allowClear: true
+        });
+
+        $('.toggle-password').click(function() {
+            var targetId = $(this).data('target');
+            var input = $('#' + targetId);
+            var icon = $(this).find('svg');
+            
+            if (input.attr('type') === 'password') {
+                input.attr('type', 'text');
+                icon.html('<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path>');
+            } else {
+                input.attr('type', 'password');
+                icon.html('<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>');
+            }
+        });
+
+        $('#employeeForm').submit(function(e) {
+            var password = $('#password').val();
+            var confirmPassword = $('#password_confirmation').val();
+            if (password || confirmPassword) {
+                if (password !== confirmPassword) {
+                    e.preventDefault();
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Passwords Mismatch',
+                        text: 'Password and Confirm Password must match.',
+                        confirmButtonColor: '#1a2639'
+                    });
+                }
+            }
         });
     });
 </script>

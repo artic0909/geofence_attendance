@@ -45,6 +45,15 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #94a3b8;
         }
+        /* jQuery Validation Styles */
+        .error {
+            color: #ef4444; /* Tailwind red-500 */
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+        }
+        input.error, select.error, textarea.error {
+            border-color: #ef4444 !important;
+        }
     </style>
     @stack('styles')
 </head>
@@ -177,6 +186,56 @@
         @endif
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Apply validation to any form with .validate-form
+            $('.validate-form').each(function() {
+                $(this).validate({
+                    errorElement: 'span',
+                    errorPlacement: function (error, element) {
+                        error.addClass('error');
+                        if (element.hasClass('select2-hidden-accessible')) {
+                            error.insertAfter(element.next('.select2-container'));
+                        } else if (element.parent('.relative').length) {
+                            error.insertAfter(element.parent('.relative'));
+                        } else {
+                            error.insertAfter(element);
+                        }
+                    },
+                    highlight: function (element, errorClass, validClass) {
+                        $(element).addClass(errorClass);
+                        if ($(element).hasClass('select2-hidden-accessible')) {
+                            $(element).next('.select2-container').find('.select2-selection').css('border-color', '#ef4444');
+                        }
+                    },
+                    unhighlight: function (element, errorClass, validClass) {
+                        $(element).removeClass(errorClass);
+                        if ($(element).hasClass('select2-hidden-accessible')) {
+                            $(element).next('.select2-container').find('.select2-selection').css('border-color', '');
+                        }
+                    },
+                    invalidHandler: function(event, validator) {
+                        var errors = validator.numberOfInvalids();
+                        if (errors) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Validation Error',
+                                text: 'Please fill in all required fields correctly before submitting.',
+                                confirmButtonColor: '#1a2639'
+                            });
+                        }
+                    }
+                });
+            });
+            
+            // Ensure select2 triggers validation
+            $('.select2').on('change', function() {
+                $(this).valid();
+            });
+        });
+    </script>
     @stack('scripts')
 </body>
 

@@ -8,12 +8,12 @@
     </div>
     
     <div class="p-6">
-        <form action="{{ route('admin.departments.store') }}" method="POST">
+        <form action="{{ route('admin.departments.store') }}" method="POST" class="validate-form">
             @csrf
             
             <div class="mb-6">
                 <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Department Name</label>
-                <input type="text" name="name" id="name" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-navy focus:border-navy" placeholder="e.g. Sales">
+                <input type="text" name="name" id="name" data-rule-required="true" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-navy focus:border-navy" placeholder="e.g. Sales">
                 @error('name')
                     <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
                 @enderror
