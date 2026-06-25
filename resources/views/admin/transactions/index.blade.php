@@ -22,6 +22,7 @@
                     <th scope="col" class="px-6 py-4 font-semibold tracking-wider">Amount</th>
                     <th scope="col" class="px-6 py-4 font-semibold tracking-wider">Date</th>
                     <th scope="col" class="px-6 py-4 font-semibold tracking-wider">Status</th>
+                    <th scope="col" class="px-6 py-4 font-semibold tracking-wider text-right">Action</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
@@ -51,6 +52,14 @@
                             <span class="w-1.5 h-1.5 rounded-full bg-red-500 mr-1.5"></span>
                             Failed
                         </span>
+                        @endif
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                        @if($transaction->status === 'success')
+                        <a href="{{ route('admin.transactions.invoice', $transaction->id) }}" class="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 transition-colors" target="_blank">
+                            <svg class="w-4 h-4 mr-1.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            Invoice
+                        </a>
                         @endif
                     </td>
                 </tr>

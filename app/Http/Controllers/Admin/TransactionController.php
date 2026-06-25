@@ -17,4 +17,19 @@ class TransactionController extends Controller
             
         return view('admin.transactions.index', compact('transactions'));
     }
+
+    public function downloadInvoice($id)
+    {
+        $transaction = Transaction::with('plan')->findOrFail($id);
+        
+        if ($transaction->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $user = auth()->user();
+        
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('admin.transactions.invoice', compact('transaction', 'user'));
+        
+        return $pdf->download('Invoice-' . ($transaction->razorpay_payment_id ?? $transaction->id) . '.pdf');
+    }
 }

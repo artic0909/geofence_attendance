@@ -23,6 +23,9 @@ Route::middleware(['auth', 'subscribed'])->prefix('admin')->group(function () {
     Route::resource('geofences', GeofenceController::class, ['as' => 'admin']);
 
     Route::get('/transactions', [\App\Http\Controllers\Admin\TransactionController::class, 'index'])->name('admin.transactions.index');
+    Route::get('/transactions/{id}/invoice', [\App\Http\Controllers\Admin\TransactionController::class, 'downloadInvoice'])->name('admin.transactions.invoice');
+    Route::get('/settings', [\App\Http\Controllers\Admin\SettingController::class, 'index'])->name('admin.settings.index');
+    Route::post('/settings', [\App\Http\Controllers\Admin\SettingController::class, 'update'])->name('admin.settings.update');
 
     // Redirect admin root to dashboard
     Route::get('/', function () {
