@@ -1,4 +1,5 @@
 @extends('admin.layout')
+@section('header_title', 'Attendance Tracking')
 
 @section('content')
 <div class="mb-8">

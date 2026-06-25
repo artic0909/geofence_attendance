@@ -1,4 +1,5 @@
 @extends('admin.layout')
+@section('header_title', 'Geofences (Sites)')
 
 @section('content')
 <div class="flex justify-between items-center mb-6">

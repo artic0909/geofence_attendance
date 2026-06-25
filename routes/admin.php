@@ -22,6 +22,8 @@ Route::middleware(['auth', 'subscribed'])->prefix('admin')->group(function () {
     Route::resource('employees', EmployeeController::class, ['as' => 'admin']);
     Route::resource('geofences', GeofenceController::class, ['as' => 'admin']);
 
+    Route::get('/transactions', [\App\Http\Controllers\Admin\TransactionController::class, 'index'])->name('admin.transactions.index');
+
     // Redirect admin root to dashboard
     Route::get('/', function () {
         return redirect()->route('admin.dashboard');

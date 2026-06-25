@@ -52,9 +52,12 @@ class DashboardController extends Controller
             $pendingQuery->where('name', 'like', '%' . $request->employee_name . '%');
         }
 
-        $pending_employees = $pendingQuery->with('geofences')->orderBy('name', 'asc')->paginate(10);
+        $pending_employees = $pendingQuery->with('employeeGeofences')->orderBy('name', 'asc')->paginate(10);
 
-        return view('admin.dashboard', compact('stats', 'pending_employees', 'geofences'));
+        // Fetch current subscription plan
+        $current_plan = \App\Models\Plan::find(auth()->user()->plan_id);
+
+        return view('admin.dashboard', compact('stats', 'pending_employees', 'geofences', 'current_plan'));
     }
 
     public function exportPending(Request $request)
@@ -73,7 +76,7 @@ class DashboardController extends Controller
             ->unique();
 
         // Fetch employees who have NOT given attendance today with their geofences
-        $employees = \App\Models\User::with('geofences')
+        $employees = \App\Models\User::with('employeeGeofences')
             ->where('role', 'employee')
             ->where('admin_id', $adminId)
             ->where('is_active', true)
@@ -99,7 +102,7 @@ class DashboardController extends Controller
 
             foreach ($employees as $employee) {
                 // Get geofence names
-                $geofenceNames = $employee->geofences->pluck('name')->implode(', ');
+                $geofenceNames = $employee->employeeGeofences->pluck('name')->implode(', ');
 
                 fputcsv($file, [
                     $employee->name,
