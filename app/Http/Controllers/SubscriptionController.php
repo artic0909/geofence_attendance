@@ -23,11 +23,10 @@ class SubscriptionController extends Controller
     {
         $request->validate([
             'plan_id' => 'required|exists:plans,id',
-            'billing_cycle' => 'required|in:monthly,yearly',
         ]);
 
         $plan = Plan::findOrFail($request->plan_id);
-        $amount = $request->billing_cycle === 'yearly' ? $plan->yearly_price : $plan->monthly_price;
+        $amount = $plan->price;
         
         $api = new Api(env('RAZORPAY_KEY'), env('RAZORPAY_SECRET'));
 
@@ -58,7 +57,6 @@ class SubscriptionController extends Controller
             'razorpay_order_id' => 'required',
             'razorpay_signature' => 'required',
             'plan_id' => 'required|exists:plans,id',
-            'billing_cycle' => 'required|in:monthly,yearly',
         ]);
 
         $api = new Api(env('RAZORPAY_KEY'), env('RAZORPAY_SECRET'));
@@ -75,7 +73,7 @@ class SubscriptionController extends Controller
             // Payment is successful
             $user = Auth::user();
             $plan = Plan::findOrFail($request->plan_id);
-            $amount = $request->billing_cycle === 'yearly' ? $plan->yearly_price : $plan->monthly_price;
+            $amount = $plan->price;
 
             // Record transaction
             Transaction::create([
@@ -89,7 +87,7 @@ class SubscriptionController extends Controller
             ]);
 
             // Update user subscription
-            $expiresAt = $request->billing_cycle === 'yearly' ? Carbon::now()->addYear() : Carbon::now()->addMonth();
+            $expiresAt = Carbon::now()->addDays($plan->duration_days);
             
             $user->update([
                 'plan_id' => $plan->id,

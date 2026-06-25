@@ -45,7 +45,10 @@
                     <div class="absolute top-0 left-0 w-full h-1 bg-navy transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
                 @endif
                 <h4 class="text-xl font-bold text-navy mb-2 mt-2">{{ $plan->name }}</h4>
-                <div class="text-saffron font-bold mb-6 text-3xl">₹{{ number_format($plan->price, 2) }}</div>
+                <div class="mb-6">
+                    <span class="text-saffron font-bold text-3xl">₹{{ number_format($plan->price, 2) }}</span>
+                    <span class="text-gray-500 font-medium">/ {{ $plan->duration_days }} Days</span>
+                </div>
                 <div class="text-gray-600 text-sm mb-8 flex-grow">{{ $plan->description }}</div>
                 @if($plan->features)
                 <ul class="space-y-4 mb-8 text-sm text-gray-700">

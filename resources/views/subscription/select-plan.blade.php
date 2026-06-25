@@ -36,14 +36,11 @@
                         <h2 class="text-2xl leading-6 font-semibold text-gray-900">{{ $plan->name }}</h2>
                         <p class="mt-4 text-sm text-gray-500">{{ $plan->description }}</p>
                         <p class="mt-8">
-                            <span class="text-4xl font-extrabold text-gray-900">₹{{ number_format($plan->monthly_price, 2) }}</span>
-                            <span class="text-base font-medium text-gray-500">/mo</span>
+                            <span class="text-4xl font-extrabold text-gray-900">₹{{ number_format($plan->price, 2) }}</span>
+                            <span class="text-base font-medium text-gray-500">/ {{ $plan->duration_days }} Days</span>
                         </p>
-                        <button type="button" onclick="confirmSubscription({{ $plan->id }}, 'monthly', {{ $plan->monthly_price }}, '{{ $plan->name }}')" class="mt-8 block w-full bg-navy border border-transparent rounded-md py-2 text-sm font-semibold text-white text-center hover:bg-blue-900">
-                            Select Monthly
-                        </button>
-                        <button type="button" onclick="confirmSubscription({{ $plan->id }}, 'yearly', {{ $plan->yearly_price }}, '{{ $plan->name }}')" class="mt-4 block w-full bg-saffron border border-transparent rounded-md py-2 text-sm font-semibold text-white text-center hover:bg-orange-600">
-                            Select Yearly (₹{{ number_format($plan->yearly_price, 2) }}/yr)
+                        <button type="button" onclick="confirmSubscription({{ $plan->id }}, {{ $plan->price }}, '{{ $plan->name }}', {{ $plan->duration_days }})" class="mt-8 block w-full bg-navy border border-transparent rounded-md py-2 text-sm font-semibold text-white text-center hover:bg-blue-900">
+                            Select Plan
                         </button>
                     </div>
                     @if($plan->features)
@@ -109,9 +106,9 @@
 <script>
     let selectedPlan = null;
 
-    function confirmSubscription(planId, cycle, price, name) {
-        selectedPlan = { planId, cycle, price, name };
-        document.getElementById('modal-description').innerText = `Yes, I want to purchase the ${name} subscription (${cycle}) for ₹${price}.`;
+    function confirmSubscription(planId, price, name, duration) {
+        selectedPlan = { planId, price, name, duration };
+        document.getElementById('modal-description').innerText = `Yes, I want to purchase the ${name} subscription (${duration} Days) for ₹${price}.`;
         document.getElementById('subscriptionModal').classList.remove('hidden');
     }
 
@@ -134,8 +131,7 @@
                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
             },
             body: JSON.stringify({
-                plan_id: selectedPlan.planId,
-                billing_cycle: selectedPlan.cycle
+                plan_id: selectedPlan.planId
             })
         })
         .then(response => response.json())
@@ -160,8 +156,7 @@
                                 razorpay_payment_id: response.razorpay_payment_id,
                                 razorpay_order_id: response.razorpay_order_id,
                                 razorpay_signature: response.razorpay_signature,
-                                plan_id: selectedPlan.planId,
-                                billing_cycle: selectedPlan.cycle
+                                plan_id: selectedPlan.planId
                             })
                         })
                         .then(res => res.json())

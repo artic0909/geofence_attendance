@@ -30,6 +30,11 @@
                         <input type="number" step="0.01" name="price" id="price" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-navy focus:border-navy sm:text-sm">
                     </div>
 
+                    <div class="col-span-6 sm:col-span-3">
+                        <label for="duration_days" class="block text-sm font-medium text-gray-700">Duration (Days)</label>
+                        <input type="number" name="duration_days" id="duration_days" value="30" required min="1" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-navy focus:border-navy sm:text-sm">
+                    </div>
+
                     <div class="col-span-6 sm:col-span-6">
                         <label for="features" class="block text-sm font-medium text-gray-700">Features (comma separated)</label>
                         <input type="text" name="features" id="features" placeholder="Feature 1, Feature 2, Feature 3" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-navy focus:border-navy sm:text-sm">

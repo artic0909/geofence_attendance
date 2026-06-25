@@ -34,6 +34,7 @@ class PlanController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
+            'duration_days' => 'required|integer|min:1',
             'features' => 'nullable|string', // comma separated
             'active' => 'boolean',
             'is_popular' => 'boolean',
@@ -64,6 +65,7 @@ class PlanController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
+            'duration_days' => 'required|integer|min:1',
             'features' => 'nullable|string',
             'active' => 'boolean',
             'is_popular' => 'boolean',

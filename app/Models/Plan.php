@@ -10,6 +10,7 @@ class Plan extends Model
         'name',
         'description',
         'price',
+        'duration_days',
         'features',
         'active',
         'is_popular',
@@ -19,5 +20,6 @@ class Plan extends Model
         'features' => 'array',
         'active' => 'boolean',
         'is_popular' => 'boolean',
+        'duration_days' => 'integer',
     ];
 }
