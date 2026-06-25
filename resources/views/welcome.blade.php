@@ -2,8 +2,19 @@
 
 @section('content')
     <!-- Hero Section -->
-    <section class="hero-bg text-white py-20 md:py-32 flex-grow flex items-center">
-        <div class="container mx-auto px-4 text-center md:text-left">
+    <section class="hero-bg text-white py-20 md:py-32 flex-grow flex items-center relative overflow-hidden">
+        <!-- Desktop Video Background -->
+        <video autoplay loop muted playsinline class="hidden md:block absolute top-0 left-0 w-full h-full object-cover z-0 pointer-events-none">
+            <source src="{{ asset('videos/big-hero.mp4') }}" type="video/mp4">
+        </video>
+        <!-- Mobile Video Background -->
+        <video autoplay loop muted playsinline class="block md:hidden absolute top-0 left-0 w-full h-full object-cover z-0 pointer-events-none">
+            <source src="{{ asset('videos/mobile-hero.mp4') }}" type="video/mp4">
+        </video>
+        <!-- Overlay -->
+        <div class="absolute inset-0 bg-black/50 z-0"></div>
+
+        <div class="container mx-auto px-4 text-center md:text-left relative z-10">
             <div class="max-w-3xl">
                 <div class="inline-block bg-white/20 px-3 py-1 rounded-full text-xs font-semibold tracking-wider mb-6 border border-white/30 backdrop-blur-sm uppercase">
                     The Ultimate Multi-Tenant SaaS Platform
