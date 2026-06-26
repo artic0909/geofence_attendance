@@ -77,13 +77,13 @@
                     <td class="px-6 py-4">
                         <div class="font-medium text-gray-900">{{ $attendance->check_in ? \Carbon\Carbon::parse($attendance->check_in)->format('h:i A') : '--:--' }}</div>
                         @if($attendance->check_in_photo)
-                        <button class="text-xs text-blue-600 hover:text-blue-800 underline mt-1" data-bs-toggle="modal" data-bs-target="#staticBackdropCheckIn{{$attendance->id}}">View Photo</button>
+                        <button type="button" class="text-xs text-blue-600 hover:text-blue-800 underline mt-1" onclick="showImage('{{ Storage::url($attendance->check_in_photo) }}', 'Check-In Photo: {{ $attendance->employee->name }}')">View Photo</button>
                         @endif
                     </td>
                     <td class="px-6 py-4">
                         <div class="font-medium text-gray-900">{{ $attendance->check_out ? \Carbon\Carbon::parse($attendance->check_out)->format('h:i A') : '--:--' }}</div>
                         @if($attendance->check_out_photo)
-                        <button class="text-xs text-blue-600 hover:text-blue-800 underline mt-1" data-bs-toggle="modal" data-bs-target="#staticBackdropCheckOut{{$attendance->id}}">View Photo</button>
+                        <button type="button" class="text-xs text-blue-600 hover:text-blue-800 underline mt-1" onclick="showImage('{{ Storage::url($attendance->check_out_photo) }}', 'Check-Out Photo: {{ $attendance->employee->name }}')">View Photo</button>
                         @endif
                     </td>
                     <td class="px-6 py-4">
@@ -105,7 +105,7 @@
                             <div class="flex items-center gap-2">
                                 <span class="text-orange-600 font-bold text-xs">{{ $attendance->checkin_location ?? 'Outside' }}</span>
                                 @if($attendance->reason)
-                                    <button class="px-2 py-1 bg-orange-50 text-orange-600 rounded text-xs border border-orange-100 hover:bg-orange-100 transition-colors" data-bs-toggle="modal" data-bs-target="#reasonModal{{$attendance->id}}" title="View Reason">
+                                    <button type="button" class="px-2 py-1 bg-orange-50 text-orange-600 rounded text-xs border border-orange-100 hover:bg-orange-100 transition-colors" onclick="showReason('{{ addslashes($attendance->employee->name) }}', '{{ addslashes($attendance->checkin_location ?? 'N/A') }}', '{{ addslashes($attendance->reason) }}')" title="View Reason">
                                         Reason
                                     </button>
                                 @endif
@@ -132,66 +132,47 @@
     @endif
 </div>
 
-<!-- Modals for Photos -->
-@foreach($recent_attendances as $attendance)
-@if($attendance->check_in_photo)
-<div class="modal fade" id="staticBackdropCheckIn{{$attendance->id}}" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg rounded-2xl overflow-hidden">
-            <div class="modal-header bg-gray-50 border-b border-gray-100">
-                <h5 class="modal-title font-bold text-navy">Check-In Photo: {{ $attendance->employee->name }}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-0">
-                <img src="{{ Storage::url($attendance->check_in_photo) }}" class="w-full h-auto" alt="Check In Photo">
-            </div>
-        </div>
-    </div>
-</div>
-@endif
+@push('scripts')
+<script>
+    function showImage(imageUrl, title) {
+        Swal.fire({
+            title: title,
+            imageUrl: imageUrl,
+            imageWidth: '100%',
+            imageAlt: 'Attendance Photo',
+            confirmButtonColor: '#1a2639',
+            confirmButtonText: 'Close',
+            customClass: {
+                title: 'text-lg font-bold text-navy',
+            }
+        });
+    }
 
-@if($attendance->check_out_photo)
-<div class="modal fade" id="staticBackdropCheckOut{{$attendance->id}}" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg rounded-2xl overflow-hidden">
-            <div class="modal-header bg-gray-50 border-b border-gray-100">
-                <h5 class="modal-title font-bold text-navy">Check-Out Photo: {{ $attendance->employee->name }}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-0">
-                <img src="{{ Storage::url($attendance->check_out_photo) }}" class="w-full h-auto" alt="Check Out Photo">
-            </div>
-        </div>
-    </div>
-</div>
-@endif
-
-@if($attendance->attendance_type == 'outside' && $attendance->reason)
-<div class="modal fade" id="reasonModal{{$attendance->id}}" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg rounded-2xl overflow-hidden">
-            <div class="modal-header bg-orange-50 border-b border-orange-100">
-                <h5 class="modal-title font-bold text-orange-700">Outside Justification</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-6">
-                <div class="mb-4">
-                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Employee</label>
-                    <p class="text-navy font-medium">{{ $attendance->employee->name }}</p>
+    function showReason(employee, location, reason) {
+        Swal.fire({
+            title: 'Outside Justification',
+            html: `
+                <div class="text-left mt-4">
+                    <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Employee</p>
+                    <p class="text-navy font-medium mb-4">${employee}</p>
+                    
+                    <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Location</p>
+                    <p class="text-navy font-medium mb-4">${location}</p>
+                    
+                    <div class="p-4 bg-orange-50 border border-orange-100 rounded-xl">
+                        <p class="text-xs font-bold text-orange-700 uppercase tracking-wider mb-2 block">Reason</p>
+                        <p class="text-gray-800 italic leading-relaxed">"${reason}"</p>
+                    </div>
                 </div>
-                <div class="mb-4">
-                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Location</label>
-                    <p class="text-navy font-medium">{{ $attendance->checkin_location ?? 'N/A' }}</p>
-                </div>
-                <div class="p-4 bg-orange-50 border border-orange-100 rounded-xl">
-                    <label class="text-xs font-bold text-orange-700 uppercase tracking-wider mb-2 block">Reason</label>
-                    <p class="text-gray-800 italic leading-relaxed">"{{ $attendance->reason }}"</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-@endif
-@endforeach
+            `,
+            confirmButtonColor: '#ea580c',
+            confirmButtonText: 'Close',
+            customClass: {
+                title: 'text-xl font-bold text-orange-700 border-b border-orange-100 pb-2',
+            }
+        });
+    }
+</script>
+@endpush
 
 @endsection
