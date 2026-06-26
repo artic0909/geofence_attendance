@@ -140,6 +140,18 @@ class EmployeeController extends Controller
             ->whereNull('check_out')
             ->first();
 
+        if (!$attendance) {
+            $attendance = \App\Models\OutsideAttendance::where('employee_id', $employee->id)
+                ->whereDate('date', now())
+                ->whereNotNull('check_in')
+                ->whereNull('check_out')
+                ->first();
+                
+            if ($attendance) {
+                $attendance->attendance_type = 'outside';
+            }
+        }
+
         // Load geofences for this employee to show them on the map
         $employee->load('employeeGeofences');
         

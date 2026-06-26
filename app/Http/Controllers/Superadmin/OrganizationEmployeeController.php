@@ -188,6 +188,18 @@ class OrganizationEmployeeController extends Controller
             ->whereNull('check_out')
             ->first();
 
+        if (!$attendance) {
+            $attendance = \App\Models\OutsideAttendance::where('employee_id', $employee->id)
+                ->whereDate('date', now())
+                ->whereNotNull('check_in')
+                ->whereNull('check_out')
+                ->first();
+                
+            if ($attendance) {
+                $attendance->attendance_type = 'outside';
+            }
+        }
+
         return view('superadmin.organization.employees.track', compact('org', 'employee', 'attendance'));
     }
 
