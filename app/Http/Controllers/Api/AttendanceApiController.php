@@ -303,7 +303,7 @@ class AttendanceApiController extends Controller
         $attendance = Attendance::where('employee_id', $user->id)->where('date', $today)->first();
         $outside = \App\Models\OutsideAttendance::where('employee_id', $user->id)->where('date', $today)->first();
 
-        $geofences = $user->employeeGeofences()->pluck('name');
+        $geofences = $user->employeeGeofences()->select('name', 'latitude', 'longitude', 'radius', 'tracking_radius')->get();
 
         return response()->json([
             'employee_name' => $user->name,
