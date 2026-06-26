@@ -3,12 +3,22 @@
 @section('title', 'Superadmin Login')
 
 @section('content')
-<div class="min-h-screen relative flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-cover bg-center bg-no-repeat overflow-hidden" style="background-image: url('{{ asset('world-map-bg.png') }}');">
+<div class="min-h-screen relative flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 overflow-hidden">
+    <!-- Background Video -->
+    <video autoplay loop muted playsinline class="absolute z-0 w-auto min-w-full min-h-full max-w-none object-cover pointer-events-none">
+        <source src="{{ asset('videos/big-hero.mp4') }}" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+    
     <!-- Dark/Navy Overlay -->
-    <div class="absolute inset-0 bg-navy/90 sm:bg-navy/80 z-0 mix-blend-multiply"></div>
+    <div class="absolute inset-0 bg-navy/80 sm:bg-navy/70 z-0 mix-blend-multiply"></div>
     
     <div class="max-w-md w-full space-y-8 z-10 relative bg-white/10 backdrop-blur-xl p-10 rounded-2xl shadow-2xl border border-white/20">
-        <div>
+        <div class="text-center">
+            <!-- Clickable Logo & Text -->
+            <a href="{{ url('/') }}" class="inline-block transition-transform duration-300 hover:scale-105 mb-4">
+                <img src="{{ asset('logo.png') }}" alt="Logo" class="h-16 mx-auto object-contain bg-white rounded-lg p-2 shadow-lg">
+            </a>
             <h2 class="mt-2 text-center text-3xl font-extrabold text-white tracking-tight">
                 Platform Administration
             </h2>
