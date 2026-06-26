@@ -90,6 +90,38 @@ class DashboardController extends Controller
             }
         }
 
+        // Attendance Trend (Last 7 Days)
+        $chartDates = [];
+        $chartPresents = [];
+        $chartAbsents = [];
+        $chartTotals = [];
+        
+        $currentTotalEmployees = $stats['active_employees'];
+
+        for ($i = 6; $i >= 0; $i--) {
+            $date = now()->subDays($i);
+            $chartDates[] = $date->format('M d');
+            
+            $normal = \App\Models\Attendance::where('admin_id', $adminId)
+                ->whereDate('date', $date)
+                ->count();
+            $outside = \App\Models\OutsideAttendance::where('admin_id', $adminId)
+                ->whereDate('date', $date)
+                ->count();
+                
+            $present = $normal + $outside;
+            $absent = max(0, $currentTotalEmployees - $present);
+            
+            $chartPresents[] = $present;
+            $chartAbsents[] = $absent;
+            $chartTotals[] = $currentTotalEmployees;
+        }
+        
+        $stats['chart_dates'] = $chartDates;
+        $stats['chart_presents'] = $chartPresents;
+        $stats['chart_absents'] = $chartAbsents;
+        $stats['chart_totals'] = $chartTotals;
+
         return view('admin.dashboard', compact('stats', 'geofences', 'current_plan', 'subscription'));
     }
 

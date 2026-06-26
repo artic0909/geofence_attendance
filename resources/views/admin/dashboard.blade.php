@@ -124,6 +124,104 @@
     </div>
 </div>
 
+<!-- Charts Section -->
+<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8">
+    <h3 class="text-lg font-bold text-navy mb-4">7-Day Attendance Trend</h3>
+    <div class="relative h-72">
+        <canvas id="attendanceChart"></canvas>
+    </div>
+</div>
 
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const attendanceCtx = document.getElementById('attendanceChart').getContext('2d');
+        new Chart(attendanceCtx, {
+            type: 'line',
+            data: {
+                labels: @json($stats['chart_dates']),
+                datasets: [
+                    {
+                        label: 'Total Employees',
+                        data: @json($stats['chart_totals']),
+                        borderColor: '#9ca3af', // gray-400
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        fill: false,
+                        tension: 0.1,
+                        pointBackgroundColor: '#9ca3af',
+                        pointBorderColor: '#fff',
+                        pointRadius: 3
+                    },
+                    {
+                        label: 'Present',
+                        data: @json($stats['chart_presents']),
+                        borderColor: '#4ade80', // green-400
+                        backgroundColor: 'rgba(74, 222, 128, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#166534',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 7
+                    },
+                    {
+                        label: 'Absent',
+                        data: @json($stats['chart_absents']),
+                        borderColor: '#f87171', // red-400
+                        backgroundColor: 'rgba(248, 113, 113, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#991b1b',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 7
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { 
+                        display: true, 
+                        position: 'top',
+                        labels: { usePointStyle: true, boxWidth: 8 }
+                    },
+                    tooltip: {
+                        backgroundColor: '#1a2639',
+                        titleColor: '#fff',
+                        bodyColor: '#fff',
+                        padding: 10,
+                        mode: 'index',
+                        intersect: false
+                    }
+                },
+                scales: {
+                    y: { 
+                        beginAtZero: true,
+                        ticks: { stepSize: 1, color: '#6b7280' },
+                        grid: { color: '#f3f4f6', drawBorder: false }
+                    },
+                    x: {
+                        ticks: { color: '#6b7280' },
+                        grid: { display: false, drawBorder: false }
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index',
+                },
+            }
+        });
+    });
+</script>
+@endpush
 
 @endsection
