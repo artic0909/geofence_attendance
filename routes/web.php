@@ -65,7 +65,7 @@ Route::get('/about', function () {
 Route::get('/pricing', function () {
     $plans = Plan::where('active', true)->get();
     return view('pages.pricing', compact('plans'));
-});
+})->name('pricing');
 
 Route::get('/terms', function () {
     return view('pages.terms');
