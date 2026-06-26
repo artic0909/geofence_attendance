@@ -66,7 +66,8 @@ class DashboardController extends Controller
             $endDate = \Carbon\Carbon::parse(auth()->user()->subscription_expires_at);
             $now = now();
             
-            $daysLeft = $now->diffInDays($endDate, false); // false = return negative if past
+            // Format to 2 decimal places as requested
+            $daysLeft = number_format($now->floatDiffInDays($endDate, false), 2, '.', '');
             
             if ($daysLeft > 0) {
                 // Approximate start date from the latest transaction or user creation
