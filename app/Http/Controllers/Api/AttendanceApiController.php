@@ -22,7 +22,8 @@ class AttendanceApiController extends Controller
             ]);
 
             $employee = $request->user();
-            $today = now()->format('Y-m-d');
+            $time = $request->filled('timestamp') ? \Carbon\Carbon::parse($request->timestamp) : now();
+            $today = $time->format('Y-m-d');
 
             // Check if already checked in via Outside Attendance today
             $existsOutside = \App\Models\OutsideAttendance::where('employee_id', $employee->id)
@@ -99,7 +100,7 @@ class AttendanceApiController extends Controller
                 [
                     'admin_id' => $employee->admin_id,
                     'geofence_id' => $matchedGeofence->id,
-                    'check_in' => now(),
+                    'check_in' => $time,
                     'check_in_lat' => $lat,
                     'check_in_lng' => $lng,
                     'check_in_photo' => $photoPath,
@@ -134,7 +135,8 @@ class AttendanceApiController extends Controller
             ]);
 
             $employee = $request->user();
-            $today = now()->format('Y-m-d');
+            $time = $request->filled('timestamp') ? \Carbon\Carbon::parse($request->timestamp) : now();
+            $today = $time->format('Y-m-d');
 
             $attendance = Attendance::where('employee_id', $employee->id)
                 ->where('date', $today)
@@ -190,7 +192,7 @@ class AttendanceApiController extends Controller
             $photoPath = $request->file('photo')->store('attendance-photos', 'public');
 
             $attendance->update([
-                'check_out' => now(),
+                'check_out' => $time,
                 'check_out_lat' => $lat,
                 'check_out_lng' => $lng,
                 'check_out_photo' => $photoPath,
@@ -328,7 +330,8 @@ class AttendanceApiController extends Controller
             ]);
 
             $employee = $request->user();
-            $today = now()->format('Y-m-d');
+            $time = $request->filled('timestamp') ? \Carbon\Carbon::parse($request->timestamp) : now();
+            $today = $time->format('Y-m-d');
 
             // Block if ANY attendance exists today (Normal or Outside)
             $existsNormal = Attendance::where('employee_id', $employee->id)
@@ -352,7 +355,7 @@ class AttendanceApiController extends Controller
                 'admin_id' => $employee->admin_id,
                 'employee_id' => $employee->id,
                 'date' => $today,
-                'check_in' => now(),
+                'check_in' => $time,
                 'check_in_lat' => $request->latitude,
                 'check_in_lng' => $request->longitude,
                 'check_in_photo' => $photoPath,
@@ -389,7 +392,8 @@ class AttendanceApiController extends Controller
             ]);
 
             $employee = $request->user();
-            $today = now()->format('Y-m-d');
+            $time = $request->filled('timestamp') ? \Carbon\Carbon::parse($request->timestamp) : now();
+            $today = $time->format('Y-m-d');
 
             $attendance = \App\Models\OutsideAttendance::where('employee_id', $employee->id)
                 ->where('date', $today)
@@ -407,7 +411,7 @@ class AttendanceApiController extends Controller
             $photoPath = $request->file('photo')->store('attendance-photos', 'public');
 
             $attendance->update([
-                'check_out' => now(),
+                'check_out' => $time,
                 'check_out_lat' => $request->latitude,
                 'check_out_lng' => $request->longitude,
                 'check_out_photo' => $photoPath,
