@@ -147,7 +147,10 @@
                     } else {
                         document.getElementById('status-badge').innerHTML = '<span class="pulse"></span> Live Tracking Active';
                         document.getElementById('status-badge').className = 'px-4 py-2 bg-green-100 text-green-700 rounded-full font-bold text-sm inline-flex items-center gap-2 border border-green-200';
-                        document.getElementById('last-update').innerText = 'Last signal: ' + data.updated_at;
+                        var dateObj = new Date(data.updated_at);
+                        var timeStr = dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                        var dateStr = dateObj.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                        document.getElementById('last-update').innerText = 'Last signal: ' + timeStr + ' - ' + dateStr;
                     }
 
                     if (!employeeMarker) {

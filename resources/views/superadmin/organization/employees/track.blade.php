@@ -138,23 +138,7 @@
                     var pos = {lat: parseFloat(data.latitude), lng: parseFloat(data.longitude)};
                     
                     // Parse the updated_at time safely
-                    var parts = data.updated_at.split(' - ');
-                    var timePart = parts[0];
-                    var datePart = parts[1];
-                    var dParts = datePart.split('/');
-                    var tParts = timePart.split(' ');
-                    var hms = tParts[0].split(':');
-                    var isPM = tParts[1] === 'PM';
-                    var year = parseInt(dParts[2]);
-                    var month = parseInt(dParts[1]) - 1;
-                    var day = parseInt(dParts[0]);
-                    var hour = parseInt(hms[0]);
-                    if (isPM && hour < 12) hour += 12;
-                    if (!isPM && hour === 12) hour = 0;
-                    
-                    var lastUpdateTime = new Date(year, month, day, hour, parseInt(hms[1]), parseInt(hms[2]));
-                    var now = new Date();
-                    var diffMinutes = (now - lastUpdateTime) / (1000 * 60);
+                    var diffMinutes = data.diff_minutes;
 
                     if (diffMinutes > 2) {
                         document.getElementById('status-badge').innerHTML = '<span class="w-3 h-3 bg-gray-400 rounded-full"></span> Signal Lost (Offline)';
@@ -163,7 +147,10 @@
                     } else {
                         document.getElementById('status-badge').innerHTML = '<span class="pulse"></span> Live Tracking Active';
                         document.getElementById('status-badge').className = 'px-4 py-2 bg-green-100 text-green-700 rounded-full font-bold text-sm inline-flex items-center gap-2 border border-green-200';
-                        document.getElementById('last-update').innerText = 'Last signal: ' + data.updated_at;
+                        var dateObj = new Date(data.updated_at);
+                        var timeStr = dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                        var dateStr = dateObj.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                        document.getElementById('last-update').innerText = 'Last signal: ' + timeStr + ' - ' + dateStr;
                     }
 
                     if (!employeeMarker) {

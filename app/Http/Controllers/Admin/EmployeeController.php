@@ -153,7 +153,7 @@ class EmployeeController extends Controller
             return response()->json([
                 'latitude' => (float)$location->latitude,
                 'longitude' => (float)$location->longitude,
-                'updated_at' => $location->updated_at->format('h:i:s A - d/m/Y'),
+                'updated_at' => $location->updated_at->toIso8601String(),
                 'diff_minutes' => $location->updated_at->diffInMinutes(now())
             ]);
         }
