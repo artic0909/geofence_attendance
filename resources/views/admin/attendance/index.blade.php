@@ -74,13 +74,14 @@
         <table class="w-full text-sm text-left">
             <thead class="text-xs text-gray-500 uppercase bg-gray-50/50 border-b border-gray-100">
                 <tr>
-                    <th class="px-6 py-4 font-semibold tracking-wider">Type</th>
-                    <th class="px-6 py-4 font-semibold tracking-wider">Employee</th>
-                    <th class="px-6 py-4 font-semibold tracking-wider">Date</th>
-                    <th class="px-6 py-4 font-semibold tracking-wider">Check In</th>
-                    <th class="px-6 py-4 font-semibold tracking-wider">Check Out</th>
-                    <th class="px-6 py-4 font-semibold tracking-wider">Hours</th>
-                    <th class="px-6 py-4 font-semibold tracking-wider">Location</th>
+                    <th class="px-6 py-4 font-bold tracking-wider text-gray-600">Type</th>
+                    <th class="px-6 py-4 font-bold tracking-wider text-gray-600">Employee</th>
+                    <th class="px-6 py-4 font-bold tracking-wider text-gray-600">Date</th>
+                    <th class="px-6 py-4 font-bold tracking-wider text-gray-600">Check In</th>
+                    <th class="px-6 py-4 font-bold tracking-wider text-gray-600">Check Out</th>
+                    <th class="px-6 py-4 font-bold tracking-wider text-gray-600">Hours</th>
+                    <th class="px-6 py-4 font-bold tracking-wider text-gray-600">Location</th>
+                    <th class="px-6 py-4 font-bold tracking-wider text-gray-600 text-right">Action</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
@@ -101,13 +102,13 @@
                     <td class="px-6 py-4">
                         <div class="font-medium text-gray-900">{{ $attendance->check_in ? \Carbon\Carbon::parse($attendance->check_in)->format('h:i A') : '--:--' }}</div>
                         @if($attendance->check_in_photo)
-                        <button class="text-xs text-blue-600 hover:text-blue-800 underline mt-1" data-bs-toggle="modal" data-bs-target="#staticBackdropCheckIn{{$attendance->id}}">View Photo</button>
+                        <button type="button" class="text-xs text-blue-600 hover:text-blue-800 underline mt-1" onclick="showImage('{{ Storage::url($attendance->check_in_photo) }}', 'Check-In Photo: {{ $attendance->employee->name }}')">View Photo</button>
                         @endif
                     </td>
                     <td class="px-6 py-4">
                         <div class="font-medium text-gray-900">{{ $attendance->check_out ? \Carbon\Carbon::parse($attendance->check_out)->format('h:i A') : '--:--' }}</div>
                         @if($attendance->check_out_photo)
-                        <button class="text-xs text-blue-600 hover:text-blue-800 underline mt-1" data-bs-toggle="modal" data-bs-target="#staticBackdropCheckOut{{$attendance->id}}">View Photo</button>
+                        <button type="button" class="text-xs text-blue-600 hover:text-blue-800 underline mt-1" onclick="showImage('{{ Storage::url($attendance->check_out_photo) }}', 'Check-Out Photo: {{ $attendance->employee->name }}')">View Photo</button>
                         @endif
                     </td>
                     <td class="px-6 py-4">
@@ -124,16 +125,30 @@
                     </td>
                     <td class="px-6 py-4">
                         @if($attendance->attendance_type == 'normal')
-                            <span class="font-medium text-gray-700">{{ $attendance->geofence->name ?? 'N/A' }}</span>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-gray-100 text-gray-700">
+                                <svg class="w-3 h-3 mr-1 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                                {{ $attendance->geofence->name ?? 'N/A' }}
+                            </span>
                         @else
                             <div class="flex items-center gap-2">
-                                <span class="text-orange-600 font-bold text-xs">{{ $attendance->checkin_location ?? 'Outside' }}</span>
+                                <span class="text-orange-600 font-bold text-xs flex items-center bg-orange-50 px-2 py-1 rounded-md">
+                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path></svg>
+                                    {{ $attendance->checkin_location ?? 'Outside' }}
+                                </span>
                                 @if($attendance->reason)
-                                    <button class="px-2 py-1 bg-orange-50 text-orange-600 rounded text-xs border border-orange-100 hover:bg-orange-100 transition-colors" data-bs-toggle="modal" data-bs-target="#reasonModal{{$attendance->id}}" title="View Reason">
-                                        Reason
+                                    <button type="button" class="px-2 py-1 bg-white text-orange-600 rounded text-xs border border-orange-200 hover:bg-orange-50 hover:border-orange-300 transition-colors shadow-sm font-medium" onclick="showReason('{{ addslashes($attendance->employee->name) }}', '{{ addslashes($attendance->checkin_location ?? 'N/A') }}', '{{ addslashes($attendance->reason) }}')" title="View Reason">
+                                        View Reason
                                     </button>
                                 @endif
                             </div>
+                        @endif
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                        @if($attendance->check_in && !$attendance->check_out && \Carbon\Carbon::parse($attendance->date)->isToday())
+                        <a href="{{ route('admin.employees.track', $attendance->employee_id) }}" class="inline-flex items-center justify-center px-3 py-1.5 bg-navy text-white font-medium rounded-lg hover:bg-[#233554] transition-colors text-xs shadow-sm" title="Track Live Location">
+                            <svg class="w-3.5 h-3.5 mr-1.5 text-saffron" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
+                            Track
+                        </a>
                         @endif
                     </td>
                 </tr>
@@ -156,67 +171,50 @@
     @endif
 </div>
 
-<!-- Modals for Photos -->
-@foreach($recent_attendances as $attendance)
-@if($attendance->check_in_photo)
-<div class="modal fade" id="staticBackdropCheckIn{{$attendance->id}}" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg rounded-2xl overflow-hidden">
-            <div class="modal-header bg-gray-50 border-b border-gray-100">
-                <h5 class="modal-title font-bold text-navy">Check-In Photo: {{ $attendance->employee->name }}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-0">
-                <img src="{{ Storage::url($attendance->check_in_photo) }}" class="w-full h-auto" alt="Check In Photo">
-            </div>
-        </div>
-    </div>
-</div>
-@endif
+@push('scripts')
+<script>
+    function showImage(imageUrl, title) {
+        Swal.fire({
+            title: title,
+            imageUrl: imageUrl,
+            imageWidth: '100%',
+            imageAlt: 'Attendance Photo',
+            confirmButtonColor: '#1a2639',
+            confirmButtonText: 'Close',
+            customClass: {
+                title: 'text-lg font-bold text-navy',
+            }
+        });
+    }
 
-@if($attendance->check_out_photo)
-<div class="modal fade" id="staticBackdropCheckOut{{$attendance->id}}" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg rounded-2xl overflow-hidden">
-            <div class="modal-header bg-gray-50 border-b border-gray-100">
-                <h5 class="modal-title font-bold text-navy">Check-Out Photo: {{ $attendance->employee->name }}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-0">
-                <img src="{{ Storage::url($attendance->check_out_photo) }}" class="w-full h-auto" alt="Check Out Photo">
-            </div>
-        </div>
-    </div>
-</div>
-@endif
+    function showReason(employee, location, reason) {
+        Swal.fire({
+            title: 'Outside Justification',
+            html: `
+                <div class="text-left mt-4">
+                    <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Employee</p>
+                    <p class="text-navy font-medium mb-4">${employee}</p>
+                    
+                    <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Location</p>
+                    <p class="text-navy font-medium mb-4">${location}</p>
+                    
+                    <div class="p-4 bg-orange-50 border border-orange-100 rounded-xl">
+                        <p class="text-xs font-bold text-orange-700 uppercase tracking-wider mb-2 block">Reason</p>
+                        <p class="text-gray-800 italic leading-relaxed">"${reason}"</p>
+                    </div>
+                </div>
+            `,
+            confirmButtonColor: '#ea580c',
+            confirmButtonText: 'Close',
+            customClass: {
+                title: 'text-xl font-bold text-orange-700 border-b border-orange-100 pb-2',
+            }
+        });
+    }
+</script>
+@endpush
 
-@if($attendance->attendance_type == 'outside' && $attendance->reason)
-<div class="modal fade" id="reasonModal{{$attendance->id}}" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg rounded-2xl overflow-hidden">
-            <div class="modal-header bg-orange-50 border-b border-orange-100">
-                <h5 class="modal-title font-bold text-orange-700">Outside Justification</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-6">
-                <div class="mb-4">
-                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Employee</label>
-                    <p class="text-navy font-medium">{{ $attendance->employee->name }}</p>
-                </div>
-                <div class="mb-4">
-                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Location</label>
-                    <p class="text-navy font-medium">{{ $attendance->checkin_location ?? 'N/A' }}</p>
-                </div>
-                <div class="p-4 bg-orange-50 border border-orange-100 rounded-xl">
-                    <label class="text-xs font-bold text-orange-700 uppercase tracking-wider mb-2 block">Reason</label>
-                    <p class="text-gray-800 italic leading-relaxed">"{{ $attendance->reason }}"</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-@endif
-@endforeach
+@endsection
 
 <script>
     // Set max date for to_date based on from_date selection
