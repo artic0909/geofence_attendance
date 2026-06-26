@@ -35,6 +35,24 @@
         </div>
     </div>
 </div>
+<!-- Charts Section -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <!-- Revenue Chart -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <h3 class="text-lg font-bold text-gray-900 mb-4">Revenue Overview ({{ date('Y') }})</h3>
+        <div class="relative h-64">
+            <canvas id="revenueChart"></canvas>
+        </div>
+    </div>
+    
+    <!-- Organizations Chart -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <h3 class="text-lg font-bold text-gray-900 mb-4">New Organizations ({{ date('Y') }})</h3>
+        <div class="relative h-64">
+            <canvas id="orgsChart"></canvas>
+        </div>
+    </div>
+</div>
 
 <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
     <div class="px-6 py-4 border-b border-gray-100 bg-gray-50">
@@ -83,4 +101,67 @@
         </table>
     </div>
 </div>
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        
+        // Revenue Chart
+        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+        new Chart(revenueCtx, {
+            type: 'line',
+            data: {
+                labels: months,
+                datasets: [{
+                    label: 'Revenue (₹)',
+                    data: @json($stats['revenue_data']),
+                    borderColor: '#f6c449',
+                    backgroundColor: 'rgba(246, 196, 73, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+
+        // Orgs Chart
+        const orgsCtx = document.getElementById('orgsChart').getContext('2d');
+        new Chart(orgsCtx, {
+            type: 'bar',
+            data: {
+                labels: months,
+                datasets: [{
+                    label: 'New Organizations',
+                    data: @json($stats['orgs_data']),
+                    backgroundColor: '#1a2639',
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                }
+            }
+        });
+    });
+</script>
+@endpush
+
 @endsection
