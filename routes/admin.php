@@ -14,6 +14,7 @@ Route::middleware(['auth', 'subscribed'])->prefix('admin')->group(function () {
     Route::get('/attendances', [AttendanceController::class, 'index'])->name('admin.attendances');
     Route::get('/attendances/options', [AttendanceController::class, 'options'])->name('admin.attendances.options');
     Route::get('/attendances/today', [AttendanceController::class, 'todayAttedances'])->name('admin.attendances.today');
+    Route::get('/attendances/today-absent', [AttendanceController::class, 'todayAbsent'])->name('admin.attendances.today-absent');
     Route::get('/attendances/today/export', [AttendanceController::class, 'todayExport'])->name('admin.attendances.today.export');
     Route::get('attendances/delete', [AttendanceController::class, 'deleteAttendances'])->name('admin.attendances.delete');
     Route::delete('attendances/bulk-delete', [AttendanceController::class, 'bulkDeleteAttendances'])->name('admin.attendances.bulk-delete');

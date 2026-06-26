@@ -98,9 +98,14 @@
 
 
 
-            <a href="{{ route('admin.attendances.options') }}" class="flex items-center px-4 py-3 rounded-xl transition-all duration-200 group {{ request()->routeIs('admin.attendances.options') ? 'bg-saffron text-navy font-semibold shadow-md' : 'text-gray-300 hover:bg-white/10 hover:text-white' }}">
-                <svg class="w-5 h-5 mr-3 {{ request()->routeIs('admin.attendances.options') ? 'text-navy' : 'text-gray-400 group-hover:text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+            <a href="{{ route('admin.attendances.options') }}" class="flex items-center px-4 py-3 rounded-xl transition-all duration-200 group {{ request()->routeIs('admin.attendances.options') || request()->routeIs('admin.attendances') || request()->routeIs('admin.attendances.today') || request()->routeIs('admin.attendances.delete') ? 'bg-saffron text-navy font-semibold shadow-md' : 'text-gray-300 hover:bg-white/10 hover:text-white' }}">
+                <svg class="w-5 h-5 mr-3 {{ request()->routeIs('admin.attendances.*') && !request()->routeIs('admin.attendances.today-absent') ? 'text-navy' : 'text-gray-400 group-hover:text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
                 Attendances
+            </a>
+
+            <a href="{{ route('admin.attendances.today-absent') }}" class="flex items-center px-4 py-3 rounded-xl transition-all duration-200 group {{ request()->routeIs('admin.attendances.today-absent') ? 'bg-saffron text-navy font-semibold shadow-md' : 'text-gray-300 hover:bg-white/10 hover:text-white' }}">
+                <svg class="w-5 h-5 mr-3 {{ request()->routeIs('admin.attendances.today-absent') ? 'text-navy' : 'text-gray-400 group-hover:text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                Today Absents
             </a>
 
             <a href="{{ route('admin.transactions.index') }}" class="flex items-center px-4 py-3 rounded-xl transition-all duration-200 group {{ request()->routeIs('admin.transactions.*') ? 'bg-saffron text-navy font-semibold shadow-md' : 'text-gray-300 hover:bg-white/10 hover:text-white' }}">

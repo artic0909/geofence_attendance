@@ -43,11 +43,27 @@
             @endif
         </div>
     </div>
+
+    <!-- Subscription Progress Bar -->
+    @if(!$subscription['is_expired'])
+    <div class="px-8 pb-6 relative z-10">
+        <div class="flex justify-between text-xs text-gray-300 mb-1 font-semibold">
+            <span>Subscription Progress</span>
+            <span>{{ $subscription['days_left'] }} Days Left</span>
+        </div>
+        <div class="w-full bg-white/20 rounded-full h-2.5 overflow-hidden">
+            <div class="h-2.5 rounded-full transition-all duration-500 
+                {{ $subscription['percentage'] > 90 ? 'bg-red-500' : ($subscription['percentage'] > 70 ? 'bg-orange-400' : 'bg-green-400') }}" 
+                style="width: {{ $subscription['percentage'] }}%">
+            </div>
+        </div>
+    </div>
+    @endif
 </div>
 
 <!-- Stats Grid -->
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-    <!-- Card 1 -->
+    <!-- Card 1: Total Employees -->
     <div class="bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-300 p-6 border border-gray-100 group">
         <div class="flex items-center justify-between">
             <div>
@@ -62,23 +78,7 @@
         </div>
     </div>
 
-    <!-- Card 2 -->
-    <div class="bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-300 p-6 border border-gray-100 group">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-sm font-medium text-gray-500 mb-1">Active Geofences</p>
-                <h3 class="text-3xl font-bold text-navy">{{ $stats['total_geofences'] }}</h3>
-            </div>
-            <div class="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                </svg>
-            </div>
-        </div>
-    </div>
-
-    <!-- Card 3 -->
+    <!-- Card 2: Today's Check-ins -->
     <div class="bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-300 p-6 border border-gray-100 group">
         <div class="flex items-center justify-between">
             <div>
@@ -93,95 +93,37 @@
         </div>
     </div>
 
-    <!-- Card 4 -->
+    <!-- Card 3: Today's Absents -->
     <div class="bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-300 p-6 border border-gray-100 group">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-sm font-medium text-gray-500 mb-1">Active Accounts</p>
-                <h3 class="text-3xl font-bold text-navy">{{ $stats['active_employees'] }}</h3>
+                <p class="text-sm font-medium text-gray-500 mb-1">Today's Absents</p>
+                <h3 class="text-3xl font-bold text-navy">{{ $stats['today_absents'] }}</h3>
             </div>
-            <div class="w-12 h-12 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+            <div class="w-12 h-12 rounded-xl bg-red-50 text-red-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 4: Total Payments -->
+    <div class="bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-300 p-6 border border-gray-100 group">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-500 mb-1">Total Payments</p>
+                <h3 class="text-3xl font-bold text-navy">₹{{ number_format($stats['total_payments'], 2) }}</h3>
+            </div>
+            <div class="w-12 h-12 rounded-xl bg-saffron/20 text-saffron flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Pending Attendance Table -->
-<div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-8">
-    <div class="px-6 py-5 border-b border-gray-100 flex flex-col md:flex-row md:justify-between md:items-center gap-4 bg-gray-50/50">
-        <div>
-            <h2 class="text-lg font-bold text-navy flex items-center">
-                Missing Check-ins Today
-                <span class="ml-3 px-2.5 py-0.5 bg-red-100 text-red-700 rounded-full text-xs font-bold">{{ $pending_employees->total() }}</span>
-            </h2>
-            <p class="text-sm text-gray-500 mt-1">Employees who have not logged attendance yet.</p>
-        </div>
-        <a href="{{ route('admin.dashboard.export-pending') }}" class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-navy bg-saffron hover:bg-saffron-hover shadow-sm transition-colors">
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-            Export CSV
-        </a>
-    </div>
-    
-    <div class="overflow-x-auto">
-        @if($pending_employees->count() > 0)
-        <table class="w-full text-sm text-left text-gray-600">
-            <thead class="text-xs text-gray-500 uppercase bg-gray-50/50">
-                <tr>
-                    <th scope="col" class="px-6 py-4 font-semibold tracking-wider">Employee</th>
-                    <th scope="col" class="px-6 py-4 font-semibold tracking-wider">Contact</th>
-                    <th scope="col" class="px-6 py-4 font-semibold tracking-wider">Assigned Sites</th>
-                    <th scope="col" class="px-6 py-4 font-semibold tracking-wider">Status</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-100">
-                @foreach($pending_employees as $employee)
-                <tr class="hover:bg-gray-50/80 transition-colors">
-                    <td class="px-6 py-4">
-                        <div class="font-bold text-navy">{{ $employee->name }}</div>
-                        <div class="text-xs text-gray-400 mt-0.5">ID: {{ $employee->employee_id ?? 'N/A' }}</div>
-                    </td>
-                    <td class="px-6 py-4">
-                        <div class="text-gray-900">{{ $employee->phone }}</div>
-                        <div class="text-xs text-gray-500">{{ $employee->email }}</div>
-                    </td>
-                    <td class="px-6 py-4">
-                        <div class="flex flex-wrap gap-1.5">
-                            @forelse($employee->employeeGeofences as $geofence)
-                                <span class="px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs font-medium border border-gray-200">
-                                    {{ $geofence->name }}
-                                </span>
-                            @empty
-                                <span class="text-gray-400 italic text-xs">No Sites</span>
-                            @endforelse
-                        </div>
-                    </td>
-                    <td class="px-6 py-4">
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-50 text-red-700 border border-red-100">
-                            <span class="w-1.5 h-1.5 rounded-full bg-red-500 mr-1.5"></span>
-                            Absent
-                        </span>
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
-        
-        <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/30">
-            {{ $pending_employees->links() }}
-        </div>
-        @else
-        <div class="py-16 text-center">
-            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-50 text-green-500 mb-4 shadow-sm border border-green-100">
-                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-            </div>
-            <h3 class="text-lg font-bold text-navy mb-1">Excellent!</h3>
-            <p class="text-gray-500 text-sm">Every active employee has checked in today.</p>
-        </div>
-        @endif
-    </div>
-</div>
+
 
 @endsection

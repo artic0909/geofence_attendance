@@ -42,22 +42,55 @@ class DashboardController extends Controller
             )
             ->unique();
 
-        // Get employees who have NOT given attendance today
-        $pendingQuery = \App\Models\User::where('role', 'employee')->where('admin_id', $adminId)
+        // Calculate Today's Absents
+        $stats['today_absents'] = \App\Models\User::where('role', 'employee')
+            ->where('admin_id', $adminId)
             ->where('is_active', true)
-            ->whereNotIn('id', $attendedEmployeeIds);
+            ->whereNotIn('id', $attendedEmployeeIds)
+            ->count();
 
-        // Apply filters if any
-        if ($request->filled('employee_name')) {
-            $pendingQuery->where('name', 'like', '%' . $request->employee_name . '%');
+        // Calculate Total Payments (Transactions)
+        $stats['total_payments'] = \App\Models\Transaction::where('user_id', $adminId)
+            ->whereIn('status', ['paid', 'successful', 'completed'])
+            ->sum('amount');
+
+        // Subscription Progress Calculation
+        $current_plan = auth()->user()->activeSubscription;
+        $subscription = [
+            'days_left' => 0,
+            'percentage' => 100,
+            'is_expired' => true,
+        ];
+
+        if (auth()->user()->subscription_expires_at) {
+            $endDate = \Carbon\Carbon::parse(auth()->user()->subscription_expires_at);
+            $now = now();
+            
+            $daysLeft = $now->diffInDays($endDate, false); // false = return negative if past
+            
+            if ($daysLeft > 0) {
+                // Approximate start date from the latest transaction or user creation
+                $latestTx = \App\Models\Transaction::where('user_id', $adminId)
+                    ->whereIn('status', ['paid', 'successful', 'completed'])
+                    ->latest()
+                    ->first();
+                
+                $startDate = $latestTx ? $latestTx->created_at : auth()->user()->created_at;
+                
+                $totalDays = max(1, $startDate->diffInDays($endDate));
+                $passedDays = max(0, $startDate->diffInDays($now));
+                
+                $percentage = min(100, ($passedDays / $totalDays) * 100);
+                
+                $subscription = [
+                    'days_left' => $daysLeft,
+                    'percentage' => $percentage,
+                    'is_expired' => false,
+                ];
+            }
         }
 
-        $pending_employees = $pendingQuery->with('employeeGeofences')->orderBy('name', 'asc')->paginate(10);
-
-        // Fetch current subscription plan
-        $current_plan = auth()->user()->activeSubscription;
-
-        return view('admin.dashboard', compact('stats', 'pending_employees', 'geofences', 'current_plan'));
+        return view('admin.dashboard', compact('stats', 'geofences', 'current_plan', 'subscription'));
     }
 
     public function exportPending(Request $request)

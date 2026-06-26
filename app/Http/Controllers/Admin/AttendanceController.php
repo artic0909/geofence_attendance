@@ -283,6 +283,36 @@ class AttendanceController extends Controller
         return view('admin.attendance.today', compact('stats', 'recent_attendances', 'geofences'));
     }
 
+    public function todayAbsent(Request $request)
+    {
+        $adminId = auth()->id();
+
+        // Get IDs of employees who have already given attendance today
+        $attendedEmployeeIds = Attendance::where('admin_id', $adminId)
+            ->whereDate('date', today())
+            ->pluck('employee_id')
+            ->concat(
+                OutsideAttendance::where('admin_id', $adminId)
+                    ->whereDate('date', today())
+                    ->pluck('employee_id')
+            )
+            ->unique();
+
+        // Get employees who have NOT given attendance today
+        $pendingQuery = User::where('role', 'employee')->where('admin_id', $adminId)
+            ->where('is_active', true)
+            ->whereNotIn('id', $attendedEmployeeIds);
+
+        // Apply filters if any
+        if ($request->filled('employee_name')) {
+            $pendingQuery->where('name', 'like', '%' . $request->employee_name . '%');
+        }
+
+        $pending_employees = $pendingQuery->with('employeeGeofences')->orderBy('name', 'asc')->paginate(10);
+
+        return view('admin.attendance.today_absent', compact('pending_employees'));
+    }
+
     public function todayExport(Request $request)
     {
         $adminId = auth()->id();
