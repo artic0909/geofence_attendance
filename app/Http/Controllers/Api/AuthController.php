@@ -12,12 +12,17 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'email' => 'required|email',
+            'email' => 'required',
             'password' => 'required',
             'device_name' => 'required',
         ]);
 
-        $employee = User::where('role', 'employee')->where('email', $request->email)->first();
+        $loginId = $request->email;
+        $employee = User::where('role', 'employee')
+            ->where(function ($query) use ($loginId) {
+                $query->where('email', $loginId)
+                      ->orWhere('employee_id', $loginId);
+            })->first();
 
         if (!$employee || !Hash::check($request->password, $employee->password)) {
             throw ValidationException::withMessages([
