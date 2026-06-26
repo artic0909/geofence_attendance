@@ -95,7 +95,8 @@
             <div class="w-full lg:hidden flex justify-center mt-2 space-x-4">
                 <a href="{{ url('/about') }}" class="text-navy font-semibold">About</a>
                 <a href="{{ url('/industries') }}" class="text-navy font-semibold">Industries</a>
-                <a href="{{ route('login') }}" class="text-navy font-semibold">Login</a>
+                <a href="{{ route('login') }}" class="text-navy font-semibold">Employee</a>
+                <a href="{{ route('register') }}" class="text-navy font-semibold">Organization</a>
             </div>
         </div>
     </header>
