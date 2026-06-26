@@ -33,17 +33,37 @@
     <div class="lg:col-span-1 space-y-6">
         <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
             <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
-                <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                Assigned Sites
+                <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                Checked In Geofence
             </h3>
             <div class="space-y-4">
-                @foreach($employee->employeeGeofences as $geofence)
-                <div class="p-3 bg-blue-50 rounded-lg border border-blue-100">
-                    <p class="font-bold text-blue-800 text-sm">{{ $geofence->name }}</p>
-                    <p class="text-xs text-blue-600 mt-1">Radius: {{ $geofence->radius }}m</p>
-                    <p class="text-xs text-orange-600 font-bold mt-1">Track Area: {{ $geofence->tracking_radius ?? 'Disabled' }}m</p>
-                </div>
-                @endforeach
+                @if(isset($attendance) && $attendance->geofence)
+                    <div class="p-4 bg-green-50 rounded-xl border border-green-100 shadow-sm relative overflow-hidden">
+                        <div class="absolute top-0 right-0 p-2 opacity-10">
+                            <svg class="w-16 h-16 text-green-800" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path></svg>
+                        </div>
+                        <p class="font-bold text-green-800 text-base mb-2">{{ $attendance->geofence->name }}</p>
+                        <div class="flex items-center gap-2 text-green-700 text-xs mt-1">
+                            <span class="font-bold bg-green-100 px-2 py-0.5 rounded border border-green-200">Radius: {{ $attendance->geofence->radius }}m</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-orange-700 text-xs mt-2">
+                            <span class="font-bold bg-orange-100 px-2 py-0.5 rounded border border-orange-200">Track Area: {{ $attendance->geofence->tracking_radius ?? 'Disabled' }}m</span>
+                        </div>
+                    </div>
+                @elseif(isset($attendance) && $attendance->attendance_type == 'outside')
+                    <div class="p-4 bg-orange-50 rounded-xl border border-orange-100 shadow-sm relative overflow-hidden">
+                        <div class="absolute top-0 right-0 p-2 opacity-10">
+                            <svg class="w-16 h-16 text-orange-800" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path></svg>
+                        </div>
+                        <p class="font-bold text-orange-800 text-base mb-2">Outside Check-in</p>
+                        <p class="text-xs text-orange-700 mt-1 font-medium">{{ $attendance->checkin_location ?? 'Location not recorded' }}</p>
+                    </div>
+                @else
+                    <div class="p-4 bg-gray-50 rounded-xl border border-gray-100 shadow-sm text-center">
+                        <p class="font-bold text-gray-500 text-sm">Not Checked In</p>
+                        <p class="text-xs text-gray-400 mt-1">Employee has no active attendance.</p>
+                    </div>
+                @endif
             </div>
         </div>
 
@@ -73,13 +93,14 @@
         var bounds = new google.maps.LatLngBounds();
 
         // Add geofences to map
-        @foreach($employee->employeeGeofences as $geofence)
-            // Attendance Radius (Blue)
+        @if(isset($attendance) && $attendance->geofence)
+            @php $geofence = $attendance->geofence; @endphp
+            // Attendance Radius (Green)
             var attendanceCircle = new google.maps.Circle({
-                strokeColor: '#3b82f6',
+                strokeColor: '#22c55e',
                 strokeOpacity: 0.8,
                 strokeWeight: 2,
-                fillColor: '#3b82f6',
+                fillColor: '#22c55e',
                 fillOpacity: 0.1,
                 map: map,
                 center: {lat: {{ $geofence->latitude }}, lng: {{ $geofence->longitude }}},
@@ -113,7 +134,7 @@
                     infoWindow.open(map);
                 });
             @endif
-        @endforeach
+        @endif
 
         // Fit map to geofences if they exist
         if (!bounds.isEmpty()) {

@@ -182,7 +182,13 @@ class OrganizationEmployeeController extends Controller
         $org = User::findOrFail($organization);
         $employee = User::where('admin_id', $org->id)->where('role', 'employee')->findOrFail($employeeId);
         
-        return view('superadmin.organization.employees.track', compact('org', 'employee'));
+        $attendance = \App\Models\Attendance::with('geofence')->where('employee_id', $employee->id)
+            ->whereDate('date', now())
+            ->whereNotNull('check_in')
+            ->whereNull('check_out')
+            ->first();
+
+        return view('superadmin.organization.employees.track', compact('org', 'employee', 'attendance'));
     }
 
     public function latestLocation($organization, $employeeId)

@@ -134,10 +134,16 @@ class EmployeeController extends Controller
 
     public function track(User $employee)
     {
+        $attendance = \App\Models\Attendance::with('geofence')->where('employee_id', $employee->id)
+            ->whereDate('date', now())
+            ->whereNotNull('check_in')
+            ->whereNull('check_out')
+            ->first();
+
         // Load geofences for this employee to show them on the map
         $employee->load('employeeGeofences');
         
-        return view('admin.employees.track', compact('employee'));
+        return view('admin.employees.track', compact('employee', 'attendance'));
     }
 
     public function getLatestLocation(User $employee)
