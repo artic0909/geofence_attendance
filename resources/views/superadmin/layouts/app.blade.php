@@ -25,6 +25,10 @@
     </script>
     <style>
         body { font-family: 'Inter', sans-serif; }
+        /* Prevent SweetAlert2 from breaking full height layout */
+        html.swal2-height-auto, body.swal2-height-auto {
+            height: 100vh !important;
+        }
     </style>
 </head>
 <body class="bg-gray-100 h-screen flex overflow-hidden">

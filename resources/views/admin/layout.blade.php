@@ -54,6 +54,10 @@
         input.error, select.error, textarea.error {
             border-color: #ef4444 !important;
         }
+        /* Prevent SweetAlert2 from breaking full height layout */
+        html.swal2-height-auto, body.swal2-height-auto {
+            height: 100vh !important;
+        }
     </style>
     @stack('styles')
 </head>
