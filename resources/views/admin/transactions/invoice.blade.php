@@ -165,7 +165,7 @@
         </table>
         
         <div style="margin: 30px -30px 20px -30px;">
-            <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('empty-map.png'))) }}" alt="Service Map" style="width: 100%; height: 200px; object-fit: cover; opacity: 0.9; display: block;">
+            <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('world-map-bg.png'))) }}" alt="Service Map" style="width: 100%; height: 200px; object-fit: cover; opacity: 0.9; display: block;">
         </div>
 
         <div class="footer">
