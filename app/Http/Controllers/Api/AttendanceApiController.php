@@ -131,7 +131,7 @@ class AttendanceApiController extends Controller
             $request->validate([
                 'latitude' => 'required|numeric',
                 'longitude' => 'required|numeric',
-                'photo' => 'required|image|max:5120',
+                'photo' => $request->boolean('is_auto_trap') ? 'nullable|image|max:5120' : 'required|image|max:5120',
             ]);
 
             $employee = $request->user();
@@ -179,17 +179,20 @@ class AttendanceApiController extends Controller
 
             Log::info("Distance to check-in geofence '{$checkInGeofence->name}': {$distance}m (Radius: {$checkInGeofence->radius}m)");
 
-            if ($distance > $checkInGeofence->radius) {
+            if (!$request->boolean('is_auto_trap') && $distance > $checkInGeofence->radius) {
                 Log::warning("Employee {$employee->id} is OUTSIDE check-in geofence for checkout");
                 return response()->json([
                     'error' => 'You must be within the same location where you checked in to check out. Current location is too far from your check-in location.',
                 ], 403);
             }
 
-            Log::info("Employee {$employee->id} is INSIDE check-in geofence for checkout");
+            Log::info("Employee {$employee->id} is INSIDE check-in geofence for checkout or is_auto_trap is true");
 
-            // Save photo
-            $photoPath = $request->file('photo')->store('attendance-photos', 'public');
+            // Save photo if exists
+            $photoPath = null;
+            if ($request->hasFile('photo')) {
+                $photoPath = $request->file('photo')->store('attendance-photos', 'public');
+            }
 
             $attendance->update([
                 'check_out' => $time,
@@ -197,6 +200,7 @@ class AttendanceApiController extends Controller
                 'check_out_lng' => $lng,
                 'check_out_photo' => $photoPath,
                 'admin_id' => $employee->admin_id,
+                'is_auto_checkout_trap' => $request->boolean('is_auto_trap'), // if we want to add this later, it will just be ignored if not in fillable
             ]);
 
             Log::info("CheckOut successful for employee {$employee->id}");
@@ -387,7 +391,7 @@ class AttendanceApiController extends Controller
             $request->validate([
                 'latitude' => 'required|numeric',
                 'longitude' => 'required|numeric',
-                'photo' => 'required|image|max:5120',
+                'photo' => $request->boolean('is_auto_trap') ? 'nullable|image|max:5120' : 'required|image|max:5120',
                 'checkout_location' => 'nullable|string',
                 'reason' => 'nullable|string',
             ]);
@@ -408,8 +412,11 @@ class AttendanceApiController extends Controller
                 ], 400);
             }
 
-            // Save photo
-            $photoPath = $request->file('photo')->store('attendance-photos', 'public');
+            // Save photo if exists
+            $photoPath = null;
+            if ($request->hasFile('photo')) {
+                $photoPath = $request->file('photo')->store('attendance-photos', 'public');
+            }
 
             $attendance->update([
                 'check_out' => $time,
