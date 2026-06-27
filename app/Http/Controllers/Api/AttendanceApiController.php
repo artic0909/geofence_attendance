@@ -113,7 +113,7 @@ class AttendanceApiController extends Controller
                 'message' => 'Check-in successful!',
                 'attendance' => $attendance,
                 'employee_name' => $employee->name,
-                'admin_name' => $employee->admin ? $employee->admin->name : null,
+                'admin_name' => $employee->admin ? ($employee->admin->business_name ?? $employee->admin->name) : null,
                 'geofence_name' => $matchedGeofence->name,
                 'assigned_geofences' => $geofences->pluck('name'), // all geofences for this employee
             ]);
@@ -212,7 +212,7 @@ class AttendanceApiController extends Controller
                 'message' => 'Check-out successful!',
                 'attendance' => $attendance,
                 'employee_name' => $employee->name,
-                'admin_name' => $employee->admin ? $employee->admin->name : null,
+                'admin_name' => $employee->admin ? ($employee->admin->business_name ?? $employee->admin->name) : null,
                 'geofence_name' => $checkInGeofence->name,
                 'assigned_geofences' => $assignedGeofences,
             ]);
@@ -269,7 +269,7 @@ class AttendanceApiController extends Controller
 
             return response()->json([
                 'employee_name' => $employee->name,
-                'admin_name' => $employee->admin ? $employee->admin->name : null,
+                'admin_name' => $employee->admin ? ($employee->admin->business_name ?? $employee->admin->name) : null,
                 'assigned_geofences' => $assignedGeofences,
                 'attendances' => $attendances,
             ]);
@@ -313,7 +313,7 @@ class AttendanceApiController extends Controller
 
         return response()->json([
             'employee_name' => $user->name,
-            'admin_name' => $user->admin->name ?? 'Admin',
+            'admin_name' => $user->admin->business_name ?? $user->admin->name ?? 'Admin',
             'phone_restriction' => $user->phone_used_restricted ?? false,
             'assigned_geofences' => $geofences,
             'attendance_status' => [
@@ -375,7 +375,7 @@ class AttendanceApiController extends Controller
                 'message' => 'Outside check-in successful!',
                 'attendance' => $attendance,
                 'employee_name' => $employee->name,
-                'admin_name' => $employee->admin ? $employee->admin->name : null,
+                'admin_name' => $employee->admin ? ($employee->admin->business_name ?? $employee->admin->name) : null,
             ]);
         } catch (\Exception $e) {
             Log::error('Outside check-in error: ' . $e->getMessage());
@@ -434,7 +434,7 @@ class AttendanceApiController extends Controller
                 'message' => 'Outside check-out successful!',
                 'attendance' => $attendance,
                 'employee_name' => $employee->name,
-                'admin_name' => $employee->admin ? $employee->admin->name : null,
+                'admin_name' => $employee->admin ? ($employee->admin->business_name ?? $employee->admin->name) : null,
             ]);
         } catch (\Exception $e) {
             Log::error('Outside check-out error: ' . $e->getMessage());
