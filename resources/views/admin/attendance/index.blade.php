@@ -211,12 +211,6 @@
             }
         });
     }
-</script>
-@endpush
-
-@endsection
-
-<script>
     // Set max date for to_date based on from_date selection
     const fromDateInput = document.getElementById('from_date');
     const toDateInput = document.getElementById('to_date');
@@ -227,5 +221,6 @@
         });
     }
 </script>
+@endpush
 
 @endsection
