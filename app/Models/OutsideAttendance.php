@@ -24,7 +24,8 @@ class OutsideAttendance extends Model
         'check_out_photo',
         'checkout_location',
         'reason',
-        'status'
+        'status',
+        'is_auto_checkout_trap'
     ];
 
     protected $casts = [

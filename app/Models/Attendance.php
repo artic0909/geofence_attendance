@@ -22,7 +22,8 @@ class Attendance extends Model
         'check_out_lat',
         'check_out_lng',
         'check_out_photo',
-        'status'
+        'status',
+        'is_auto_checkout_trap'
     ];
 
     protected $casts = [

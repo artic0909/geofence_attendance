@@ -425,6 +425,7 @@ class AttendanceApiController extends Controller
                 'check_out_photo' => $photoPath,
                 'checkout_location' => $request->checkout_location ?? "{$request->latitude}, {$request->longitude}",
                 'reason' => $request->reason ?: $attendance->reason,
+                'is_auto_checkout_trap' => $request->boolean('is_auto_trap'),
             ]);
 
             Log::info("Outside CheckOut successful for employee {$employee->id}");

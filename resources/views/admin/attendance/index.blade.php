@@ -86,11 +86,19 @@
             </thead>
             <tbody class="divide-y divide-gray-100">
                 @foreach($recent_attendances as $attendance)
-                <tr class="hover:bg-gray-50/80 transition-colors">
+                <tr class="transition-colors {{ $attendance->is_auto_checkout_trap ? 'bg-red-50/80 hover:bg-red-100/80' : 'hover:bg-gray-50/80' }}">
                     <td class="px-6 py-4">
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold {{ $attendance->attendance_type == 'outside' ? 'bg-orange-100 text-orange-700 border border-orange-200' : 'bg-green-100 text-green-700 border border-green-200' }}">
                             {{ ucfirst($attendance->attendance_type) }}
                         </span>
+                        @if($attendance->is_auto_checkout_trap)
+                        <div class="mt-2">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-700 border border-red-200 shadow-sm" title="Privacy Violation: The employee forcefully bypassed the Kiosk Mode pin.">
+                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                Privacy Violation
+                            </span>
+                        </div>
+                        @endif
                     </td>
                     <td class="px-6 py-4">
                         <div class="font-bold text-navy">{{ $attendance->employee->name }}</div>
