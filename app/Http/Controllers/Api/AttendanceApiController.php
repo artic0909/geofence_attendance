@@ -310,6 +310,7 @@ class AttendanceApiController extends Controller
         return response()->json([
             'employee_name' => $user->name,
             'admin_name' => $user->admin->name ?? 'Admin',
+            'phone_restriction' => $user->phone_used_restricted ?? false,
             'assigned_geofences' => $geofences,
             'attendance_status' => [
                 'is_checked_in' => ($attendance && $attendance->check_in && !$attendance->check_out) || ($outside && $outside->check_in && !$outside->check_out),

@@ -45,6 +45,7 @@ class AuthController extends Controller
             'admin_name' => $admin ? $admin->name : null,
             'designation' => $employee->designation ?? null,
             'address' => $employee->address ?? null,
+            'phone_restriction' => $employee->phone_used_restricted ?? false,
             'created_at' => $employee->created_at,
             'updated_at' => $employee->updated_at,
         ];
