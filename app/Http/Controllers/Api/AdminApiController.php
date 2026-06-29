@@ -99,6 +99,7 @@ class AdminApiController extends Controller
 
                 $presentEmployeesClean[] = [
                     'id' => $employee->id,
+                    'employee_id' => $employee->employee_id ?? 'N/A',
                     'name' => $employee->name,
                     'email' => $employee->email,
                     'phone' => $employee->phone ?? 'N/A',
