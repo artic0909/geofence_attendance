@@ -10,6 +10,8 @@ use App\Models\OutsideAttendance;
 use App\Models\EmployeeLocation;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 
 class AdminApiController extends Controller
 {
@@ -154,6 +156,70 @@ class AdminApiController extends Controller
             'latitude' => $location->latitude,
             'longitude' => $location->longitude,
             'last_updated' => $location->updated_at->diffForHumans()
+        ]);
+    }
+
+    public function getSettings(Request $request)
+    {
+        $admin = $request->user();
+
+        return response()->json([
+            'id' => $admin->id,
+            'name' => $admin->name,
+            'email' => $admin->email,
+            'phone' => $admin->phone,
+            'business_name' => $admin->business_name,
+            'gst_number' => $admin->gst_number,
+            'address_line_1' => $admin->address_line_1,
+            'address_line_2' => $admin->address_line_2,
+            'city' => $admin->city,
+            'state' => $admin->state,
+            'zip_code' => $admin->zip_code,
+        ]);
+    }
+
+    public function updateSettings(Request $request)
+    {
+        $admin = $request->user();
+
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email,'.$admin->id,
+            'phone' => 'nullable|string|max:20',
+            'business_name' => 'nullable|string|max:255',
+            'gst_number' => 'nullable|string|max:255',
+            'address_line_1' => 'nullable|string|max:255',
+            'address_line_2' => 'nullable|string|max:255',
+            'city' => 'nullable|string|max:255',
+            'state' => 'nullable|string|max:255',
+            'zip_code' => 'nullable|string|max:20',
+            'password' => 'nullable|string|min:8',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['message' => $validator->errors()->first()], 422);
+        }
+
+        $admin->name = $request->name;
+        $admin->email = $request->email;
+        $admin->phone = $request->phone;
+        $admin->business_name = $request->business_name;
+        $admin->gst_number = $request->gst_number;
+        $admin->address_line_1 = $request->address_line_1;
+        $admin->address_line_2 = $request->address_line_2;
+        $admin->city = $request->city;
+        $admin->state = $request->state;
+        $admin->zip_code = $request->zip_code;
+
+        if ($request->filled('password')) {
+            $admin->password = Hash::make($request->password);
+        }
+
+        $admin->save();
+
+        return response()->json([
+            'message' => 'Settings updated successfully',
+            'admin' => $admin
         ]);
     }
 }
