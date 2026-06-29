@@ -138,16 +138,18 @@ class AdminApiController extends Controller
 
         $allPresentIds = array_unique(array_merge($onsitePresent, $outsidePresent));
 
-        $absentEmployees = User::with('designation')->where('admin_id', $adminId)
+        $absentEmployees = User::with(['designation', 'geofences'])->where('admin_id', $adminId)
             ->where('role', 'employee')
             ->whereNotIn('id', $allPresentIds)
             ->get()->map(function($user) {
                 return [
                     'id' => $user->id,
+                    'employee_id' => $user->employee_id ?? 'N/A',
                     'name' => $user->name,
                     'email' => $user->email,
                     'phone' => $user->phone ?? 'N/A',
-                    'designation' => $user->designation ? $user->designation->name : 'Employee'
+                    'designation' => $user->designation ? $user->designation->name : 'Employee',
+                    'geofences' => $user->geofences->pluck('name')->toArray()
                 ];
             });
 
