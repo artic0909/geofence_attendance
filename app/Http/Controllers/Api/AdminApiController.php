@@ -139,11 +139,43 @@ class AdminApiController extends Controller
             return response()->json(['message' => 'No location data available'], 404);
         }
 
+        $attendance = Attendance::with('geofence')->where('employee_id', $employee->id)
+            ->whereDate('created_at', Carbon::today())
+            ->latest()
+            ->first();
+
+        $attendanceType = 'none';
+        $geofenceData = null;
+
+        if ($attendance) {
+            $attendanceType = 'onsite';
+            if ($attendance->geofence) {
+                $geofenceData = [
+                    'name' => $attendance->geofence->name,
+                    'latitude' => $attendance->geofence->latitude,
+                    'longitude' => $attendance->geofence->longitude,
+                    'radius' => $attendance->geofence->radius,
+                    'tracking_radius' => $attendance->geofence->tracking_radius,
+                ];
+            }
+        } else {
+            $attendance = OutsideAttendance::where('employee_id', $employee->id)
+                ->whereDate('created_at', Carbon::today())
+                ->latest()
+                ->first();
+            if ($attendance) {
+                $attendanceType = 'outside';
+            }
+        }
+
         return response()->json([
             'employee_name' => $employee->name,
             'latitude' => $location->latitude,
             'longitude' => $location->longitude,
-            'last_updated' => $location->updated_at->diffForHumans()
+            'last_updated' => $location->updated_at->diffForHumans(),
+            'attendance_type' => $attendanceType,
+            'geofence' => $geofenceData,
+            'checkin_location' => $attendanceType === 'outside' ? $attendance->checkin_location : null,
         ]);
     }
 
