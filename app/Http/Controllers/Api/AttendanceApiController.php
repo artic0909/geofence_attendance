@@ -456,40 +456,19 @@ class AttendanceApiController extends Controller
             $lat = (float) $request->latitude;
             $lng = (float) $request->longitude;
 
-            // Get assigned geofences that have a tracking_radius set
-            $geofences = $employee->employeeGeofences()
-                ->where('is_active', true)
-                ->whereNotNull('tracking_radius')
-                ->get();
-
-            $shouldTrack = false;
-
-            foreach ($geofences as $geofence) {
-                $distance = $this->haversineDistance($lat, $lng, (float)$geofence->latitude, (float)$geofence->longitude);
-                if ($distance <= (float)$geofence->tracking_radius) {
-                    $shouldTrack = true;
-                    break;
-                }
-            }
-
-            if ($shouldTrack) {
-                \App\Models\EmployeeLocation::updateOrCreate(
-                    ['employee_id' => $employee->id],
-                    [
-                        'latitude' => $lat, 
-                        'longitude' => $lng, 
-                        'updated_at' => now()
-                    ]
-                );
-                return response()->json([
-                    'status' => 'tracking',
-                    'message' => 'Location captured'
-                ]);
-            }
+            // ALWAYS track the employee's location to allow live tracking from the admin panel.
+            \App\Models\EmployeeLocation::updateOrCreate(
+                ['employee_id' => $employee->id],
+                [
+                    'latitude' => $lat, 
+                    'longitude' => $lng, 
+                    'updated_at' => now()
+                ]
+            );
 
             return response()->json([
-                'status' => 'outside_radius',
-                'message' => 'Tracking suspended (outside radius)'
+                'status' => 'tracking',
+                'message' => 'Location captured'
             ]);
         } catch (\Exception $e) {
             return response()->json([

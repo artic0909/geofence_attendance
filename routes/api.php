@@ -19,6 +19,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/employee/geofences', [AttendanceApiController::class, 'getAssignedGeofences']);
     Route::get('/employee/data', [AttendanceApiController::class, 'getEmployeeData']);
     Route::post('/location-update', [AttendanceApiController::class, 'updateLocation']);
+
+    // Admin Routes
+    Route::get('/admin/dashboard', [App\Http\Controllers\Api\AdminApiController::class, 'dashboard']);
+    Route::get('/admin/today-present', [App\Http\Controllers\Api\AdminApiController::class, 'todayPresent']);
+    Route::get('/admin/today-absent', [App\Http\Controllers\Api\AdminApiController::class, 'todayAbsent']);
+    Route::get('/admin/track/{employee_id}', [App\Http\Controllers\Api\AdminApiController::class, 'trackEmployee']);
 });
 
 // routes/api.php

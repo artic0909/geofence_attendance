@@ -18,7 +18,7 @@ class AuthController extends Controller
         ]);
 
         $loginId = $request->email;
-        $employee = User::where('role', 'employee')
+        $employee = User::whereIn('role', ['employee', 'admin', 'superadmin'])
             ->where(function ($query) use ($loginId) {
                 $query->where('email', $loginId)
                       ->orWhere('employee_id', $loginId);
@@ -44,6 +44,7 @@ class AuthController extends Controller
             'phone' => $employee->phone ?? null,
             'admin_name' => $admin ? $admin->business_name ?? $admin->name : null,
             'designation' => $employee->designation ?? null,
+            'role' => $employee->role,
             'address' => $employee->address ?? null,
             'phone_restriction' => $employee->phone_used_restricted ?? false,
             'created_at' => $employee->created_at,
