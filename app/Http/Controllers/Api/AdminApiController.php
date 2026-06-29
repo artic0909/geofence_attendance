@@ -68,15 +68,51 @@ class AdminApiController extends Controller
 
         $allPresentIds = array_unique(array_merge($onsitePresent, $outsidePresent));
 
-        $presentEmployeesClean = User::with('designation')->whereIn('id', $allPresentIds)->get()->map(function($user) {
-            return [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'phone' => $user->phone ?? 'N/A',
-                'designation' => $user->designation ? $user->designation->name : 'Employee'
-            ];
-        });
+        $presentEmployeesClean = [];
+
+        foreach ($allPresentIds as $empId) {
+            $employee = User::with('designation')->find($empId);
+            
+            $attendance = Attendance::with('geofence')->where('employee_id', $empId)
+                ->whereDate('created_at', $today)->latest()->first();
+                
+            if (!$attendance) {
+                $attendance = OutsideAttendance::where('employee_id', $empId)
+                    ->whereDate('created_at', $today)->latest()->first();
+                if ($attendance) {
+                    $attendance->attendance_type = 'outside';
+                }
+            }
+
+            if ($attendance && $employee) {
+                $checkIn = $attendance->check_in ? Carbon::parse($attendance->check_in)->format('h:i A') : '--:--';
+                $checkOut = $attendance->check_out ? Carbon::parse($attendance->check_out)->format('h:i A') : null;
+                
+                $hours = '--:--:--';
+                if ($attendance->check_in && $attendance->check_out) {
+                    $hours = Carbon::parse($attendance->check_in)->diff(Carbon::parse($attendance->check_out))->format('%H:%I:%S');
+                }
+                
+                $location = ($attendance->attendance_type == 'outside')
+                    ? ($attendance->checkin_location ?? 'Outside')
+                    : ($attendance->geofence->name ?? 'N/A');
+
+                $presentEmployeesClean[] = [
+                    'id' => $employee->id,
+                    'name' => $employee->name,
+                    'email' => $employee->email,
+                    'phone' => $employee->phone ?? 'N/A',
+                    'designation' => $employee->designation ? $employee->designation->name : 'Employee',
+                    
+                    'type' => ucfirst($attendance->attendance_type ?? 'Normal'),
+                    'is_privacy_violation' => $attendance->is_auto_checkout_trap ?? false,
+                    'check_in' => $checkIn,
+                    'check_out' => $checkOut,
+                    'hours' => $hours,
+                    'location' => $location,
+                ];
+            }
+        }
 
         return response()->json([
             'present_employees' => $presentEmployeesClean
