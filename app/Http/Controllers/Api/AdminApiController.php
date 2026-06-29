@@ -68,18 +68,6 @@ class AdminApiController extends Controller
 
         $allPresentIds = array_unique(array_merge($onsitePresent, $outsidePresent));
 
-        $presentEmployees = User::whereIn('id', $allPresentIds)->get()->map(function($user) {
-            return [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'phone' => $user->phone ?? 'N/A',
-                'designation' => clone $user->designation ? clone $user->designation->name : 'Employee'
-            ];
-        });
-
-        // The above mapping had an issue with "clone" being mistakenly inserted by me earlier in my mind. 
-        // I will write this cleanly below:
         $presentEmployeesClean = User::with('designation')->whereIn('id', $allPresentIds)->get()->map(function($user) {
             return [
                 'id' => $user->id,
