@@ -321,4 +321,107 @@ class AdminApiController extends Controller
             'admin' => $admin
         ]);
     }
+
+    public function createSubscriptionOrder(Request $request)
+    {
+        // Try to find a plan named "Trial" or similar, or just take the first active plan with the lowest price.
+        $plan = Plan::where('active', true)->orderBy('price', 'asc')->first();
+
+        if (!$plan) {
+            return response()->json(['success' => false, 'message' => 'No active plans found'], 404);
+        }
+
+        $amount = $plan->price;
+        
+        $api = new Api(env('RAZORPAY_KEY'), env('RAZORPAY_SECRET'));
+
+        try {
+            $order = $api->order->create([
+                'receipt'         => 'order_rcptid_' . time(),
+                'amount'          => $amount * 100, // amount in paise
+                'currency'        => 'INR',
+                'payment_capture' => 1 // auto capture
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'order_id' => $order['id'],
+                'amount' => $amount * 100,
+                'key' => env('RAZORPAY_KEY'),
+                'plan_id' => $plan->id,
+                'plan_name' => $plan->name,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Razorpay Error: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function verifySubscriptionPayment(Request $request)
+    {
+        $request->validate([
+            'razorpay_payment_id' => 'required',
+            'razorpay_order_id' => 'required',
+            'razorpay_signature' => 'required',
+            'plan_id' => 'required|exists:plans,id',
+        ]);
+
+        $api = new Api(env('RAZORPAY_KEY'), env('RAZORPAY_SECRET'));
+        
+        $attributes = [
+            'razorpay_order_id' => $request->razorpay_order_id,
+            'razorpay_payment_id' => $request->razorpay_payment_id,
+            'razorpay_signature' => $request->razorpay_signature
+        ];
+
+        try {
+            $api->utility->verifyPaymentSignature($attributes);
+            
+            // Payment is successful
+            $user = $request->user();
+            $plan = Plan::findOrFail($request->plan_id);
+            $amount = $plan->price;
+
+            // Record transaction
+            $transaction = Transaction::create([
+                'user_id' => $user->id,
+                'plan_id' => $plan->id,
+                'razorpay_payment_id' => $request->razorpay_payment_id,
+                'razorpay_order_id' => $request->razorpay_order_id,
+                'amount' => $amount,
+                'currency' => 'INR',
+                'status' => 'successful',
+            ]);
+
+            // Update user subscription
+            $expiresAt = Carbon::now()->addDays($plan->duration_days);
+            
+            // Invalidate previous subscriptions
+            Subscription::where('user_id', $user->id)->where('status', 'active')->update(['status' => 'expired']);
+
+            // Create new snapshot subscription
+            Subscription::create([
+                'user_id' => $user->id,
+                'transaction_id' => $transaction->id,
+                'plan_name' => $plan->name,
+                'features' => $plan->features,
+                'price' => $amount,
+                'duration_days' => $plan->duration_days,
+                'starts_at' => Carbon::now(),
+                'expires_at' => $expiresAt,
+                'status' => 'active',
+            ]);
+
+            $user->update([
+                'plan_id' => $plan->id,
+                'subscription_status' => 'active',
+                'subscription_expires_at' => $expiresAt,
+            ]);
+
+            return response()->json(['success' => true, 'message' => 'Subscription activated successfully']);
+        } catch (\Exception $e) {
+            Log::error('Razorpay Signature Verification Failed: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Payment verification failed'], 400);
+        }
+    }
 }
