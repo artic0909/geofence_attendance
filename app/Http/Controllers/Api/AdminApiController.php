@@ -76,6 +76,8 @@ class AdminApiController extends Controller
             }
         }
 
+        $trialPlan = Plan::where('active', true)->where('is_trial', true)->first();
+
         return response()->json([
             'total_geofences' => $totalGeofences,
             'total_employees' => $totalEmployees,
@@ -87,6 +89,8 @@ class AdminApiController extends Controller
             'subscription_days_left' => $subscriptionDaysLeft,
             'subscription_percentage' => $subscriptionPercentage,
             'is_expired' => $isExpired,
+            'trial_plan_name' => $trialPlan ? $trialPlan->name : 'Trial Pack',
+            'trial_plan_price' => $trialPlan ? $trialPlan->price : 0,
         ]);
     }
 
@@ -324,8 +328,8 @@ class AdminApiController extends Controller
 
     public function createSubscriptionOrder(Request $request)
     {
-        // Try to find a plan named "Trial" or similar, or just take the first active plan with the lowest price.
-        $plan = Plan::where('active', true)->orderBy('price', 'asc')->first();
+        // Try to find the plan marked as trial
+        $plan = Plan::where('active', true)->where('is_trial', true)->first();
 
         if (!$plan) {
             return response()->json(['success' => false, 'message' => 'No active plans found'], 404);

@@ -14,12 +14,14 @@ class Plan extends Model
         'features',
         'active',
         'is_popular',
+        'is_trial',
     ];
 
     protected $casts = [
         'features' => 'array',
         'active' => 'boolean',
         'is_popular' => 'boolean',
+        'is_trial' => 'boolean',
         'duration_days' => 'integer',
     ];
 }
