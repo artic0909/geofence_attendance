@@ -463,4 +463,29 @@ class AdminApiController extends Controller
             return response()->json(['success' => false, 'message' => 'Payment verification failed'], 400);
         }
     }
+
+    public function transactions(Request $request)
+    {
+        $transactions = Transaction::where('user_id', $request->user()->id)
+            ->with('plan')
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($tx) {
+                return [
+                    'id' => $tx->id,
+                    'razorpay_payment_id' => $tx->razorpay_payment_id,
+                    'amount' => $tx->amount,
+                    'currency' => $tx->currency,
+                    'status' => $tx->status,
+                    'plan_name' => $tx->plan ? $tx->plan->name : 'Custom Plan',
+                    'created_at' => $tx->created_at->format('M d, Y h:i A'),
+                    'is_success' => in_array(strtolower($tx->status), ['success', 'successful', 'paid']),
+                ];
+            });
+
+        return response()->json([
+            'success' => true,
+            'transactions' => $transactions,
+        ]);
+    }
 }

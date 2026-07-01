@@ -29,6 +29,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/admin/settings', [App\Http\Controllers\Api\AdminApiController::class, 'updateSettings']);
     Route::post('/admin/subscription/create-order', [App\Http\Controllers\Api\AdminApiController::class, 'createSubscriptionOrder']);
     Route::post('/admin/subscription/verify-payment', [App\Http\Controllers\Api\AdminApiController::class, 'verifySubscriptionPayment']);
+    Route::get('/admin/transactions', [App\Http\Controllers\Api\AdminApiController::class, 'transactions']);
 });
 
 // routes/api.php
