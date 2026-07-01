@@ -337,7 +337,7 @@ class AdminApiController extends Controller
 
         $amount = $plan->price;
         
-        $api = new Api(env('RAZORPAY_KEY'), env('RAZORPAY_SECRET'));
+        $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
 
         try {
             $order = $api->order->create([
@@ -351,7 +351,7 @@ class AdminApiController extends Controller
                 'success' => true,
                 'order_id' => $order['id'],
                 'amount' => $amount * 100,
-                'key' => env('RAZORPAY_KEY'),
+                'key' => config('services.razorpay.key'),
                 'plan_id' => $plan->id,
                 'plan_name' => $plan->name,
             ]);
@@ -370,7 +370,7 @@ class AdminApiController extends Controller
             'plan_id' => 'required|exists:plans,id',
         ]);
 
-        $api = new Api(env('RAZORPAY_KEY'), env('RAZORPAY_SECRET'));
+        $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
         
         $attributes = [
             'razorpay_order_id' => $request->razorpay_order_id,

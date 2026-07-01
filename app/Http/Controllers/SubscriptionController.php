@@ -29,7 +29,7 @@ class SubscriptionController extends Controller
         $plan = Plan::findOrFail($request->plan_id);
         $amount = $plan->price;
         
-        $api = new Api(env('RAZORPAY_KEY'), env('RAZORPAY_SECRET'));
+        $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
 
         try {
             $order = $api->order->create([
@@ -43,7 +43,7 @@ class SubscriptionController extends Controller
                 'success' => true,
                 'order_id' => $order['id'],
                 'amount' => $amount * 100,
-                'key' => env('RAZORPAY_KEY')
+                'key' => config('services.razorpay.key')
             ]);
         } catch (\Exception $e) {
             Log::error('Razorpay Error: ' . $e->getMessage());
@@ -60,7 +60,7 @@ class SubscriptionController extends Controller
             'plan_id' => 'required|exists:plans,id',
         ]);
 
-        $api = new Api(env('RAZORPAY_KEY'), env('RAZORPAY_SECRET'));
+        $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
         
         $attributes = [
             'razorpay_order_id' => $request->razorpay_order_id,
