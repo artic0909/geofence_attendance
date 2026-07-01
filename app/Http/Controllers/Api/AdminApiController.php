@@ -42,11 +42,51 @@ class AdminApiController extends Controller
         $todayPresentCount = count($allPresentIds);
         $todayAbsentCount = max(0, $totalEmployees - $todayPresentCount);
 
+        $user = $request->user();
+        
+        $currentPlanName = 'Free / Trial';
+        if ($user->activeSubscription) {
+            $currentPlanName = $user->activeSubscription->plan_name ?? 'Free / Trial';
+        }
+
+        $subscriptionDaysLeft = 0;
+        $subscriptionPercentage = 100;
+        $isExpired = true;
+
+        if ($user->subscription_expires_at) {
+            $endDate = Carbon::parse($user->subscription_expires_at);
+            $now = Carbon::now();
+            
+            $daysLeft = number_format($now->floatDiffInDays($endDate, false), 2, '.', '');
+            
+            if ($daysLeft > 0) {
+                $latestTx = \App\Models\Transaction::where('user_id', $adminId)
+                    ->whereIn('status', ['paid', 'successful', 'completed'])
+                    ->latest()
+                    ->first();
+                
+                $startDate = $latestTx ? $latestTx->created_at : $user->created_at;
+                
+                $totalDays = max(1, $startDate->diffInDays($endDate));
+                $passedDays = max(0, $startDate->diffInDays($now));
+                
+                $subscriptionPercentage = min(100, ($passedDays / $totalDays) * 100);
+                $subscriptionDaysLeft = $daysLeft;
+                $isExpired = false;
+            }
+        }
+
         return response()->json([
             'total_geofences' => $totalGeofences,
             'total_employees' => $totalEmployees,
             'today_present' => $todayPresentCount,
             'today_absent' => $todayAbsentCount,
+            'subscription_status' => $user->subscription_status ?? 'Inactive',
+            'subscription_expires_at' => $user->subscription_expires_at ? Carbon::parse($user->subscription_expires_at)->format('M d, Y') : 'N/A',
+            'current_plan_name' => $currentPlanName,
+            'subscription_days_left' => $subscriptionDaysLeft,
+            'subscription_percentage' => $subscriptionPercentage,
+            'is_expired' => $isExpired,
         ]);
     }
 
