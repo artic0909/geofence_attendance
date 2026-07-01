@@ -44,11 +44,16 @@
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     @forelse($plans as $plan)
-                    <tr class="hover:bg-gray-50 transition">
+                    <tr class="hover:bg-gray-50 transition {{ $plan->is_trial ? 'bg-yellow-50' : '' }}">
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                             {{ ($plans->currentPage() - 1) * $plans->perPage() + $loop->iteration }}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $plan->name }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            {{ $plan->name }}
+                            @if($plan->is_trial)
+                                <span class="ml-2 px-2 py-0.5 rounded text-xs font-semibold bg-yellow-200 text-yellow-800">Trial</span>
+                            @endif
+                        </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₹{{ number_format($plan->price, 2) }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $plan->duration_days }} Days</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

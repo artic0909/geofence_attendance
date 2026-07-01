@@ -38,6 +38,7 @@ class PlanController extends Controller
             'features' => 'nullable|string', // comma separated
             'active' => 'boolean',
             'is_popular' => 'boolean',
+            'is_trial' => 'boolean',
         ]);
 
         if ($request->has('features') && !empty($request->features)) {
@@ -48,6 +49,7 @@ class PlanController extends Controller
 
         $validated['active'] = $request->has('active');
         $validated['is_popular'] = $request->has('is_popular');
+        $validated['is_trial'] = $request->has('is_trial');
 
         Plan::create($validated);
 
@@ -69,6 +71,7 @@ class PlanController extends Controller
             'features' => 'nullable|string',
             'active' => 'boolean',
             'is_popular' => 'boolean',
+            'is_trial' => 'boolean',
         ]);
 
         if ($request->has('features') && !empty($request->features)) {
@@ -79,6 +82,7 @@ class PlanController extends Controller
         
         $validated['active'] = $request->has('active');
         $validated['is_popular'] = $request->has('is_popular');
+        $validated['is_trial'] = $request->has('is_trial');
 
         $plan->update($validated);
 

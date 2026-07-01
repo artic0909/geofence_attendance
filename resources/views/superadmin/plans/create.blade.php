@@ -63,6 +63,18 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="col-span-6 sm:col-span-6">
+                        <div class="flex items-start">
+                            <div class="flex items-center h-5">
+                                <input id="is_trial" name="is_trial" type="checkbox" value="1" class="focus:ring-navy h-4 w-4 text-navy border-gray-300 rounded">
+                            </div>
+                            <div class="ml-3 text-sm">
+                                <label for="is_trial" class="font-medium text-gray-700">Trial Plan</label>
+                                <p class="text-gray-500">Mark this plan as the trial plan (used in the app when users don't have a subscription).</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="mt-6">
