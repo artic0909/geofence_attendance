@@ -336,6 +336,36 @@ class AdminApiController extends Controller
         }
 
         $amount = $plan->price;
+
+        if ($amount <= 0) {
+            $user = $request->user();
+            
+            Transaction::create([
+                'user_id' => $user->id,
+                'plan_id' => $plan->id,
+                'razorpay_payment_id' => 'free_trial_' . time(),
+                'razorpay_order_id' => 'free_trial_' . time(),
+                'amount' => 0,
+                'currency' => 'INR',
+                'status' => 'successful',
+            ]);
+
+            Subscription::updateOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'plan_id' => $plan->id,
+                    'status' => 'active',
+                    'start_date' => now(),
+                    'end_date' => now()->addDays($plan->duration_days),
+                ]
+            );
+
+            return response()->json([
+                'success' => true,
+                'is_free' => true,
+                'message' => 'Free trial activated successfully!'
+            ]);
+        }
         
         $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
 
