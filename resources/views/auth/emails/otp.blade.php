@@ -77,10 +77,10 @@
             </div>
             
             <p>This OTP is valid for <strong>15 minutes</strong>. If you did not request a password reset, please ignore this email or contact support if you have concerns.</p>
-            <p>Best regards,<br>The ProjectAttendance Team</p>
+            <p>Best regards,<br>The ProjectAttendance Team<br> +916292237205 | sales@projectattendance.com</p>
         </div>
         <div class="footer">
-            &copy; {{ date('Y') }} ProjectAttendance.com. All rights reserved.
+            &copy; {{ date('Y') }} Sumatra Sales Pvt. Ltd. | ProjectAttendance.com | All rights reserved.
         </div>
     </div>
 </body>
