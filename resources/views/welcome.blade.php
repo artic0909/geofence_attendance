@@ -39,8 +39,8 @@
 
     <!-- Industry Carousel -->
     <section class="bg-navy bg-india-map py-6 md:py-8 border-y-4 border-saffron overflow-hidden shadow-[0_10px_30px_rgba(0,0,128,0.5)] relative z-20">
-        <div class="container mx-auto px-4 flex items-center relative">
-            <div class="flex-shrink-0 z-10 bg-gradient-to-r from-saffron to-orange-600 text-white font-extrabold text-sm md:text-lg uppercase tracking-widest py-3 px-6 rounded-lg shadow-[0_0_20px_rgba(255,153,51,0.6)] border border-orange-400 mr-8 flex items-center">
+        <div class="container mx-auto px-4 flex flex-col md:flex-row items-center relative gap-4 md:gap-0">
+            <div class="flex-shrink-0 z-10 bg-gradient-to-r from-saffron to-orange-600 text-white font-extrabold text-sm md:text-lg uppercase tracking-widest py-3 px-6 rounded-lg shadow-[0_0_20px_rgba(255,153,51,0.6)] border border-orange-400 md:mr-8 flex items-center">
                 <svg class="w-6 h-6 mr-2 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path></svg>
                 Trusted Across Sectors
             </div>
