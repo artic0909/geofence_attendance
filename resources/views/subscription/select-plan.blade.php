@@ -59,10 +59,11 @@
                     </ul>
                 </div>
                 <div class="p-8 pt-0 mt-auto">
+                    @php $minEmp = max($plan->employee_count ?? 10, $currentEmployees); @endphp
                     @if($plan->is_trial)
-                        <a href="?plan_id={{ $plan->id }}&employees={{ $plan->employee_count ?? 10 }}#pricing-calculator" class="block w-full py-3 rounded text-center border-2 border-navy text-navy font-bold hover:bg-navy hover:text-white transition-colors">Select Trial</a>
+                        <button onclick="window.initiatePayment({{ $plan->id }}, {{ $minEmp }}, '{{ addslashes($plan->name) }}', this)" class="block w-full py-3 rounded text-center border-2 border-navy text-navy font-bold hover:bg-navy hover:text-white transition-colors">Select Plan</button>
                     @else
-                        <a href="?plan_id={{ $plan->id }}&employees={{ $plan->employee_count ?? 10 }}#pricing-calculator" class="block w-full py-3 rounded text-center bg-saffron text-white font-bold hover:bg-orange-600 transition-colors shadow-md">Select Plan</a>
+                        <button onclick="window.initiatePayment({{ $plan->id }}, {{ $minEmp }}, '{{ addslashes($plan->name) }}', this)" class="block w-full py-3 rounded text-center bg-saffron text-white font-bold hover:bg-orange-600 transition-colors shadow-md">Select Plan</button>
                     @endif
                 </div>
             </div>
@@ -270,16 +271,10 @@
             }
         });
 
-        payButton.addEventListener('click', function() {
-            if (!activePlan) return;
-            
-            let count = parseInt(employeeInput.value) || 0;
-            if (count < currentDynamicMin) count = currentDynamicMin;
-            
-            const btn = this;
-            const originalText = btn.innerHTML;
-            btn.innerHTML = 'Processing...';
-            btn.disabled = true;
+        window.initiatePayment = function(planId, employeeCount, planName, btnElement) {
+            const originalText = btnElement.innerHTML;
+            btnElement.innerHTML = 'Processing...';
+            btnElement.disabled = true;
 
             fetch('{{ route("pricing.checkout") }}', {
                 method: 'POST',
@@ -288,25 +283,19 @@
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 },
                 body: JSON.stringify({
-                    plan_id: activePlan.id,
-                    employee_count: count
+                    plan_id: planId,
+                    employee_count: employeeCount
                 })
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    if (data.is_trial) {
-                        // Directly verify since it's a trial and no Razorpay is needed. 
-                        // Note: Our backend createOrder should probably handle trial directly or return a special flag.
-                        // Wait, if it's a trial, maybe it shouldn't open Razorpay.
-                    }
-                    
                     var options = {
                         "key": data.key,
                         "amount": data.amount,
                         "currency": "INR",
                         "name": "Geofence Attendance",
-                        "description": "Subscription for " + activePlan.name,
+                        "description": "Subscription for " + planName,
                         "order_id": data.order_id,
                         "handler": function (response){
                             // Verify Payment
@@ -320,7 +309,7 @@
                                     razorpay_payment_id: response.razorpay_payment_id,
                                     razorpay_order_id: response.razorpay_order_id,
                                     razorpay_signature: response.razorpay_signature,
-                                    plan_id: activePlan.id
+                                    plan_id: planId
                                 })
                             })
                             .then(res => res.json())
@@ -329,8 +318,8 @@
                                     window.location.href = resData.redirect_url;
                                 } else {
                                     alert('Payment verification failed. Please contact support.');
-                                    btn.innerHTML = originalText;
-                                    btn.disabled = false;
+                                    btnElement.innerHTML = originalText;
+                                    btnElement.disabled = false;
                                 }
                             });
                         },
@@ -344,52 +333,35 @@
                         },
                         "modal": {
                             "ondismiss": function() {
-                                btn.innerHTML = originalText;
-                                btn.disabled = false;
+                                btnElement.innerHTML = originalText;
+                                btnElement.disabled = false;
                             }
                         }
                     };
                     
-                    if (data.amount == 0) {
-                        // It's a trial or free!
-                        // Let's call verify with a fake payment ID
-                        fetch('{{ route("pricing.verify") }}', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                            },
-                            body: JSON.stringify({
-                                razorpay_payment_id: 'FREE_TRIAL',
-                                razorpay_order_id: data.order_id,
-                                razorpay_signature: 'FREE_TRIAL',
-                                plan_id: activePlan.id
-                            })
-                        }).then(res => res.json()).then(resData => {
-                            if (resData.success) {
-                                window.location.href = resData.redirect_url;
-                            } else {
-                                alert('Trial activation failed.');
-                                btn.innerHTML = originalText;
-                                btn.disabled = false;
-                            }
-                        });
-                    } else {
-                        var rzp1 = new Razorpay(options);
-                        rzp1.open();
-                    }
+                    var rzp1 = new Razorpay(options);
+                    rzp1.open();
                 } else {
-                    alert('Error initializing payment. ' + data.message);
-                    btn.innerHTML = originalText;
-                    btn.disabled = false;
+                    alert('Error initializing payment: ' + data.message);
+                    btnElement.innerHTML = originalText;
+                    btnElement.disabled = false;
                 }
             })
             .catch(err => {
                 console.error(err);
                 alert('Something went wrong.');
-                btn.innerHTML = originalText;
-                btn.disabled = false;
+                btnElement.innerHTML = originalText;
+                btnElement.disabled = false;
             });
+        };
+
+        payButton.addEventListener('click', function() {
+            if (!activePlan) return;
+            
+            let count = parseInt(employeeInput.value) || 0;
+            if (count < currentDynamicMin) count = currentDynamicMin;
+            
+            window.initiatePayment(activePlan.id, count, activePlan.name, this);
         });
     });
 </script>
