@@ -10,6 +10,7 @@ class Plan extends Model
         'name',
         'description',
         'price',
+        'price_per_employee',
         'duration_days',
         'features',
         'active',

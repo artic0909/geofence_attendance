@@ -331,21 +331,72 @@ class AdminApiController extends Controller
         ]);
     }
 
+    public function getSubscriptionPlans(Request $request)
+    {
+        $user = $request->user();
+        $plans = Plan::where('active', true)->get();
+        
+        $hasTrial = Transaction::where('user_id', $user->id)
+            ->where('status', 'successful')
+            ->whereHas('plan', function($q) {
+                $q->where('is_trial', true);
+            })->exists();
+
+        $currentEmployees = $user->employees()->count();
+        $minEmployees = max(10, $currentEmployees);
+
+        $availablePlans = $plans->filter(function($plan) use ($hasTrial) {
+            // Hide trial plan if they already had a trial
+            if ($plan->is_trial && $hasTrial) {
+                return false;
+            }
+            return true;
+        })->values();
+
+        return response()->json([
+            'success' => true,
+            'min_employees' => $minEmployees,
+            'plans' => $availablePlans
+        ]);
+    }
+
     public function createSubscriptionOrder(Request $request)
     {
-        // Try to find the plan marked as trial
-        $plan = Plan::where('active', true)->where('is_trial', true)->first();
+        $request->validate([
+            'plan_id' => 'required|exists:plans,id',
+            'employee_count' => 'nullable|integer|min:0',
+        ]);
 
-        if (!$plan) {
-            return response()->json(['success' => false, 'message' => 'No active plans found'], 404);
+        $plan = Plan::findOrFail($request->plan_id);
+        $user = $request->user();
+        $currentEmployees = $user->employees()->count();
+        $minEmployees = max(10, $currentEmployees);
+        
+        $employeeCount = $request->employee_count ?? $minEmployees;
+        
+        // Enforce backend validation
+        if ($employeeCount < $minEmployees) {
+            $employeeCount = $minEmployees;
         }
 
-        $amount = $plan->price;
+        if ($plan->is_trial) {
+            $hasTrial = Transaction::where('user_id', $user->id)
+                ->where('status', 'successful')
+                ->whereHas('plan', function($q) {
+                    $q->where('is_trial', true);
+                })->exists();
 
-        if ($amount <= 0) {
-            $user = $request->user();
-            
-            Transaction::create([
+            if ($hasTrial) {
+                return response()->json(['success' => false, 'message' => 'You have already claimed a trial pack.'], 403);
+            }
+            $amount = 0;
+        } else {
+            $amount = $plan->price + ($plan->price_per_employee * $employeeCount);
+        }
+
+        if ($amount <= 0 && $plan->is_trial) {
+            // Directly activate free trial without Razorpay
+            $transaction = Transaction::create([
                 'user_id' => $user->id,
                 'plan_id' => $plan->id,
                 'razorpay_payment_id' => 'free_trial_' . time(),
@@ -353,17 +404,31 @@ class AdminApiController extends Controller
                 'amount' => 0,
                 'currency' => 'INR',
                 'status' => 'successful',
+                'employee_count' => $employeeCount,
             ]);
 
-            Subscription::updateOrCreate(
-                ['user_id' => $user->id],
-                [
-                    'plan_id' => $plan->id,
-                    'status' => 'active',
-                    'start_date' => now(),
-                    'end_date' => now()->addDays($plan->duration_days),
-                ]
-            );
+            Subscription::where('user_id', $user->id)->where('status', 'active')->update(['status' => 'expired']);
+
+            $expiresAt = now()->addDays($plan->duration_days);
+
+            Subscription::create([
+                'user_id' => $user->id,
+                'transaction_id' => $transaction->id,
+                'plan_name' => $plan->name,
+                'features' => $plan->features,
+                'price' => 0,
+                'duration_days' => $plan->duration_days,
+                'employee_count' => $employeeCount,
+                'starts_at' => now(),
+                'expires_at' => $expiresAt,
+                'status' => 'active',
+            ]);
+            
+            $user->update([
+                'plan_id' => $plan->id,
+                'subscription_status' => 'active',
+                'subscription_expires_at' => $expiresAt,
+            ]);
 
             return response()->json([
                 'success' => true,
@@ -381,6 +446,9 @@ class AdminApiController extends Controller
                 'currency'        => 'INR',
                 'payment_capture' => 1 // auto capture
             ]);
+
+            // Cache employee count for verification step
+            cache(['api_order_employee_count_'.$order['id'] => $employeeCount], now()->addHours(2));
 
             return response()->json([
                 'success' => true,
@@ -404,6 +472,14 @@ class AdminApiController extends Controller
             'razorpay_signature' => 'required',
             'plan_id' => 'required|exists:plans,id',
         ]);
+        
+        $user = $request->user();
+        $plan = Plan::findOrFail($request->plan_id);
+        $employeeCount = cache('api_order_employee_count_'.$request->razorpay_order_id, 10);
+
+        if ($plan->is_trial && str_starts_with($request->razorpay_payment_id, 'free_trial_')) {
+            return response()->json(['success' => true, 'message' => 'Trial already processed.']);
+        }
 
         $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
         
@@ -417,9 +493,7 @@ class AdminApiController extends Controller
             $api->utility->verifyPaymentSignature($attributes);
             
             // Payment is successful
-            $user = $request->user();
-            $plan = Plan::findOrFail($request->plan_id);
-            $amount = $plan->price;
+            $amount = $plan->price + ($plan->price_per_employee * $employeeCount);
 
             // Record transaction
             $transaction = Transaction::create([
@@ -430,6 +504,7 @@ class AdminApiController extends Controller
                 'amount' => $amount,
                 'currency' => 'INR',
                 'status' => 'successful',
+                'employee_count' => $employeeCount,
             ]);
 
             // Update user subscription
@@ -446,6 +521,7 @@ class AdminApiController extends Controller
                 'features' => $plan->features,
                 'price' => $amount,
                 'duration_days' => $plan->duration_days,
+                'employee_count' => $employeeCount,
                 'starts_at' => Carbon::now(),
                 'expires_at' => $expiresAt,
                 'status' => 'active',

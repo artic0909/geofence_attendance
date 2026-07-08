@@ -58,6 +58,9 @@ class RegisterController extends Controller
         auth()->login($user);
 
         // Redirect to plan selection instead of dashboard
-        return redirect()->route('pricing.select')->with('success', 'Registration successful! Please select a plan to continue.');
+        return redirect()->route('pricing.select', [
+            'plan_id' => $request->plan_id,
+            'employees' => $request->employee_count
+        ])->with('success', 'Registration successful! Please select a plan to continue.');
     }
 }

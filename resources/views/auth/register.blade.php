@@ -35,6 +35,12 @@
 
                     <form id="registerForm" method="POST" action="{{ route('register.submit') }}" class="space-y-8">
                         @csrf
+                        @if(request()->has('plan_id'))
+                            <input type="hidden" name="plan_id" value="{{ request('plan_id') }}">
+                        @endif
+                        @if(request()->has('employees'))
+                            <input type="hidden" name="employee_count" value="{{ request('employees') }}">
+                        @endif
                         
                         <!-- Business Owner -->
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">

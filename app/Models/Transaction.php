@@ -9,6 +9,7 @@ class Transaction extends Model
     protected $fillable = [
         'user_id',
         'plan_id',
+        'employee_count',
         'razorpay_payment_id',
         'razorpay_order_id',
         'amount',

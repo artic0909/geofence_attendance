@@ -26,8 +26,13 @@
                     </div>
 
                     <div class="col-span-6 sm:col-span-3">
-                        <label for="price" class="block text-sm font-medium text-gray-700">Price (₹)</label>
+                        <label for="price" class="block text-sm font-medium text-gray-700">Fixed Base Charge (₹)</label>
                         <input type="number" step="0.01" name="price" id="price" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-navy focus:border-navy sm:text-sm">
+                    </div>
+
+                    <div class="col-span-6 sm:col-span-3">
+                        <label for="price_per_employee" class="block text-sm font-medium text-gray-700">Price per Employee (₹)</label>
+                        <input type="number" step="0.01" name="price_per_employee" id="price_per_employee" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-navy focus:border-navy sm:text-sm" value="0.00">
                     </div>
 
                     <div class="col-span-6 sm:col-span-3">

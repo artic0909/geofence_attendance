@@ -17,21 +17,61 @@ class SubscriptionController extends Controller
     public function selectPlan()
     {
         $plans = Plan::where('active', true)->get();
-        return view('subscription.select-plan', compact('plans'));
+        $user = auth()->user();
+        $currentEmployees = $user ? $user->employees()->count() : 0;
+        
+        return view('subscription.select-plan', compact('plans', 'currentEmployees'));
     }
 
     public function createOrder(Request $request)
     {
         $request->validate([
             'plan_id' => 'required|exists:plans,id',
+            'employee_count' => 'nullable|integer|min:0',
         ]);
 
         $plan = Plan::findOrFail($request->plan_id);
-        $amount = $plan->price;
+        $user = auth()->user();
+        $currentEmployees = $user ? $user->employees()->count() : 0;
+        $minEmployees = max(10, $currentEmployees);
+        
+        $employeeCount = $request->employee_count ?? $minEmployees;
+        
+        // Enforce backend validation just in case they bypass JS
+        if ($employeeCount < $minEmployees) {
+            $employeeCount = $minEmployees;
+        }
+        
+        if ($plan->is_trial) {
+            $hasTrial = Transaction::where('user_id', auth()->id())
+                ->where('status', 'successful')
+                ->whereHas('plan', function($q) {
+                    $q->where('is_trial', true);
+                })->exists();
+
+            if ($hasTrial) {
+                return response()->json(['success' => false, 'message' => 'You have already claimed a trial pack.'], 403);
+            }
+
+            $amount = 0;
+        } else {
+            $amount = $plan->price + ($plan->price_per_employee * $employeeCount);
+        }
         
         $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
 
         try {
+            if ($amount == 0) {
+                // It's a trial, we just return a fake order ID
+                return response()->json([
+                    'success' => true,
+                    'order_id' => 'trial_' . time(),
+                    'amount' => 0,
+                    'is_trial' => true,
+                    'key' => config('services.razorpay.key')
+                ]);
+            }
+            
             $order = $api->order->create([
                 'receipt'         => 'order_rcptid_' . time(),
                 'amount'          => $amount * 100, // amount in paise
@@ -39,10 +79,15 @@ class SubscriptionController extends Controller
                 'payment_capture' => 1 // auto capture
             ]);
 
+            // We need a way to pass employee_count to verifyPayment.
+            // We can temporarily store it in the session based on order_id.
+            session(['order_employee_count_'.$order['id'] => $employeeCount]);
+
             return response()->json([
                 'success' => true,
                 'order_id' => $order['id'],
                 'amount' => $amount * 100,
+                'is_trial' => false,
                 'key' => config('services.razorpay.key')
             ]);
         } catch (\Exception $e) {
@@ -60,21 +105,43 @@ class SubscriptionController extends Controller
             'plan_id' => 'required|exists:plans,id',
         ]);
 
-        $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
+        $plan = Plan::findOrFail($request->plan_id);
+        $employeeCount = session('order_employee_count_'.$request->razorpay_order_id, 10);
         
-        $attributes = [
-            'razorpay_order_id' => $request->razorpay_order_id,
-            'razorpay_payment_id' => $request->razorpay_payment_id,
-            'razorpay_signature' => $request->razorpay_signature
-        ];
+        if ($plan->is_trial && str_starts_with($request->razorpay_payment_id, 'FREE_TRIAL')) {
+            $hasTrial = Transaction::where('user_id', auth()->id())
+                ->where('status', 'successful')
+                ->whereHas('plan', function($q) {
+                    $q->where('is_trial', true);
+                })->exists();
+
+            if ($hasTrial) {
+                return response()->json(['success' => false, 'message' => 'You have already claimed a trial pack.'], 403);
+            }
+
+            $amount = 0;
+            $request->razorpay_payment_id = 'TRIAL_' . time();
+        } else {
+            $amount = $plan->price + ($plan->price_per_employee * $employeeCount);
+            $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
+            
+            $attributes = [
+                'razorpay_order_id' => $request->razorpay_order_id,
+                'razorpay_payment_id' => $request->razorpay_payment_id,
+                'razorpay_signature' => $request->razorpay_signature
+            ];
+
+            try {
+                $api->utility->verifyPaymentSignature($attributes);
+            } catch (\Exception $e) {
+                Log::error('Razorpay Signature Verification Failed: ' . $e->getMessage());
+                return response()->json(['success' => false, 'message' => 'Payment verification failed'], 400);
+            }
+        }
 
         try {
-            $api->utility->verifyPaymentSignature($attributes);
-            
-            // Payment is successful
+            // Payment is successful or Trial activated
             $user = Auth::user();
-            $plan = Plan::findOrFail($request->plan_id);
-            $amount = $plan->price;
 
             // Record transaction
             $transaction = Transaction::create([
@@ -85,6 +152,7 @@ class SubscriptionController extends Controller
                 'amount' => $amount,
                 'currency' => 'INR',
                 'status' => 'successful',
+                'employee_count' => $employeeCount,
             ]);
 
             // Update user subscription
@@ -101,6 +169,7 @@ class SubscriptionController extends Controller
                 'features' => $plan->features,
                 'price' => $amount,
                 'duration_days' => $plan->duration_days,
+                'employee_count' => $employeeCount,
                 'starts_at' => Carbon::now(),
                 'expires_at' => $expiresAt,
                 'status' => 'active',
@@ -114,8 +183,8 @@ class SubscriptionController extends Controller
 
             return response()->json(['success' => true, 'redirect_url' => route('admin.dashboard')]);
         } catch (\Exception $e) {
-            Log::error('Razorpay Signature Verification Failed: ' . $e->getMessage());
-            return response()->json(['success' => false, 'message' => 'Payment verification failed'], 400);
+            Log::error('Transaction creation failed: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Failed to activate subscription'], 500);
         }
     }
 }

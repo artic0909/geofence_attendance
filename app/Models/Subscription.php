@@ -10,6 +10,7 @@ class Subscription extends Model
         'user_id',
         'transaction_id',
         'plan_name',
+        'employee_count',
         'features',
         'price',
         'duration_days',

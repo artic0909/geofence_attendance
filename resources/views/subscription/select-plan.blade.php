@@ -29,73 +29,77 @@
             </div>
         @endif
 
-        <div class="mt-12 space-y-4 sm:mt-16 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-6 lg:max-w-4xl lg:mx-auto xl:max-w-none xl:mx-0 xl:grid-cols-3">
-            @forelse($plans as $plan)
-                <div class="border border-gray-200 rounded-lg shadow-sm divide-y divide-gray-200 bg-white">
-                    <div class="p-6">
-                        <h2 class="text-2xl leading-6 font-semibold text-gray-900">{{ $plan->name }}</h2>
-                        <p class="mt-4 text-sm text-gray-500">{{ $plan->description }}</p>
-                        <p class="mt-8">
-                            <span class="text-4xl font-extrabold text-gray-900">₹{{ number_format($plan->price, 2) }}</span>
-                            <span class="text-base font-medium text-gray-500">/ {{ $plan->duration_days }} Days</span>
-                        </p>
-                        <button type="button" onclick="confirmSubscription({{ $plan->id }}, {{ $plan->price }}, '{{ $plan->name }}', {{ $plan->duration_days }})" class="mt-8 block w-full bg-navy border border-transparent rounded-md py-2 text-sm font-semibold text-white text-center hover:bg-blue-900">
-                            Select Plan
+        <!-- Custom Plan Calculator -->
+        <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden border-t-4 border-saffron mb-16" id="pricing-calculator">
+            <div class="p-8 md:p-12">
+                <h4 class="text-2xl font-bold text-navy mb-8 text-center">Customize Your Subscription</h4>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                    <!-- Left Column: Inputs -->
+                    <div class="space-y-8">
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-3">1. Select Duration</label>
+                            <div class="grid grid-cols-3 gap-3" id="plan-duration-container">
+                                @foreach($plans as $plan)
+                                    <button type="button" 
+                                        class="duration-btn py-3 px-2 border-2 rounded-lg text-center transition-all focus:outline-none {{ $loop->first ? 'border-saffron bg-orange-50 text-saffron font-bold' : 'border-gray-200 text-gray-600 hover:border-gray-300' }}"
+                                        data-plan-id="{{ $plan->id }}"
+                                        data-plan-name="{{ $plan->name }}"
+                                        data-base-price="{{ $plan->price }}"
+                                        data-per-employee="{{ $plan->price_per_employee }}"
+                                        data-is-trial="{{ $plan->is_trial ? 'true' : 'false' }}">
+                                        <span class="block text-lg">{{ $plan->duration_days }}</span>
+                                        <span class="block text-xs uppercase">Days</span>
+                                    </button>
+                                @endforeach
+                            </div>
+                        </div>
+                        
+                        <div>
+                            @php
+                                $minEmployees = max(10, $currentEmployees ?? 0);
+                            @endphp
+                            <label for="employee_count" class="block text-sm font-bold text-gray-700 mb-3">2. Number of Employees</label>
+                            <input type="number" id="employee_count" min="{{ $minEmployees }}" value="{{ $minEmployees }}" class="block w-full text-2xl font-bold text-center border-gray-300 rounded-md shadow-sm focus:ring-saffron focus:border-saffron py-3 bg-gray-50">
+                            <p class="text-xs text-gray-500 mt-2 text-center" id="employee_min_help">
+                                @if(isset($currentEmployees) && $currentEmployees > 10)
+                                    Minimum {{ $minEmployees }} employees required based on your current staff size.
+                                @else
+                                    Minimum 10 employees recommended.
+                                @endif
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Calculation & Action -->
+                    <div class="bg-gray-50 rounded-xl p-8 border border-gray-100 flex flex-col justify-center relative overflow-hidden">
+                        <!-- Background decoration -->
+                        <div class="absolute -bottom-6 -right-6 w-32 h-32 bg-navy opacity-5 rounded-full"></div>
+                        
+                        <div class="space-y-4 mb-8 relative z-10">
+                            <div class="flex justify-between items-center text-gray-600 border-b border-gray-200 pb-2">
+                                <span>Fixed Base Charge:</span>
+                                <span id="display_base_price" class="font-medium">₹0.00</span>
+                            </div>
+                            <div class="flex justify-between items-center text-gray-600 border-b border-gray-200 pb-2">
+                                <span>Employee Cost <span id="display_employee_calc" class="text-xs">({{ $minEmployees }} x ₹0.00)</span>:</span>
+                                <span id="display_employee_total" class="font-medium">₹0.00</span>
+                            </div>
+                            <div class="flex justify-between items-end pt-2">
+                                <span class="text-lg font-bold text-navy">Total Value:</span>
+                                <div class="text-right">
+                                    <span id="display_total_price" class="text-4xl font-extrabold text-saffron block">₹0.00</span>
+                                    <span class="text-xs text-gray-500">Excluding GST</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button type="button" id="payButton" class="w-full py-4 rounded text-center text-white bg-navy font-bold hover:bg-blue-900 transition-all shadow-lg transform hover:-translate-y-1 relative z-10 flex items-center justify-center">
+                            Proceed to Payment
+                            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                         </button>
                     </div>
-                    @if($plan->features)
-                    <div class="pt-6 pb-8 px-6">
-                        <h3 class="text-xs font-medium text-gray-900 tracking-wide uppercase">What's included</h3>
-                        <ul role="list" class="mt-6 space-y-4">
-                            @foreach($plan->features as $feature)
-                            <li class="flex space-x-3">
-                                <svg class="flex-shrink-0 h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                <span class="text-sm text-gray-500">{{ $feature }}</span>
-                            </li>
-                            @endforeach
-                        </ul>
-                    </div>
-                    @endif
                 </div>
-            @empty
-                <div class="col-span-full text-center py-12">
-                    <p class="text-gray-500">No subscription plans available at the moment. Please contact support.</p>
-                </div>
-            @endforelse
-        </div>
-    </div>
-</div>
-
-<!-- Confirmation Modal -->
-<div id="subscriptionModal" class="fixed z-50 inset-0 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="closeModal()"></div>
-        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-        <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
-            <div class="sm:flex sm:items-start">
-                <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-navy/10 sm:mx-0 sm:h-10 sm:w-10">
-                    <svg class="h-6 w-6 text-navy" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                    </svg>
-                </div>
-                <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                    <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
-                        Confirm Subscription
-                    </h3>
-                    <div class="mt-2">
-                        <p class="text-sm text-gray-500" id="modal-description">
-                            Yes, I want to purchase this subscription.
-                        </p>
-                    </div>
-                </div>
-            </div>
-            <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
-                <button type="button" id="payButton" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-navy text-base font-medium text-white hover:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-navy sm:ml-3 sm:w-auto sm:text-sm">
-                    Proceed to Payment
-                </button>
-                <button type="button" onclick="closeModal()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-navy sm:mt-0 sm:w-auto sm:text-sm">
-                    Cancel
-                </button>
             </div>
         </div>
     </div>
@@ -104,48 +108,202 @@
 @push('scripts')
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
-    let selectedPlan = null;
-
-    function confirmSubscription(planId, price, name, duration) {
-        selectedPlan = { planId, price, name, duration };
-        document.getElementById('modal-description').innerText = `Yes, I want to purchase the ${name} subscription (${duration} Days) for ₹${price}.`;
-        document.getElementById('subscriptionModal').classList.remove('hidden');
-    }
-
-    function closeModal() {
-        document.getElementById('subscriptionModal').classList.add('hidden');
-        selectedPlan = null;
-    }
-
-    document.getElementById('payButton').addEventListener('click', function() {
-        if (!selectedPlan) return;
+    document.addEventListener('DOMContentLoaded', function() {
+        const durationBtns = document.querySelectorAll('.duration-btn');
+        const employeeInput = document.getElementById('employee_count');
+        const payButton = document.getElementById('payButton');
         
-        const btn = this;
-        btn.innerHTML = 'Processing...';
-        btn.disabled = true;
+        const displayBase = document.getElementById('display_base_price');
+        const displayEmpCalc = document.getElementById('display_employee_calc');
+        const displayEmpTotal = document.getElementById('display_employee_total');
+        const displayTotal = document.getElementById('display_total_price');
+        
+        const MIN_EMPLOYEES = {{ $minEmployees }};
+        let activePlan = null;
+        
+        // Parse Query Params
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlPlanId = urlParams.get('plan_id');
+        const urlEmployees = urlParams.get('employees');
+        
+        if (urlEmployees) {
+            let parsedEmployees = parseInt(urlEmployees) || MIN_EMPLOYEES;
+            employeeInput.value = Math.max(parsedEmployees, MIN_EMPLOYEES);
+        }
+        
+        if(durationBtns.length > 0) {
+            let initialBtn = durationBtns[0];
+            if (urlPlanId) {
+                const foundBtn = Array.from(durationBtns).find(b => b.getAttribute('data-plan-id') === urlPlanId);
+                if (foundBtn) {
+                    initialBtn = foundBtn;
+                }
+            }
+            
+            // visually select
+            durationBtns.forEach(b => {
+                b.classList.remove('border-saffron', 'bg-orange-50', 'text-saffron', 'font-bold');
+                b.classList.add('border-gray-200', 'text-gray-600');
+            });
+            initialBtn.classList.remove('border-gray-200', 'text-gray-600');
+            initialBtn.classList.add('border-saffron', 'bg-orange-50', 'text-saffron', 'font-bold');
+            
+            setActivePlan(initialBtn);
+        }
+        
+        durationBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                durationBtns.forEach(b => {
+                    b.classList.remove('border-saffron', 'bg-orange-50', 'text-saffron', 'font-bold');
+                    b.classList.add('border-gray-200', 'text-gray-600');
+                });
+                this.classList.remove('border-gray-200', 'text-gray-600');
+                this.classList.add('border-saffron', 'bg-orange-50', 'text-saffron', 'font-bold');
+                
+                setActivePlan(this);
+            });
+        });
+        
+        employeeInput.addEventListener('input', calculateTotal);
+        
+        function setActivePlan(btn) {
+            activePlan = {
+                id: btn.getAttribute('data-plan-id'),
+                name: btn.getAttribute('data-plan-name'),
+                basePrice: parseFloat(btn.getAttribute('data-base-price')),
+                perEmployee: parseFloat(btn.getAttribute('data-per-employee')),
+                isTrial: btn.getAttribute('data-is-trial') === 'true'
+            };
+            calculateTotal();
+        }
+        
+        function calculateTotal() {
+            if(!activePlan) return;
+            
+            let count = parseInt(employeeInput.value) || 0;
+            
+            // Enforce minimum employee count dynamically
+            if (count < MIN_EMPLOYEES) {
+                // We shouldn't instantly overwrite their typing if they are clearing the box,
+                // but when calculating the price, we will act as if it's the minimum.
+                // Or we can just set count = MIN_EMPLOYEES for the math.
+                count = MIN_EMPLOYEES;
+            }
+            
+            if(activePlan.isTrial) {
+                displayBase.innerText = "₹0.00 (Trial)";
+                displayEmpCalc.innerText = `(${count} Employees)`;
+                displayEmpTotal.innerText = "₹0.00";
+                displayTotal.innerText = "₹0.00";
+                payButton.innerText = "Start Free Trial";
+                return;
+            } else {
+                payButton.innerHTML = `Proceed to Payment <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>`;
+            }
+            
+            const base = activePlan.basePrice;
+            const perEmp = activePlan.perEmployee;
+            const empTotal = count * perEmp;
+            const grandTotal = base + empTotal;
+            
+            displayBase.innerText = "₹" + base.toLocaleString('en-IN', {minimumFractionDigits: 2});
+            displayEmpCalc.innerText = `(${count} x ₹${perEmp})`;
+            displayEmpTotal.innerText = "₹" + empTotal.toLocaleString('en-IN', {minimumFractionDigits: 2});
+            displayTotal.innerText = "₹" + grandTotal.toLocaleString('en-IN', {minimumFractionDigits: 2});
+        }
 
-        fetch('{{ route("pricing.checkout") }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({
-                plan_id: selectedPlan.planId
+        // Add blur listener to correct the visual value if they leave it too low
+        employeeInput.addEventListener('blur', function() {
+            let count = parseInt(this.value) || 0;
+            if (count < MIN_EMPLOYEES) {
+                this.value = MIN_EMPLOYEES;
+                calculateTotal();
+            }
+        });
+
+        payButton.addEventListener('click', function() {
+            if (!activePlan) return;
+            
+            let count = parseInt(employeeInput.value) || 0;
+            if (count < MIN_EMPLOYEES) count = MIN_EMPLOYEES;
+            
+            const btn = this;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = 'Processing...';
+            btn.disabled = true;
+
+            fetch('{{ route("pricing.checkout") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    plan_id: activePlan.id,
+                    employee_count: count
+                })
             })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                var options = {
-                    "key": data.key,
-                    "amount": data.amount,
-                    "currency": "INR",
-                    "name": "Geofence Attendance",
-                    "description": "Subscription for " + selectedPlan.name,
-                    "order_id": data.order_id,
-                    "handler": function (response){
-                        // Verify Payment
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (data.is_trial) {
+                        // Directly verify since it's a trial and no Razorpay is needed. 
+                        // Note: Our backend createOrder should probably handle trial directly or return a special flag.
+                        // Wait, if it's a trial, maybe it shouldn't open Razorpay.
+                    }
+                    
+                    var options = {
+                        "key": data.key,
+                        "amount": data.amount,
+                        "currency": "INR",
+                        "name": "Geofence Attendance",
+                        "description": "Subscription for " + activePlan.name,
+                        "order_id": data.order_id,
+                        "handler": function (response){
+                            // Verify Payment
+                            fetch('{{ route("pricing.verify") }}', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                },
+                                body: JSON.stringify({
+                                    razorpay_payment_id: response.razorpay_payment_id,
+                                    razorpay_order_id: response.razorpay_order_id,
+                                    razorpay_signature: response.razorpay_signature,
+                                    plan_id: activePlan.id
+                                })
+                            })
+                            .then(res => res.json())
+                            .then(resData => {
+                                if (resData.success) {
+                                    window.location.href = resData.redirect_url;
+                                } else {
+                                    alert('Payment verification failed. Please contact support.');
+                                    btn.innerHTML = originalText;
+                                    btn.disabled = false;
+                                }
+                            });
+                        },
+                        "prefill": {
+                            "name": "{{ Auth::user()->name }}",
+                            "email": "{{ Auth::user()->email }}",
+                            "contact": "{{ Auth::user()->phone }}"
+                        },
+                        "theme": {
+                            "color": "#1e3a8a"
+                        },
+                        "modal": {
+                            "ondismiss": function() {
+                                btn.innerHTML = originalText;
+                                btn.disabled = false;
+                            }
+                        }
+                    };
+                    
+                    if (data.amount == 0) {
+                        // It's a trial or free!
+                        // Let's call verify with a fake payment ID
                         fetch('{{ route("pricing.verify") }}', {
                             method: 'POST',
                             headers: {
@@ -153,55 +311,36 @@
                                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
                             },
                             body: JSON.stringify({
-                                razorpay_payment_id: response.razorpay_payment_id,
-                                razorpay_order_id: response.razorpay_order_id,
-                                razorpay_signature: response.razorpay_signature,
-                                plan_id: selectedPlan.planId
+                                razorpay_payment_id: 'FREE_TRIAL',
+                                razorpay_order_id: data.order_id,
+                                razorpay_signature: 'FREE_TRIAL',
+                                plan_id: activePlan.id
                             })
-                        })
-                        .then(res => res.json())
-                        .then(resData => {
+                        }).then(res => res.json()).then(resData => {
                             if (resData.success) {
                                 window.location.href = resData.redirect_url;
                             } else {
-                                alert('Payment verification failed. Please contact support.');
-                                closeModal();
-                                btn.innerHTML = 'Proceed to Payment';
+                                alert('Trial activation failed.');
+                                btn.innerHTML = originalText;
                                 btn.disabled = false;
                             }
                         });
-                    },
-                    "prefill": {
-                        "name": "{{ Auth::user()->name }}",
-                        "email": "{{ Auth::user()->email }}",
-                        "contact": "{{ Auth::user()->phone }}"
-                    },
-                    "theme": {
-                        "color": "#1e3a8a" // navy
-                    },
-                    "modal": {
-                        "ondismiss": function() {
-                            closeModal();
-                            btn.innerHTML = 'Proceed to Payment';
-                            btn.disabled = false;
-                        }
+                    } else {
+                        var rzp1 = new Razorpay(options);
+                        rzp1.open();
                     }
-                };
-                var rzp1 = new Razorpay(options);
-                rzp1.open();
-            } else {
-                alert('Error initializing payment. ' + data.message);
-                closeModal();
-                btn.innerHTML = 'Proceed to Payment';
+                } else {
+                    alert('Error initializing payment. ' + data.message);
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Something went wrong.');
+                btn.innerHTML = originalText;
                 btn.disabled = false;
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            alert('Something went wrong.');
-            closeModal();
-            btn.innerHTML = 'Proceed to Payment';
-            btn.disabled = false;
+            });
         });
     });
 </script>

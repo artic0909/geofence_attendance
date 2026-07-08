@@ -50,6 +50,19 @@ class EmployeeController extends Controller
 
     public function store(Request $request)
     {
+        $admin = auth()->user();
+        
+        $activeSubscription = $admin->activeSubscription;
+        
+        if (!$activeSubscription) {
+            return back()->withInput()->with('error', 'You do not have an active subscription. Please subscribe to a plan first.');
+        }
+
+        $currentEmployeeCount = $admin->employees()->count();
+        if ($currentEmployeeCount >= $activeSubscription->employee_count) {
+            return back()->withInput()->with('error', 'You have reached your plan limit of ' . $activeSubscription->employee_count . ' employees. Please upgrade your plan to add more.');
+        }
+
         $request->validate([
             'name'        => 'required|string|max:255',
             'email'       => 'required|email|unique:users,email',

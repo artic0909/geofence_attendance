@@ -141,37 +141,144 @@
                 <p class="mt-4 text-gray-600 max-w-3xl mx-auto">Scale at your own pace with our flexible multi-tenant SaaS plans, or take complete ownership with a Lifetime License.</p>
             </div>
             
-            <!-- SaaS Plans Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-                @forelse($plans as $plan)
-                <div class="bg-white rounded-xl p-8 border {{ $plan->is_popular ? 'border-saffron shadow-xl -translate-y-2 relative z-10' : 'border-gray-200 shadow-sm' }} hover:shadow-lg transition-all flex flex-col relative overflow-hidden group">
-                    @if($plan->is_popular)
-                        <div class="absolute top-0 right-0 bg-saffron text-white text-xs font-bold px-3 py-1 rounded-bl-lg">MOST POPULAR</div>
-                        <div class="absolute top-0 left-0 w-full h-1 bg-saffron"></div>
-                    @else
-                        <div class="absolute top-0 left-0 w-full h-1 bg-navy transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
-                    @endif
-                    <h4 class="text-xl font-bold text-navy mb-2 mt-2">{{ $plan->name }}</h4>
-                    <div class="mb-6">
-                        <span class="text-saffron font-bold text-3xl">₹{{ number_format($plan->price, 2) }}</span>
-                        <span class="text-gray-500 font-medium">/ {{ $plan->duration_days }} Days</span>
+            <!-- Custom Plan Calculator -->
+            <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden border-t-4 border-saffron mb-16" id="pricing-calculator">
+                <div class="p-8 md:p-12">
+                    <h4 class="text-2xl font-bold text-navy mb-8 text-center">Customize Your Subscription</h4>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                        <!-- Left Column: Inputs -->
+                        <div class="space-y-8">
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-3">1. Select Duration</label>
+                                <div class="grid grid-cols-3 gap-3" id="plan-duration-container">
+                                    @foreach($plans as $plan)
+                                        <button type="button" 
+                                            class="duration-btn py-3 px-2 border-2 rounded-lg text-center transition-all focus:outline-none {{ $loop->first ? 'border-saffron bg-orange-50 text-saffron font-bold' : 'border-gray-200 text-gray-600 hover:border-gray-300' }}"
+                                            data-plan-id="{{ $plan->id }}"
+                                            data-base-price="{{ $plan->price }}"
+                                            data-per-employee="{{ $plan->price_per_employee }}"
+                                            data-is-trial="{{ $plan->is_trial ? 'true' : 'false' }}">
+                                            <span class="block text-lg">{{ $plan->duration_days }}</span>
+                                            <span class="block text-xs uppercase">Days</span>
+                                        </button>
+                                    @endforeach
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label for="employee_count" class="block text-sm font-bold text-gray-700 mb-3">2. Number of Employees</label>
+                                <input type="number" id="employee_count" min="10" value="10" class="block w-full text-2xl font-bold text-center border-gray-300 rounded-md shadow-sm focus:ring-saffron focus:border-saffron py-3 bg-gray-50">
+                                <p class="text-xs text-gray-500 mt-2 text-center">Minimum 10 employees recommended.</p>
+                            </div>
+                        </div>
+
+                        <!-- Right Column: Calculation & Action -->
+                        <div class="bg-gray-50 rounded-xl p-8 border border-gray-100 flex flex-col justify-center relative overflow-hidden">
+                            <!-- Background decoration -->
+                            <div class="absolute -bottom-6 -right-6 w-32 h-32 bg-navy opacity-5 rounded-full"></div>
+                            
+                            <div class="space-y-4 mb-8 relative z-10">
+                                <div class="flex justify-between items-center text-gray-600 border-b border-gray-200 pb-2">
+                                    <span>Fixed Base Charge:</span>
+                                    <span id="display_base_price" class="font-medium">₹0.00</span>
+                                </div>
+                                <div class="flex justify-between items-center text-gray-600 border-b border-gray-200 pb-2">
+                                    <span>Employee Cost <span id="display_employee_calc" class="text-xs">(10 x ₹0.00)</span>:</span>
+                                    <span id="display_employee_total" class="font-medium">₹0.00</span>
+                                </div>
+                                <div class="flex justify-between items-end pt-2">
+                                    <span class="text-lg font-bold text-navy">Total Value:</span>
+                                    <div class="text-right">
+                                        <span id="display_total_price" class="text-4xl font-extrabold text-saffron block">₹0.00</span>
+                                        <span class="text-xs text-gray-500">Excluding GST</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <a href="{{ route('register') }}" id="btn_buy_now" class="w-full py-4 rounded text-center text-white bg-navy font-bold hover:bg-blue-900 transition-all shadow-lg transform hover:-translate-y-1 relative z-10 flex items-center justify-center">
+                                Proceed to Register & Buy
+                                <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                            </a>
+                        </div>
                     </div>
-                    <div class="text-gray-600 text-sm mb-8 flex-grow">{{ $plan->description }}</div>
-                    @if($plan->features)
-                    <ul class="space-y-4 mb-8 text-sm text-gray-700">
-                        @foreach($plan->features as $feature)
-                        <li class="flex items-center"><svg class="w-5 h-5 text-green mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> {{ $feature }}</li>
-                        @endforeach
-                    </ul>
-                    @endif
-                    <a href="{{ route('register') }}" class="w-full py-3 rounded text-center text-navy font-bold border-2 border-navy hover:bg-navy hover:text-white transition">Get Started</a>
                 </div>
-                @empty
-                <div class="col-span-full text-center py-12">
-                    <p class="text-gray-500">No subscription plans available at the moment. Please contact support.</p>
-                </div>
-                @endforelse
             </div>
+            
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const durationBtns = document.querySelectorAll('.duration-btn');
+                    const employeeInput = document.getElementById('employee_count');
+                    
+                    const displayBase = document.getElementById('display_base_price');
+                    const displayEmpCalc = document.getElementById('display_employee_calc');
+                    const displayEmpTotal = document.getElementById('display_employee_total');
+                    const displayTotal = document.getElementById('display_total_price');
+                    
+                    let activePlan = null;
+                    
+                    if(durationBtns.length > 0) {
+                        // Init with first plan
+                        setActivePlan(durationBtns[0]);
+                    }
+                    
+                    durationBtns.forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            // Update UI
+                            durationBtns.forEach(b => {
+                                b.classList.remove('border-saffron', 'bg-orange-50', 'text-saffron', 'font-bold');
+                                b.classList.add('border-gray-200', 'text-gray-600');
+                            });
+                            this.classList.remove('border-gray-200', 'text-gray-600');
+                            this.classList.add('border-saffron', 'bg-orange-50', 'text-saffron', 'font-bold');
+                            
+                            setActivePlan(this);
+                        });
+                    });
+                    
+                    employeeInput.addEventListener('input', calculateTotal);
+                    
+                    function setActivePlan(btn) {
+                        activePlan = {
+                            id: btn.getAttribute('data-plan-id'),
+                            basePrice: parseFloat(btn.getAttribute('data-base-price')),
+                            perEmployee: parseFloat(btn.getAttribute('data-per-employee')),
+                            isTrial: btn.getAttribute('data-is-trial') === 'true'
+                        };
+                        calculateTotal();
+                    }
+                    
+                    function calculateTotal() {
+                        if(!activePlan) return;
+                        
+                        let count = parseInt(employeeInput.value) || 0;
+                        if(count < 0) count = 0;
+                        
+                        // Update button link
+                        const btnBuyNow = document.getElementById('btn_buy_now');
+                        btnBuyNow.href = `{{ route('register') }}?plan_id=${activePlan.id}&employees=${count}`;
+                        
+                        // If it's a trial, enforce 0 price
+                        if(activePlan.isTrial) {
+                            displayBase.innerText = "₹0.00 (Trial)";
+                            displayEmpCalc.innerText = `(${count} Employees)`;
+                            displayEmpTotal.innerText = "₹0.00";
+                            displayTotal.innerText = "₹0.00";
+                            return;
+                        }
+                        
+                        const base = activePlan.basePrice;
+                        const perEmp = activePlan.perEmployee;
+                        const empTotal = count * perEmp;
+                        const grandTotal = base + empTotal;
+                        
+                        displayBase.innerText = "₹" + base.toLocaleString('en-IN', {minimumFractionDigits: 2});
+                        displayEmpCalc.innerText = `(${count} x ₹${perEmp})`;
+                        displayEmpTotal.innerText = "₹" + empTotal.toLocaleString('en-IN', {minimumFractionDigits: 2});
+                        displayTotal.innerText = "₹" + grandTotal.toLocaleString('en-IN', {minimumFractionDigits: 2});
+                    }
+                });
+            </script>
 
             <!-- Permanent Tier Highlight -->
             <div class="bg-white border-2 border-saffron rounded-xl p-8 max-w-4xl mx-auto shadow-xl text-center relative overflow-hidden">
