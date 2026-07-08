@@ -42,7 +42,11 @@ class InvoiceMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.invoice',
+            view: 'admin.transactions.invoice',
+            with: [
+                'transaction' => $this->transaction,
+                'user' => $this->transaction->user,
+            ]
         );
     }
 
@@ -53,7 +57,10 @@ class InvoiceMail extends Mailable
      */
     public function attachments(): array
     {
-        $pdf = Pdf::loadView('emails.invoice', ['transaction' => $this->transaction]);
+        $pdf = Pdf::loadView('admin.transactions.invoice', [
+            'transaction' => $this->transaction,
+            'user' => $this->transaction->user,
+        ]);
 
         return [
             \Illuminate\Mail\Mailables\Attachment::fromData(fn () => $pdf->output(), 'Invoice_'.$this->transaction->id.'.pdf')
