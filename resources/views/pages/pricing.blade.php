@@ -50,9 +50,9 @@
                         <div class="text-4xl font-extrabold text-navy">Free</div>
                     @else
                         <div class="text-4xl font-extrabold text-saffron">
-                            ₹{{ number_format($plan->price + ($plan->price_per_employee * 10), 2) }}
+                            ₹{{ number_format($plan->price + ($plan->price_per_employee * ($plan->employee_count ?? 10)), 2) }}
                         </div>
-                        <div class="text-xs {{ $plan->is_trial ? 'text-gray-500' : 'text-gray-300' }} mt-2">Includes 10 Employees (Base)</div>
+                        <div class="text-xs {{ $plan->is_trial ? 'text-gray-500' : 'text-gray-300' }} mt-2">Includes {{ $plan->employee_count ?? 10 }} Employees (Base)</div>
                     @endif
                 </div>
                 <div class="p-8 flex-grow">
@@ -70,9 +70,9 @@
                 </div>
                 <div class="p-8 pt-0 mt-auto">
                     @if($plan->is_trial)
-                        <a href="{{ route('register', ['plan_id' => $plan->id, 'employees' => 10]) }}" class="block w-full py-3 rounded text-center border-2 border-navy text-navy font-bold hover:bg-navy hover:text-white transition-colors">Start Free Trial</a>
+                        <a href="{{ route('register', ['plan_id' => $plan->id, 'employees' => $plan->employee_count ?? 10]) }}" class="block w-full py-3 rounded text-center border-2 border-navy text-navy font-bold hover:bg-navy hover:text-white transition-colors">Start Free Trial</a>
                     @else
-                        <a href="{{ route('register', ['plan_id' => $plan->id, 'employees' => 10]) }}" class="block w-full py-3 rounded text-center bg-saffron text-white font-bold hover:bg-orange-600 transition-colors shadow-md">Buy Now</a>
+                        <a href="{{ route('register', ['plan_id' => $plan->id, 'employees' => $plan->employee_count ?? 10]) }}" class="block w-full py-3 rounded text-center bg-saffron text-white font-bold hover:bg-orange-600 transition-colors shadow-md">Buy Now</a>
                     @endif
                 </div>
             </div>
@@ -98,6 +98,7 @@
                                         data-plan-id="{{ $plan->id }}"
                                         data-base-price="{{ $plan->price }}"
                                         data-per-employee="{{ $plan->price_per_employee }}"
+                                        data-base-employees="{{ $plan->employee_count ?? 10 }}"
                                         data-is-trial="false">
                                         <span class="block text-lg">{{ $plan->duration_days }}</span>
                                         <span class="block text-xs uppercase">Days</span>
@@ -110,7 +111,7 @@
                         <div>
                             <label for="employee_count" class="block text-sm font-bold text-gray-700 mb-3">2. Number of Employees</label>
                             <input type="number" id="employee_count" min="10" value="10" class="block w-full text-2xl font-bold text-center border-gray-300 rounded-md shadow-sm focus:ring-saffron focus:border-saffron py-3 bg-gray-50">
-                            <p class="text-xs text-gray-500 mt-2 text-center">Minimum 10 employees recommended.</p>
+                            <p class="text-xs text-gray-500 mt-2 text-center" id="employee_min_help">Minimum 10 employees recommended.</p>
                         </div>
                     </div>
 
@@ -125,7 +126,7 @@
                                 <span id="display_base_price" class="font-medium">₹0.00</span>
                             </div>
                             <div class="flex justify-between items-center text-gray-600 border-b border-gray-200 pb-2">
-                                <span>Employee Cost <span id="display_employee_calc" class="text-xs">(10 x ₹0.00)</span>:</span>
+                                <span>Employee Cost <span id="display_employee_calc" class="text-xs"></span>:</span>
                                 <span id="display_employee_total" class="font-medium">₹0.00</span>
                             </div>
                             <div class="flex justify-between items-end pt-2">
@@ -184,16 +185,37 @@
                         id: btn.getAttribute('data-plan-id'),
                         basePrice: parseFloat(btn.getAttribute('data-base-price')),
                         perEmployee: parseFloat(btn.getAttribute('data-per-employee')),
+                        baseEmployees: parseInt(btn.getAttribute('data-base-employees')) || 10,
                         isTrial: btn.getAttribute('data-is-trial') === 'true'
                     };
+                    
+                    let minEmp = activePlan.baseEmployees;
+                    employeeInput.min = minEmp;
+                    document.getElementById('employee_min_help').innerText = `Minimum ${minEmp} employees recommended for this plan.`;
+                    
+                    if(parseInt(employeeInput.value) < minEmp) {
+                        employeeInput.value = minEmp;
+                    }
+
                     calculateTotal();
                 }
                 
+                employeeInput.addEventListener('blur', function() {
+                    if (!activePlan) return;
+                    let minEmp = activePlan.baseEmployees;
+                    let count = parseInt(this.value) || 0;
+                    if (count < minEmp) {
+                        this.value = minEmp;
+                        calculateTotal();
+                    }
+                });
+
                 function calculateTotal() {
                     if(!activePlan) return;
                     
+                    let minEmp = activePlan.baseEmployees;
                     let count = parseInt(employeeInput.value) || 0;
-                    if(count < 0) count = 0;
+                    if(count < minEmp) count = minEmp;
                     
                     // Update button link
                     const btnBuyNow = document.getElementById('btn_buy_now');

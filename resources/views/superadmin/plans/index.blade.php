@@ -38,6 +38,7 @@
                         <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Plan Name</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Base Charge</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Per Employee</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Base Employees</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Duration</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
                         <th scope="col" class="relative px-6 py-3"><span class="sr-only">Actions</span></th>
@@ -57,6 +58,7 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₹{{ number_format($plan->price, 2) }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₹{{ number_format($plan->price_per_employee, 2) }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $plan->employee_count ?? 10 }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $plan->duration_days }} Days</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                             @if($plan->active)

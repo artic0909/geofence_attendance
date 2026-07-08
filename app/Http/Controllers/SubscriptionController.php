@@ -33,7 +33,7 @@ class SubscriptionController extends Controller
         $plan = Plan::findOrFail($request->plan_id);
         $user = auth()->user();
         $currentEmployees = $user ? $user->employees()->count() : 0;
-        $minEmployees = max(10, $currentEmployees);
+        $minEmployees = max($plan->employee_count ?? 10, $currentEmployees);
         
         $employeeCount = $request->employee_count ?? $minEmployees;
         
@@ -106,7 +106,7 @@ class SubscriptionController extends Controller
         ]);
 
         $plan = Plan::findOrFail($request->plan_id);
-        $employeeCount = session('order_employee_count_'.$request->razorpay_order_id, 10);
+        $employeeCount = session('order_employee_count_'.$request->razorpay_order_id, $plan->employee_count ?? 10);
         
         if ($plan->is_trial && str_starts_with($request->razorpay_payment_id, 'FREE_TRIAL')) {
             $hasTrial = Transaction::where('user_id', auth()->id())

@@ -11,6 +11,7 @@ class Plan extends Model
         'description',
         'price',
         'price_per_employee',
+        'employee_count',
         'duration_days',
         'features',
         'active',
@@ -24,5 +25,6 @@ class Plan extends Model
         'is_popular' => 'boolean',
         'is_trial' => 'boolean',
         'duration_days' => 'integer',
+        'employee_count' => 'integer',
     ];
 }

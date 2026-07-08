@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('plans', function (Blueprint $table) {
-            //
+            $table->integer('employee_count')->default(10)->after('price_per_employee');
         });
     }
 
@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('plans', function (Blueprint $table) {
-            //
+            $table->dropColumn('employee_count');
         });
     }
 };

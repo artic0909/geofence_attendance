@@ -35,6 +35,7 @@ class PlanController extends Controller
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
             'price_per_employee' => 'required|numeric|min:0',
+            'employee_count' => 'required|integer|min:1',
             'duration_days' => 'required|integer|min:1',
             'features' => 'nullable|string', // comma separated
             'active' => 'boolean',
@@ -69,6 +70,7 @@ class PlanController extends Controller
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
             'price_per_employee' => 'required|numeric|min:0',
+            'employee_count' => 'required|integer|min:1',
             'duration_days' => 'required|integer|min:1',
             'features' => 'nullable|string',
             'active' => 'boolean',

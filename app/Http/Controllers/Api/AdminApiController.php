@@ -370,7 +370,7 @@ class AdminApiController extends Controller
         $plan = Plan::findOrFail($request->plan_id);
         $user = $request->user();
         $currentEmployees = $user->employees()->count();
-        $minEmployees = max(10, $currentEmployees);
+        $minEmployees = max($plan->employee_count ?? 10, $currentEmployees);
         
         $employeeCount = $request->employee_count ?? $minEmployees;
         

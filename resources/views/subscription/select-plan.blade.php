@@ -40,9 +40,9 @@
                         <div class="text-4xl font-extrabold text-navy">Free</div>
                     @else
                         <div class="text-4xl font-extrabold text-saffron">
-                            ₹{{ number_format($plan->price + ($plan->price_per_employee * 10), 2) }}
+                            ₹{{ number_format($plan->price + ($plan->price_per_employee * ($plan->employee_count ?? 10)), 2) }}
                         </div>
-                        <div class="text-xs {{ $plan->is_trial ? 'text-gray-500' : 'text-gray-300' }} mt-2">Includes 10 Employees (Base)</div>
+                        <div class="text-xs {{ $plan->is_trial ? 'text-gray-500' : 'text-gray-300' }} mt-2">Includes {{ $plan->employee_count ?? 10 }} Employees (Base)</div>
                     @endif
                 </div>
                 <div class="p-8 flex-grow">
@@ -60,9 +60,9 @@
                 </div>
                 <div class="p-8 pt-0 mt-auto">
                     @if($plan->is_trial)
-                        <a href="?plan_id={{ $plan->id }}&employees=10#pricing-calculator" class="block w-full py-3 rounded text-center border-2 border-navy text-navy font-bold hover:bg-navy hover:text-white transition-colors">Select Trial</a>
+                        <a href="?plan_id={{ $plan->id }}&employees={{ $plan->employee_count ?? 10 }}#pricing-calculator" class="block w-full py-3 rounded text-center border-2 border-navy text-navy font-bold hover:bg-navy hover:text-white transition-colors">Select Trial</a>
                     @else
-                        <a href="?plan_id={{ $plan->id }}&employees=10#pricing-calculator" class="block w-full py-3 rounded text-center bg-saffron text-white font-bold hover:bg-orange-600 transition-colors shadow-md">Select Plan</a>
+                        <a href="?plan_id={{ $plan->id }}&employees={{ $plan->employee_count ?? 10 }}#pricing-calculator" class="block w-full py-3 rounded text-center bg-saffron text-white font-bold hover:bg-orange-600 transition-colors shadow-md">Select Plan</a>
                     @endif
                 </div>
             </div>
@@ -89,6 +89,7 @@
                                         data-plan-name="{{ $plan->name }}"
                                         data-base-price="{{ $plan->price }}"
                                         data-per-employee="{{ $plan->price_per_employee }}"
+                                        data-base-employees="{{ $plan->employee_count ?? 10 }}"
                                         data-is-trial="false">
                                         <span class="block text-lg">{{ $plan->duration_days }}</span>
                                         <span class="block text-xs uppercase">Days</span>
@@ -99,17 +100,9 @@
                         </div>
                         
                         <div>
-                            @php
-                                $minEmployees = max(10, $currentEmployees ?? 0);
-                            @endphp
                             <label for="employee_count" class="block text-sm font-bold text-gray-700 mb-3">2. Number of Employees</label>
-                            <input type="number" id="employee_count" min="{{ $minEmployees }}" value="{{ $minEmployees }}" class="block w-full text-2xl font-bold text-center border-gray-300 rounded-md shadow-sm focus:ring-saffron focus:border-saffron py-3 bg-gray-50">
+                            <input type="number" id="employee_count" class="block w-full text-2xl font-bold text-center border-gray-300 rounded-md shadow-sm focus:ring-saffron focus:border-saffron py-3 bg-gray-50">
                             <p class="text-xs text-gray-500 mt-2 text-center" id="employee_min_help">
-                                @if(isset($currentEmployees) && $currentEmployees > 10)
-                                    Minimum {{ $minEmployees }} employees required based on your current staff size.
-                                @else
-                                    Minimum 10 employees recommended.
-                                @endif
                             </p>
                         </div>
                     </div>
@@ -125,7 +118,7 @@
                                 <span id="display_base_price" class="font-medium">₹0.00</span>
                             </div>
                             <div class="flex justify-between items-center text-gray-600 border-b border-gray-200 pb-2">
-                                <span>Employee Cost <span id="display_employee_calc" class="text-xs">({{ $minEmployees }} x ₹0.00)</span>:</span>
+                                <span>Employee Cost <span id="display_employee_calc" class="text-xs"></span>:</span>
                                 <span id="display_employee_total" class="font-medium">₹0.00</span>
                             </div>
                             <div class="flex justify-between items-end pt-2">
@@ -161,18 +154,14 @@
         const displayEmpTotal = document.getElementById('display_employee_total');
         const displayTotal = document.getElementById('display_total_price');
         
-        const MIN_EMPLOYEES = {{ $minEmployees }};
+        const CURRENT_EMPLOYEES = {{ $currentEmployees ?? 0 }};
         let activePlan = null;
+        let currentDynamicMin = 10;
         
         // Parse Query Params
         const urlParams = new URLSearchParams(window.location.search);
         const urlPlanId = urlParams.get('plan_id');
         const urlEmployees = urlParams.get('employees');
-        
-        if (urlEmployees) {
-            let parsedEmployees = parseInt(urlEmployees) || MIN_EMPLOYEES;
-            employeeInput.value = Math.max(parsedEmployees, MIN_EMPLOYEES);
-        }
         
         if(durationBtns.length > 0) {
             let initialBtn = durationBtns[0];
@@ -191,7 +180,7 @@
             initialBtn.classList.remove('border-gray-200', 'text-gray-600');
             initialBtn.classList.add('border-saffron', 'bg-orange-50', 'text-saffron', 'font-bold');
             
-            setActivePlan(initialBtn);
+            setActivePlan(initialBtn, urlEmployees);
         }
         
         durationBtns.forEach(btn => {
@@ -209,14 +198,34 @@
         
         employeeInput.addEventListener('input', calculateTotal);
         
-        function setActivePlan(btn) {
+        function setActivePlan(btn, overrideEmployees = null) {
             activePlan = {
                 id: btn.getAttribute('data-plan-id'),
                 name: btn.getAttribute('data-plan-name'),
                 basePrice: parseFloat(btn.getAttribute('data-base-price')),
                 perEmployee: parseFloat(btn.getAttribute('data-per-employee')),
+                baseEmployees: parseInt(btn.getAttribute('data-base-employees')) || 10,
                 isTrial: btn.getAttribute('data-is-trial') === 'true'
             };
+            
+            currentDynamicMin = Math.max(activePlan.baseEmployees, CURRENT_EMPLOYEES);
+            employeeInput.min = currentDynamicMin;
+            
+            if (CURRENT_EMPLOYEES > activePlan.baseEmployees) {
+                document.getElementById('employee_min_help').innerText = `Minimum ${currentDynamicMin} employees required based on your current staff size.`;
+            } else {
+                document.getElementById('employee_min_help').innerText = `Minimum ${currentDynamicMin} employees recommended for this plan.`;
+            }
+            
+            let val = parseInt(employeeInput.value) || 0;
+            if (overrideEmployees) {
+                val = parseInt(overrideEmployees);
+            }
+            if (val < currentDynamicMin) {
+                val = currentDynamicMin;
+            }
+            employeeInput.value = val;
+            
             calculateTotal();
         }
         
@@ -226,11 +235,8 @@
             let count = parseInt(employeeInput.value) || 0;
             
             // Enforce minimum employee count dynamically
-            if (count < MIN_EMPLOYEES) {
-                // We shouldn't instantly overwrite their typing if they are clearing the box,
-                // but when calculating the price, we will act as if it's the minimum.
-                // Or we can just set count = MIN_EMPLOYEES for the math.
-                count = MIN_EMPLOYEES;
+            if (count < currentDynamicMin) {
+                count = currentDynamicMin;
             }
             
             if(activePlan.isTrial) {
@@ -258,8 +264,8 @@
         // Add blur listener to correct the visual value if they leave it too low
         employeeInput.addEventListener('blur', function() {
             let count = parseInt(this.value) || 0;
-            if (count < MIN_EMPLOYEES) {
-                this.value = MIN_EMPLOYEES;
+            if (count < currentDynamicMin) {
+                this.value = currentDynamicMin;
                 calculateTotal();
             }
         });
@@ -268,7 +274,7 @@
             if (!activePlan) return;
             
             let count = parseInt(employeeInput.value) || 0;
-            if (count < MIN_EMPLOYEES) count = MIN_EMPLOYEES;
+            if (count < currentDynamicMin) count = currentDynamicMin;
             
             const btn = this;
             const originalText = btn.innerHTML;
