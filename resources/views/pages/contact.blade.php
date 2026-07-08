@@ -49,11 +49,6 @@
                 <p class="text-gray-600 text-sm">Have questions? Send us a message and we'll respond promptly.</p>
             </div>
             
-            @if(session('success'))
-                <div class="bg-green-50 border-l-4 border-green-500 p-4 mb-6 rounded text-left">
-                    <p class="text-green-700 font-medium">{{ session('success') }}</p>
-                </div>
-            @endif
             <form action="{{ route('contact.store') }}" method="POST" class="space-y-5 text-left">
                 @csrf
                 <div>
@@ -87,4 +82,19 @@
         </div>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+@if(session('contact_success'))
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+            title: 'Message Sent!',
+            text: "{{ session('contact_success') }}",
+            icon: 'success',
+            confirmButtonColor: '#1e3a8a',
+            confirmButtonText: 'Great!'
+        });
+    });
+</script>
+@endif
 @endsection

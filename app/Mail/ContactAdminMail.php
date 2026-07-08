@@ -9,16 +9,20 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
+use App\Models\Contact;
+
 class ContactAdminMail extends Mailable
 {
     use Queueable, SerializesModels;
 
+    public $contact;
+
     /**
      * Create a new message instance.
      */
-    public function __construct()
+    public function __construct(Contact $contact)
     {
-        //
+        $this->contact = $contact;
     }
 
     /**
@@ -27,7 +31,7 @@ class ContactAdminMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Contact Admin Mail',
+            subject: 'New Inquiry: ' . ($this->contact->subject ?? 'Geofence Portal'),
         );
     }
 
@@ -37,7 +41,7 @@ class ContactAdminMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'view.name',
+            view: 'emails.contact_admin',
         );
     }
 
