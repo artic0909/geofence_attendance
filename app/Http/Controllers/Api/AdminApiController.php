@@ -533,6 +533,12 @@ class AdminApiController extends Controller
                 'subscription_expires_at' => $expiresAt,
             ]);
 
+            try {
+                \Illuminate\Support\Facades\Mail::to($user->email)->send(new \App\Mail\InvoiceMail($transaction));
+            } catch (\Exception $mailException) {
+                Log::error('Failed to send invoice email from API: ' . $mailException->getMessage());
+            }
+
             return response()->json(['success' => true, 'message' => 'Subscription activated successfully']);
         } catch (\Exception $e) {
             Log::error('Razorpay Signature Verification Failed: ' . $e->getMessage());

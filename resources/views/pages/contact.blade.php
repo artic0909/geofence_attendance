@@ -49,26 +49,35 @@
                 <p class="text-gray-600 text-sm">Have questions? Send us a message and we'll respond promptly.</p>
             </div>
             
-            <form action="#" method="POST" class="space-y-5">
+            @if(session('success'))
+                <div class="bg-green-50 border-l-4 border-green-500 p-4 mb-6 rounded text-left">
+                    <p class="text-green-700 font-medium">{{ session('success') }}</p>
+                </div>
+            @endif
+            <form action="{{ route('contact.store') }}" method="POST" class="space-y-5 text-left">
                 @csrf
                 <div>
                     <label for="name" class="block text-sm font-semibold text-gray-700 mb-1">Full Name</label>
-                    <input type="text" id="name" name="name" placeholder="John Doe" class="block w-full border border-gray-300 rounded-lg shadow-sm py-2.5 px-4 focus:ring-navy focus:border-navy transition" required>
+                    <input type="text" id="name" name="name" value="{{ old('name') }}" placeholder="John Doe" class="block w-full border border-gray-300 rounded-lg shadow-sm py-2.5 px-4 focus:ring-navy focus:border-navy transition" required>
+                    @error('name') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                 </div>
                 
                 <div>
                     <label for="email" class="block text-sm font-semibold text-gray-700 mb-1">Email Address</label>
-                    <input type="email" id="email" name="email" placeholder="you@company.com" class="block w-full border border-gray-300 rounded-lg shadow-sm py-2.5 px-4 focus:ring-navy focus:border-navy transition" required>
+                    <input type="email" id="email" name="email" value="{{ old('email') }}" placeholder="you@company.com" class="block w-full border border-gray-300 rounded-lg shadow-sm py-2.5 px-4 focus:ring-navy focus:border-navy transition" required>
+                    @error('email') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                 </div>
                 
                 <div>
                     <label for="subject" class="block text-sm font-semibold text-gray-700 mb-1">Subject</label>
-                    <input type="text" id="subject" name="subject" placeholder="How can we help?" class="block w-full border border-gray-300 rounded-lg shadow-sm py-2.5 px-4 focus:ring-navy focus:border-navy transition" required>
+                    <input type="text" id="subject" name="subject" value="{{ old('subject') }}" placeholder="How can we help?" class="block w-full border border-gray-300 rounded-lg shadow-sm py-2.5 px-4 focus:ring-navy focus:border-navy transition" required>
+                    @error('subject') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                 </div>
 
                 <div>
                     <label for="message" class="block text-sm font-semibold text-gray-700 mb-1">Message</label>
-                    <textarea id="message" name="message" rows="4" placeholder="Tell us more about your needs..." class="block w-full border border-gray-300 rounded-lg shadow-sm py-2.5 px-4 focus:ring-navy focus:border-navy transition resize-none" required></textarea>
+                    <textarea id="message" name="message" rows="4" placeholder="Tell us more about your needs..." class="block w-full border border-gray-300 rounded-lg shadow-sm py-2.5 px-4 focus:ring-navy focus:border-navy transition resize-none" required>{{ old('message') }}</textarea>
+                    @error('message') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                 </div>
                 
                 <button type="submit" class="w-full bg-navy text-white font-bold py-3.5 px-6 rounded-lg shadow-md hover:bg-blue-900 hover:shadow-lg transition transform hover:-translate-y-0.5">

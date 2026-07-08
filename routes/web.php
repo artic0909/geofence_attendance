@@ -25,6 +25,7 @@ Route::prefix('superadmin')->name('superadmin.')->group(function () {
         Route::resource('organizations.employees', \App\Http\Controllers\Superadmin\OrganizationEmployeeController::class);
         Route::resource('organizations.geofences', \App\Http\Controllers\Superadmin\OrganizationGeofenceController::class);
         Route::resource('subscriptions', \App\Http\Controllers\Superadmin\SubscriptionController::class);
+        Route::resource('contacts', \App\Http\Controllers\Superadmin\ContactController::class)->only(['index', 'show', 'destroy']);
         
         Route::get('settings', [\App\Http\Controllers\Superadmin\SettingController::class, 'index'])->name('settings.index');
         Route::post('settings', [\App\Http\Controllers\Superadmin\SettingController::class, 'update'])->name('settings.update');
@@ -83,6 +84,5 @@ Route::get('/industries', function () {
     return view('pages.industries');
 });
 
-Route::get('/contact', function () {
-    return view('pages.contact');
-});
+Route::get('/contact', [\App\Http\Controllers\ContactController::class, 'index'])->name('contact');
+Route::post('/contact', [\App\Http\Controllers\ContactController::class, 'store'])->name('contact.store');

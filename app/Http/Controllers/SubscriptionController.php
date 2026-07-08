@@ -169,6 +169,12 @@ class SubscriptionController extends Controller
                 'subscription_expires_at' => $expiresAt,
             ]);
 
+            try {
+                \Illuminate\Support\Facades\Mail::to($user->email)->send(new \App\Mail\InvoiceMail($transaction));
+            } catch (\Exception $mailException) {
+                Log::error('Failed to send invoice email: ' . $mailException->getMessage());
+            }
+
             return response()->json(['success' => true, 'redirect_url' => route('admin.dashboard')]);
         } catch (\Exception $e) {
             Log::error('Transaction creation failed: ' . $e->getMessage());
