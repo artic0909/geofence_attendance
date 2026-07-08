@@ -1,5 +1,10 @@
 @extends('layouts.public')
 
+@section('meta_title', 'Contact Us | Geofence Attendance Sales & Support | ProjectAttendance.com')
+@section('meta_description', 'Get in touch with ProjectAttendance.com for enterprise inquiries, lifetime license pricing, and support for your location-based employee tracking system.')
+@section('meta_keywords', 'contact geofence software, attendance system support, projectattendance sales, location tracking help, projectattendance.com')
+
+
 @section('title', 'Contact Us - Geofence Attendance')
 
 @section('content')

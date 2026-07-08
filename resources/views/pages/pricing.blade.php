@@ -1,5 +1,10 @@
 @extends('layouts.public')
 
+@section('meta_title', 'Pricing & Plans | Geofencing Employee Attendance Software | ProjectAttendance.com')
+@section('meta_description', 'Flexible SaaS and lifetime license pricing for our enterprise-grade geofence location-based employee attendance system. Scale your workforce management effortlessly.')
+@section('meta_keywords', 'attendance system pricing, geofencing software cost, employee tracking subscription, lifetime license attendance app, projectattendance.com')
+
+
 @section('title', 'Subscription Plans - Geofence Attendance Portal')
 
 @section('content')

@@ -1,5 +1,10 @@
 @extends('layouts.public')
 
+@section('meta_title', 'About Us | Leaders in Location-Based Employee Tracking | ProjectAttendance.com')
+@section('meta_description', 'Learn about ProjectAttendance.com, the premier multi-tenant platform delivering secure, geofence location-based tracking and employee attendance solutions globally.')
+@section('meta_keywords', 'about project attendance, location tracking company, workforce management team, geofencing experts, projectattendance.com')
+
+
 @section('title', 'About Us - Geofence Attendance Portal')
 
 @section('content')

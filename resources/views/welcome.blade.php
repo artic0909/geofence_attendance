@@ -1,5 +1,10 @@
 @extends('layouts.public')
 
+@section('meta_title', 'Geofence Employee Attendance System | Location-Based Tracking')
+@section('meta_description', 'Secure, scalable, and tamper-proof geofencing attendance system for field forces, construction, healthcare, and corporate industries. ProjectAttendance.com provides the ultimate location-based employee tracking software.')
+@section('meta_keywords', 'geofence attendance, location based tracking, employee attendance system, geofencing software, field sales tracking, construction attendance, projectattendance.com')
+
+
 @section('content')
     <!-- Hero Section -->
     <section class="hero-bg text-white py-20 md:py-32 flex-grow flex items-center relative overflow-hidden">

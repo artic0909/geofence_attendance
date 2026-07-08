@@ -1,5 +1,10 @@
 @extends('layouts.public')
 
+@section('meta_title', 'Terms & Conditions | Geofence Employee Attendance System | ProjectAttendance.com')
+@section('meta_description', 'Terms and conditions for using ProjectAttendance.com, the leading geofencing location-based employee attendance system.')
+@section('meta_keywords', 'terms of service, geofence software terms, location tracking compliance, projectattendance.com')
+
+
 @section('title', 'Terms & Conditions - Geofence Attendance Portal')
 
 @section('content')

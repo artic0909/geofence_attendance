@@ -3,7 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Official Geofence Attendance Portal')</title>
+    <!-- Dynamic SEO Meta Tags -->
+    <title>@yield('meta_title', 'Geofence Employee Attendance System | Location-Based Tracking | ProjectAttendance.com')</title>
+    <meta name="description" content="@yield('meta_description', 'Secure, scalable, and tamper-proof geofencing attendance system for field forces, construction, healthcare, and corporate industries. ProjectAttendance.com provides the ultimate location-based employee tracking software.')">
+    <meta name="keywords" content="@yield('meta_keywords', 'geofence attendance, location based tracking, employee attendance system, geofencing software, field sales tracking, construction attendance, projectattendance.com')">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="{{ url()->current() }}">
+
+    <!-- OpenGraph / Social Meta Tags -->
+    <meta property="og:title" content="@yield('meta_title', 'Geofence Employee Attendance System | Location-Based Tracking')">
+    <meta property="og:description" content="@yield('meta_description', 'Secure, scalable, and tamper-proof geofencing attendance system for field forces, construction, healthcare, and corporate industries.')">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:site_name" content="ProjectAttendance.com">
+    
+    <!-- Twitter Cards -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="@yield('meta_title', 'Geofence Employee Attendance System | Location-Based Tracking')">
+    <meta name="twitter:description" content="@yield('meta_description', 'Secure, scalable, and tamper-proof geofencing attendance system for field forces, construction, healthcare, and corporate industries.')">
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>

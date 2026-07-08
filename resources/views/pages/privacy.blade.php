@@ -1,5 +1,10 @@
 @extends('layouts.public')
 
+@section('meta_title', 'Privacy Policy | Secure Geofence Employee Tracking | ProjectAttendance.com')
+@section('meta_description', 'Read our privacy policy to understand how ProjectAttendance.com securely handles location-based data and employee attendance records.')
+@section('meta_keywords', 'privacy policy, geofencing data security, location tracking compliance, secure attendance system, projectattendance.com')
+
+
 @section('title', 'Privacy Policy - Geofence Attendance Portal')
 
 @section('content')

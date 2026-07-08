@@ -1,5 +1,10 @@
 @extends('layouts.public')
 
+@section('meta_title', 'Industry-Specific Geofence Attendance Solutions | ProjectAttendance.com')
+@section('meta_description', 'Discover how our geofencing location-based tracking system adapts to construction, healthcare, logistics, manufacturing, and corporate offices to manage employee attendance securely.')
+@section('meta_keywords', 'industry attendance system, construction geofencing, healthcare location tracking, logistics attendance, manufacturing time tracking, corporate attendance software, projectattendance.com')
+
+
 @section('title', 'Industries We Serve - Geofence Attendance Portal')
 
 @section('content')
