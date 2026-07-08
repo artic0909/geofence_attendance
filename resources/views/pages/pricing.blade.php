@@ -39,6 +39,46 @@
 
 <section class="py-16 md:py-24 bg-lightbg">
     <div class="container mx-auto px-4 max-w-7xl">
+        <!-- Standard Plan Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16 max-w-6xl mx-auto">
+            @foreach($plans as $plan)
+            <div class="bg-white rounded-2xl shadow-xl overflow-hidden border {{ $plan->is_trial ? 'border-gray-200' : 'border-saffron' }} flex flex-col hover:-translate-y-2 transition-transform duration-300">
+                <div class="p-8 {{ $plan->is_trial ? 'bg-gray-50 text-gray-800' : 'bg-navy text-white' }} text-center">
+                    <h4 class="text-2xl font-bold mb-2">{{ $plan->name }}</h4>
+                    <div class="text-sm {{ $plan->is_trial ? 'text-gray-500' : 'text-gray-300' }} mb-4">{{ $plan->duration_days }} Days Access</div>
+                    @if($plan->is_trial)
+                        <div class="text-4xl font-extrabold text-navy">Free</div>
+                    @else
+                        <div class="text-4xl font-extrabold text-saffron">
+                            ₹{{ number_format($plan->price + ($plan->price_per_employee * 10), 2) }}
+                        </div>
+                        <div class="text-xs {{ $plan->is_trial ? 'text-gray-500' : 'text-gray-300' }} mt-2">Includes 10 Employees (Base)</div>
+                    @endif
+                </div>
+                <div class="p-8 flex-grow">
+                    <ul class="space-y-4 mb-8">
+                        @php $featuresList = is_array($plan->features) ? $plan->features : explode("\n", $plan->features ?? ''); @endphp
+                        @foreach($featuresList as $feature)
+                            @if(trim($feature))
+                            <li class="flex items-start">
+                                <svg class="w-5 h-5 text-green mr-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                <span class="text-gray-600 text-sm">{{ trim($feature) }}</span>
+                            </li>
+                            @endif
+                        @endforeach
+                    </ul>
+                </div>
+                <div class="p-8 pt-0 mt-auto">
+                    @if($plan->is_trial)
+                        <a href="{{ route('register', ['plan_id' => $plan->id, 'employees' => 10]) }}" class="block w-full py-3 rounded text-center border-2 border-navy text-navy font-bold hover:bg-navy hover:text-white transition-colors">Start Free Trial</a>
+                    @else
+                        <a href="{{ route('register', ['plan_id' => $plan->id, 'employees' => 10]) }}" class="block w-full py-3 rounded text-center bg-saffron text-white font-bold hover:bg-orange-600 transition-colors shadow-md">Buy Now</a>
+                    @endif
+                </div>
+            </div>
+            @endforeach
+        </div>
+
         <!-- Custom Plan Calculator -->
         <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden border-t-4 border-saffron mb-16" id="pricing-calculator">
             <div class="p-8 md:p-12">
@@ -50,16 +90,19 @@
                         <div>
                             <label class="block text-sm font-bold text-gray-700 mb-3">1. Select Duration</label>
                             <div class="grid grid-cols-3 gap-3" id="plan-duration-container">
+                                @php $firstPaidPlan = true; @endphp
                                 @foreach($plans as $plan)
+                                    @if($plan->is_trial) @continue @endif
                                     <button type="button" 
-                                        class="duration-btn py-3 px-2 border-2 rounded-lg text-center transition-all focus:outline-none {{ $loop->first ? 'border-saffron bg-orange-50 text-saffron font-bold' : 'border-gray-200 text-gray-600 hover:border-gray-300' }}"
+                                        class="duration-btn py-3 px-2 border-2 rounded-lg text-center transition-all focus:outline-none {{ $firstPaidPlan ? 'border-saffron bg-orange-50 text-saffron font-bold' : 'border-gray-200 text-gray-600 hover:border-gray-300' }}"
                                         data-plan-id="{{ $plan->id }}"
                                         data-base-price="{{ $plan->price }}"
                                         data-per-employee="{{ $plan->price_per_employee }}"
-                                        data-is-trial="{{ $plan->is_trial ? 'true' : 'false' }}">
+                                        data-is-trial="false">
                                         <span class="block text-lg">{{ $plan->duration_days }}</span>
                                         <span class="block text-xs uppercase">Days</span>
                                     </button>
+                                    @php $firstPaidPlan = false; @endphp
                                 @endforeach
                             </div>
                         </div>
