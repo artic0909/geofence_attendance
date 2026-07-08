@@ -26,6 +26,36 @@
   </div>
 </div>
 
+@php
+    $admin = auth()->user();
+    $activeSub = $admin->activeSubscription;
+    $maxEmp = $activeSub ? $activeSub->employee_count : 0;
+    $currentEmp = $admin->employees()->count();
+    $percentage = $maxEmp > 0 ? min(100, ($currentEmp / $maxEmp) * 100) : 0;
+    
+    $progressClass = 'bg-success';
+    if ($percentage >= 90) {
+        $progressClass = 'bg-danger';
+    } elseif ($percentage >= 75) {
+        $progressClass = 'bg-warning text-dark';
+    }
+@endphp
+
+<div class="card mt-3 shadow-sm border-0 rounded-3">
+    <div class="card-body py-3">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="mb-0 fw-bold text-muted"><i class="bi bi-bar-chart-steps me-1"></i> Plan Usage</h6>
+            <span class="badge text-bg-light border {{ $percentage >= 100 ? 'border-danger text-danger' : 'border-secondary text-secondary' }}">{{ $currentEmp }} / {{ $maxEmp }} Employees Used</span>
+        </div>
+        <div class="progress rounded-pill" style="height: 8px;">
+            <div class="progress-bar {{ $progressClass }} progress-bar-striped" role="progressbar" style="width: {{ $percentage }}%;" aria-valuenow="{{ $percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+        @if($percentage >= 100)
+            <small class="text-danger mt-2 d-block fw-semibold"><i class="bi bi-exclamation-circle-fill"></i> You have reached your employee limit. Please upgrade your plan to add more.</small>
+        @endif
+    </div>
+</div>
+
 <section class="panel mt-3">
   <div class="panel-header">
     <div>
