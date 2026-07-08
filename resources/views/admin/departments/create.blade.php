@@ -2,28 +2,44 @@
 @section('header_title', 'Create Department')
 
 @section('content')
-<div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 max-w-2xl mx-auto mt-8">
-    <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
-        <h3 class="text-lg font-bold text-gray-800">New Department</h3>
+<div class="page-heading">
+  <div class="page-heading-copy">
+    <span class="page-icon"><i class="bi bi-plus-circle" aria-hidden="true"></i></span>
+    <div>
+      <p class="eyebrow mb-1">Organization</p>
+      <h1 class="h3 mb-1">New Department</h1>
+      <p class="text-muted mb-0">Create a new department for your organization.</p>
     </div>
-    
-    <div class="p-6">
-        <form action="{{ route('admin.departments.store') }}" method="POST" class="validate-form">
-            @csrf
-            
-            <div class="mb-6">
-                <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Department Name</label>
-                <input type="text" name="name" id="name" data-rule-required="true" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-navy focus:border-navy" placeholder="e.g. Sales">
-                @error('name')
-                    <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
-                @enderror
-            </div>
-            
-            <div class="flex justify-end space-x-3">
-                <a href="{{ route('admin.departments.index') }}" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 font-medium">Cancel</a>
-                <button type="submit" class="px-4 py-2 bg-navy text-white rounded-lg hover:bg-[#233554] font-medium">Create Department</button>
-            </div>
-        </form>
-    </div>
+  </div>
 </div>
+
+<section class="row justify-content-center mt-3">
+    <div class="col-12 col-md-8 col-lg-6">
+        <div class="panel">
+            <div class="panel-header">
+                <div>
+                    <h2 class="h5 mb-1 section-title"><i class="bi bi-input-cursor" aria-hidden="true"></i><span>Department Details</span></h2>
+                </div>
+            </div>
+            <div class="panel-body p-4">
+                <form action="{{ route('admin.departments.store') }}" method="POST" class="validate-form">
+                    @csrf
+                    
+                    <div class="mb-4">
+                        <label for="name" class="form-label fw-bold">Department Name <span class="text-danger">*</span></label>
+                        <input type="text" name="name" id="name" data-rule-required="true" class="form-control" placeholder="e.g. Sales">
+                        @error('name')
+                            <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    
+                    <div class="d-flex justify-content-end gap-2 mt-4">
+                        <a href="{{ route('admin.departments.index') }}" class="btn btn-light">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Create Department</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
 @endsection

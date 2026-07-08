@@ -2,100 +2,105 @@
 @section('header_title', 'Today\'s Attendances')
 
 @section('content')
-<div class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+<div class="page-heading">
+  <div class="page-heading-copy">
+    <span class="page-icon"><i class="bi bi-calendar2-day" aria-hidden="true"></i></span>
     <div>
-        <h1 class="text-3xl font-bold text-gray-800">Today's Attendances</h1>
-        <p class="text-gray-600 mt-1">{{ \Carbon\Carbon::today()->format('l, jS F Y') }}</p>
+      <p class="eyebrow mb-1">Reports</p>
+      <h1 class="h3 mb-1">Today's Attendances</h1>
+      <p class="text-muted mb-0">{{ \Carbon\Carbon::today()->format('l, jS F Y') }}</p>
     </div>
-    
-    <div class="flex gap-2">
-        <a href="{{ route('admin.attendances.today.export') }}" class="inline-flex items-center px-4 py-2 bg-green-600 text-white font-medium rounded-lg shadow-sm hover:bg-green-700 transition-colors text-sm">
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-            Export Excel
-        </a>
-    </div>
+  </div>
+  <div class="heading-actions">
+    <a href="{{ route('admin.attendances.today.export') }}" class="btn btn-success btn-sm d-flex align-items-center"><i class="bi bi-file-earmark-excel me-1" aria-hidden="true"></i> Export Excel</a>
+  </div>
 </div>
 
-<div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-6">
-    <div class="px-6 py-5 border-b border-gray-100 bg-gray-50/50">
-        <h2 class="font-bold text-navy">Filter Records</h2>
+<section class="panel mt-3 mb-4">
+  <div class="panel-header">
+    <div>
+      <h2 class="h5 mb-1 section-title"><i class="bi bi-funnel" aria-hidden="true"></i><span>Filter Records</span></h2>
     </div>
-    
-    <div class="p-6">
-        <form method="GET" id="filterForm" action="{{ route('admin.attendances.today') }}" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-            <div class="md:col-span-1">
-                <label for="geofence" class="block text-sm font-medium text-gray-700 mb-1">Site / Geofence</label>
-                <select name="geofence" id="geofence" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-saffron focus:border-saffron bg-gray-50">
-                    <option value="">All Sites</option>
-                    @foreach($geofences as $geofence)
-                    <option value="{{ $geofence->id }}" {{ request('geofence') == $geofence->id ? 'selected' : '' }}>
-                        {{ $geofence->name }}
-                    </option>
-                    @endforeach
-                </select>
-            </div>
+  </div>
+  <div class="panel-body p-4">
+    <form method="GET" id="filterForm" action="{{ route('admin.attendances.today') }}" class="row g-3 align-items-end">
+        <div class="col-md-4">
+            <label for="geofence" class="form-label fw-bold small">Site / Geofence</label>
+            <select name="geofence" id="geofence" class="form-select">
+                <option value="">All Sites</option>
+                @foreach($geofences as $geofence)
+                <option value="{{ $geofence->id }}" {{ request('geofence') == $geofence->id ? 'selected' : '' }}>
+                    {{ $geofence->name }}
+                </option>
+                @endforeach
+            </select>
+        </div>
 
-            <div class="md:col-span-2">
-                <label for="employee_name" class="block text-sm font-medium text-gray-700 mb-1">Employee Name</label>
-                <input type="text" name="employee_name" id="employee_name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-saffron focus:border-saffron bg-gray-50" placeholder="Search by name..." value="{{ request('employee_name') }}">
-            </div>
+        <div class="col-md-5">
+            <label for="employee_name" class="form-label fw-bold small">Employee Name</label>
+            <input type="text" name="employee_name" id="employee_name" class="form-control" placeholder="Search by name..." value="{{ request('employee_name') }}">
+        </div>
 
-            <div class="md:col-span-1 flex gap-2">
-                <button type="submit" id="filterBtn" class="flex-1 bg-navy text-white px-4 py-2 rounded-lg hover:bg-[#233554] transition-colors font-medium">Filter</button>
-                <a href="{{ route('admin.attendances.today') }}" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium text-center">Reset</a>
-            </div>
-        </form>
+        <div class="col-md-3 d-flex gap-2">
+            <button type="submit" id="filterBtn" class="btn btn-primary flex-grow-1">Filter</button>
+            <a href="{{ route('admin.attendances.today') }}" class="btn btn-light">Reset</a>
+        </div>
+    </form>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="panel-header">
+    <div>
+      <h2 class="h5 mb-1 section-title"><i class="bi bi-list-ul" aria-hidden="true"></i><span>Today's Log</span></h2>
     </div>
-</div>
-
-<div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+  </div>
+  <div class="table-responsive">
     @if($recent_attendances->count() > 0)
-    <div class="overflow-x-auto">
-        <table class="w-full text-sm text-left">
-            <thead class="text-xs text-gray-500 uppercase bg-gray-50/50 border-b border-gray-100">
+        <table class="table align-middle mb-0">
+            <thead>
                 <tr>
-                    <th class="px-6 py-4 font-bold tracking-wider text-gray-600">Type</th>
-                    <th class="px-6 py-4 font-bold tracking-wider text-gray-600">Employee</th>
-                    <th class="px-6 py-4 font-bold tracking-wider text-gray-600">Check In</th>
-                    <th class="px-6 py-4 font-bold tracking-wider text-gray-600">Check Out</th>
-                    <th class="px-6 py-4 font-bold tracking-wider text-gray-600">Hours</th>
-                    <th class="px-6 py-4 font-bold tracking-wider text-gray-600">Location</th>
-                    <th class="px-6 py-4 font-bold tracking-wider text-gray-600 text-right">Action</th>
+                    <th scope="col">Type</th>
+                    <th scope="col">Employee</th>
+                    <th scope="col">Check In</th>
+                    <th scope="col">Check Out</th>
+                    <th scope="col">Hours</th>
+                    <th scope="col">Location</th>
+                    <th scope="col" class="text-end">Action</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-100">
+            <tbody>
                 @foreach($recent_attendances as $attendance)
-                <tr class="transition-colors {{ $attendance->is_auto_checkout_trap ? 'bg-red-50/80 hover:bg-red-100/80' : 'hover:bg-gray-50/80' }}">
-                    <td class="px-6 py-4">
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold {{ $attendance->attendance_type == 'outside' ? 'bg-orange-100 text-orange-700 border border-orange-200' : 'bg-green-100 text-green-700 border border-green-200' }}">
+                <tr class="{{ $attendance->is_auto_checkout_trap ? 'table-danger' : '' }}">
+                    <td>
+                        <span class="badge {{ $attendance->attendance_type == 'outside' ? 'text-bg-warning' : 'text-bg-success' }}">
                             {{ ucfirst($attendance->attendance_type) }}
                         </span>
                         @if($attendance->is_auto_checkout_trap)
-                        <div class="mt-2">
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-700 border border-red-200 shadow-sm" title="Privacy Violation: The employee forcefully bypassed the Kiosk Mode pin.">
-                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                                Privacy Violation
+                        <div class="mt-1">
+                            <span class="badge text-bg-danger" title="Privacy Violation: The employee forcefully bypassed the Kiosk Mode pin.">
+                                <i class="bi bi-shield-exclamation me-1"></i> Privacy Violation
                             </span>
                         </div>
                         @endif
                     </td>
-                    <td class="px-6 py-4">
-                        <div class="font-bold text-navy">{{ $attendance->employee->name }}</div>
-                        <div class="text-xs text-gray-500">{{ $attendance->employee->email }}</div>
+                    <td>
+                        <div class="fw-bold text-primary">{{ $attendance->employee->name }}</div>
+                        <div class="small text-muted">{{ $attendance->employee->email }}</div>
                     </td>
-                    <td class="px-6 py-4">
-                        <div class="font-medium text-gray-900">{{ $attendance->check_in ? \Carbon\Carbon::parse($attendance->check_in)->format('h:i A') : '--:--' }}</div>
+                    <td>
+                        <div class="fw-medium">{{ $attendance->check_in ? \Carbon\Carbon::parse($attendance->check_in)->format('h:i A') : '--:--' }}</div>
                         @if($attendance->check_in_photo)
-                        <button type="button" class="text-xs text-blue-600 hover:text-blue-800 underline mt-1" onclick="showImage('{{ Storage::url($attendance->check_in_photo) }}', 'Check-In Photo: {{ $attendance->employee->name }}')">View Photo</button>
+                        <button type="button" class="btn btn-link btn-sm p-0 text-decoration-none mt-1" onclick="showImage('{{ Storage::url($attendance->check_in_photo) }}', 'Check-In Photo: {{ $attendance->employee->name }}')">View Photo</button>
                         @endif
                     </td>
-                    <td class="px-6 py-4">
-                        <div class="font-medium text-gray-900">{{ $attendance->check_out ? \Carbon\Carbon::parse($attendance->check_out)->format('h:i A') : '--:--' }}</div>
+                    <td>
+                        <div class="fw-medium">{{ $attendance->check_out ? \Carbon\Carbon::parse($attendance->check_out)->format('h:i A') : '--:--' }}</div>
                         @if($attendance->check_out_photo)
-                        <button type="button" class="text-xs text-blue-600 hover:text-blue-800 underline mt-1" onclick="showImage('{{ Storage::url($attendance->check_out_photo) }}', 'Check-Out Photo: {{ $attendance->employee->name }}')">View Photo</button>
+                        <button type="button" class="btn btn-link btn-sm p-0 text-decoration-none mt-1" onclick="showImage('{{ Storage::url($attendance->check_out_photo) }}', 'Check-Out Photo: {{ $attendance->employee->name }}')">View Photo</button>
                         @endif
                     </td>
-                    <td class="px-6 py-4">
+                    <td>
                         @php
                         if ($attendance->check_in && $attendance->check_out) {
                             $checkIn = \Carbon\Carbon::parse($attendance->check_in);
@@ -105,57 +110,56 @@
                             $totalHours = '--:--:--';
                         }
                         @endphp
-                        <span class="font-mono text-gray-700 bg-gray-100 px-2 py-1 rounded text-xs">{{ $totalHours }}</span>
+                        <span class="badge bg-light text-dark font-monospace">{{ $totalHours }}</span>
                     </td>
-                    <td class="px-6 py-4">
+                    <td>
                         @if($attendance->attendance_type == 'normal')
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-gray-100 text-gray-700">
-                                <svg class="w-3 h-3 mr-1 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                            <span class="badge bg-light border text-dark">
+                                <i class="bi bi-geo-alt me-1 text-muted"></i>
                                 {{ $attendance->geofence->name ?? 'N/A' }}
                             </span>
                         @else
-                            <div class="flex items-center gap-2">
-                                <span class="text-orange-600 font-bold text-xs flex items-center bg-orange-50 px-2 py-1 rounded-md">
-                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path></svg>
+                            <div class="d-flex flex-column gap-1 align-items-start">
+                                <span class="badge text-bg-warning">
+                                    <i class="bi bi-cursor me-1"></i>
                                     {{ $attendance->checkin_location ?? 'Outside' }}
                                 </span>
                                 @if($attendance->reason)
-                                    <button type="button" class="px-2 py-1 bg-white text-orange-600 rounded text-xs border border-orange-200 hover:bg-orange-50 hover:border-orange-300 transition-colors shadow-sm font-medium" onclick="showReason('{{ addslashes($attendance->employee->name) }}', '{{ addslashes($attendance->checkin_location ?? 'N/A') }}', '{{ addslashes($attendance->reason) }}')" title="View Reason">
+                                    <button type="button" class="btn btn-outline-warning btn-sm py-0" onclick="showReason('{{ addslashes($attendance->employee->name) }}', '{{ addslashes($attendance->checkin_location ?? 'N/A') }}', '{{ addslashes($attendance->reason) }}')" title="View Reason">
                                         View Reason
                                     </button>
                                 @endif
                             </div>
                         @endif
                     </td>
-                    <td class="px-6 py-4 text-right">
+                    <td class="text-end">
                         @if($attendance->check_in && !$attendance->check_out)
-                        <a href="{{ route('admin.employees.track', $attendance->employee_id) }}" class="inline-flex items-center justify-center px-3 py-1.5 bg-navy text-white font-medium rounded-lg hover:bg-[#233554] transition-colors text-xs shadow-sm" title="Track Live Location">
-                            <svg class="w-3.5 h-3.5 mr-1.5 text-saffron" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
-                            Track
+                        <a href="{{ route('admin.employees.track', $attendance->employee_id) }}" class="btn btn-primary btn-sm" title="Track Live Location">
+                            <i class="bi bi-geo-fill me-1"></i> Track
                         </a>
                         @else
-                        <span class="text-xs text-gray-400 italic">Duty Completed</span>
+                        <span class="text-muted small fst-italic">Duty Completed</span>
                         @endif
                     </td>
                 </tr>
                 @endforeach
             </tbody>
         </table>
-    </div>
-    
-    <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/30">
-        {{ $recent_attendances->links() }}
-    </div>
-    @else
-    <div class="py-16 text-center">
-        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-50 text-gray-400 mb-4 shadow-sm border border-gray-100">
-            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        
+        <div class="px-4 py-3 border-top">
+            {{ $recent_attendances->links() }}
         </div>
-        <h3 class="text-lg font-bold text-navy mb-1">No Records Found</h3>
-        <p class="text-gray-500 text-sm">No attendances have been logged for today yet.</p>
-    </div>
+    @else
+        <div class="py-5 text-center">
+            <div class="d-inline-flex align-items-center justify-content-center bg-light text-muted mb-3 rounded-circle" style="width: 64px; height: 64px;">
+                <i class="bi bi-calendar-x fs-3"></i>
+            </div>
+            <h3 class="h5 fw-bold mb-1">No Records Found</h3>
+            <p class="text-muted small">No attendances have been logged for today yet.</p>
+        </div>
     @endif
-</div>
+  </div>
+</section>
 
 @push('scripts')
 <script>
@@ -165,11 +169,8 @@
             imageUrl: imageUrl,
             imageWidth: '100%',
             imageAlt: 'Attendance Photo',
-            confirmButtonColor: '#1a2639',
+            confirmButtonColor: '#0a58ca',
             confirmButtonText: 'Close',
-            customClass: {
-                title: 'text-lg font-bold text-navy',
-            }
         });
     }
 
@@ -177,24 +178,21 @@
         Swal.fire({
             title: 'Outside Justification',
             html: `
-                <div class="text-left mt-4">
-                    <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Employee</p>
-                    <p class="text-navy font-medium mb-4">${employee}</p>
+                <div class="text-start mt-4">
+                    <p class="small fw-bold text-muted text-uppercase mb-1">Employee</p>
+                    <p class="fw-medium text-primary mb-3">${employee}</p>
                     
-                    <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Location</p>
-                    <p class="text-navy font-medium mb-4">${location}</p>
+                    <p class="small fw-bold text-muted text-uppercase mb-1">Location</p>
+                    <p class="fw-medium text-primary mb-3">${location}</p>
                     
-                    <div class="p-4 bg-orange-50 border border-orange-100 rounded-xl">
-                        <p class="text-xs font-bold text-orange-700 uppercase tracking-wider mb-2 block">Reason</p>
-                        <p class="text-gray-800 italic leading-relaxed">"${reason}"</p>
+                    <div class="p-3 bg-warning bg-opacity-10 border border-warning rounded">
+                        <p class="small fw-bold text-warning text-uppercase mb-2">Reason</p>
+                        <p class="text-dark fst-italic mb-0">"${reason}"</p>
                     </div>
                 </div>
             `,
-            confirmButtonColor: '#ea580c',
+            confirmButtonColor: '#fd7e14',
             confirmButtonText: 'Close',
-            customClass: {
-                title: 'text-xl font-bold text-orange-700 border-b border-orange-100 pb-2',
-            }
         });
     }
 </script>

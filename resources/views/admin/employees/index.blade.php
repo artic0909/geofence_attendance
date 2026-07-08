@@ -2,120 +2,118 @@
 @section('header_title', 'Employees Management')
 
 @section('content')
-<div class="flex justify-between items-center mb-6">
-    <h2 class="text-2xl font-bold text-gray-800">Employees</h2>
-    <div class="flex flex-col md:flex-row items-center gap-4">
-        <!-- Search Bar -->
-        <form action="{{ route('admin.employees.index') }}" method="GET" class="w-full md:w-auto">
-            <div class="relative flex items-center bg-white border border-gray-300 rounded-xl shadow-sm hover:border-saffron focus-within:border-saffron focus-within:ring-2 focus-within:ring-saffron/20 transition-all overflow-hidden group">
-                <div class="pl-4 pr-2 py-2 text-gray-400 group-focus-within:text-navy">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                </div>
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="Search staff..." 
-                    class="w-full md:w-64 px-2 py-2.5 outline-none bg-transparent text-sm text-gray-800 placeholder-gray-400">
-                <button type="submit" class="px-4 py-2.5 bg-gray-50 text-gray-600 font-medium border-l border-gray-200 hover:bg-gray-100 hover:text-navy transition-colors text-sm">
-                    Search
-                </button>
-            </div>
-            @if(request('search'))
-                <a href="{{ route('admin.employees.index') }}" class="block mt-2 text-xs text-red-500 hover:text-red-700 font-medium">Clear search</a>
-            @endif
-        </form>
-
-        <a href="{{ route('admin.employees.create') }}" class="w-full md:w-auto flex items-center justify-center px-5 py-2.5 bg-navy text-white font-bold rounded-xl shadow-md hover:bg-[#233554] transition-all transform hover:-translate-y-0.5">
-            <svg class="w-5 h-5 mr-2 text-saffron" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-            Add Employee
-        </a>
+<div class="page-heading">
+  <div class="page-heading-copy">
+    <span class="page-icon"><i class="bi bi-people" aria-hidden="true"></i></span>
+    <div>
+      <p class="eyebrow mb-1">Human Resources</p>
+      <h1 class="h3 mb-1">Employees</h1>
+      <p class="text-muted mb-0">Manage staff members and assign them to sites.</p>
     </div>
+  </div>
+  <div class="heading-actions d-flex gap-2">
+    <form action="{{ route('admin.employees.index') }}" method="GET" class="d-flex align-items-center">
+        <div class="input-group input-group-sm me-2">
+            <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="Search staff..." class="form-control border-start-0 ps-0">
+            <button type="submit" class="btn btn-outline-secondary">Search</button>
+        </div>
+        @if(request('search'))
+            <a href="{{ route('admin.employees.index') }}" class="btn btn-link btn-sm text-danger text-decoration-none px-0">Clear</a>
+        @endif
+    </form>
+    <a href="{{ route('admin.employees.create') }}" class="btn btn-primary btn-sm d-flex align-items-center"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i> Add Employee</a>
+  </div>
 </div>
 
-<div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100">
+<section class="panel mt-3">
+  <div class="panel-header">
+    <div>
+      <h2 class="h5 mb-1 section-title"><i class="bi bi-list-ul" aria-hidden="true"></i><span>Employee Directory</span></h2>
+    </div>
+  </div>
+  <div class="table-responsive">
     @if($employees->count() > 0)
-        <table class="w-full">
-            <thead class="bg-gray-50 border-b border-gray-200">
+        <table class="table align-middle mb-0">
+            <thead>
                 <tr>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">SL</th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Name</th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Email</th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Phone</th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Employee ID</th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Dept & Desig</th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Assigned Geofences</th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Actions</th>
+                    <th scope="col">SL</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Phone</th>
+                    <th scope="col">Employee ID</th>
+                    <th scope="col">Dept & Desig</th>
+                    <th scope="col">Assigned Geofences</th>
+                    <th scope="col">Status</th>
+                    <th scope="col" class="text-end">Actions</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-100 italic-last-row">
+            <tbody>
                 @foreach($employees as $employee)
-                <tr class="hover:bg-gray-50 transition-colors">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {{ ($employees->currentPage() - 1) * $employees->perPage() + $loop->iteration }}
+                <tr>
+                    <td>{{ ($employees->currentPage() - 1) * $employees->perPage() + $loop->iteration }}</td>
+                    <td class="fw-semibold">{{ $employee->name }}</td>
+                    <td class="text-muted small">{{ $employee->email }}</td>
+                    <td>{{ $employee->phone }}</td>
+                    <td class="font-monospace text-muted small">{{ $employee->employee_id }}</td>
+                    <td>
+                        <div class="fw-bold">{{ $employee->department ? $employee->department->name : 'N/A' }}</div>
+                        <div class="text-muted small">{{ $employee->designation ? $employee->designation->name : 'N/A' }}</div>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{{ $employee->name }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ $employee->email }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ $employee->phone }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-mono">{{ $employee->employee_id }}</td>
-                    <td class="px-6 py-4">
-                        <div class="text-sm font-semibold text-gray-800">{{ $employee->department ? $employee->department->name : 'N/A' }}</div>
-                        <div class="text-xs text-gray-500">{{ $employee->designation ? $employee->designation->name : 'N/A' }}</div>
-                    </td>
-                    <td class="px-6 py-4">
+                    <td>
                         @if($employee->employeeGeofences->count() > 0)
-                            <div class="flex flex-wrap gap-1">
+                            <div class="d-flex flex-wrap gap-1">
                                 @foreach($employee->employeeGeofences as $geofence)
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
+                                    <span class="badge text-bg-light border border-primary text-primary">
                                         {{ $geofence->name }}
                                     </span>
                                 @endforeach
                             </div>
                         @else
-                            <span class="text-orange-500 text-xs italic">No Sites Assigned</span>
+                            <span class="text-warning small fst-italic">No Sites Assigned</span>
                         @endif
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="px-2 py-1 mb-1 inline-flex text-xs leading-5 font-bold rounded-full {{ $employee->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                    <td>
+                        <span class="badge {{ $employee->is_active ? 'text-bg-success' : 'text-bg-danger' }} mb-1">
                             {{ $employee->is_active ? 'Active' : 'Inactive' }}
                         </span>
                         @if($employee->phone_used_restricted)
                             <br>
-                            <span class="px-2 py-1 inline-flex text-xs leading-5 font-bold rounded-full bg-purple-100 text-purple-800">
+                            <span class="badge text-bg-secondary">
                                 Phone Restricted
                             </span>
                         @endif
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm space-x-3">
-                        <!-- <a href="{{ route('admin.employees.track', $employee) }}" target="_blank" class="text-green-600 hover:text-green-800 font-bold bg-green-50 px-2 py-1 rounded border border-green-100 italic transition-all shadow-sm">Track Live</a> -->
-                        <a href="{{ route('admin.employees.edit', $employee) }}" class="text-blue-500 hover:text-blue-700 font-medium">Edit</a>
-                        <form action="{{ route('admin.employees.destroy', $employee) }}" method="POST" class="inline">
+                    <td class="text-end text-nowrap">
+                        <a href="{{ route('admin.employees.edit', $employee) }}" class="btn btn-light btn-sm text-primary me-2"><i class="bi bi-pencil"></i> Edit</a>
+                        <form action="{{ route('admin.employees.destroy', $employee) }}" method="POST" class="d-inline">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="text-red-500 hover:text-red-700 font-medium" onclick="return confirm('Delete this employee?')">Delete</button>
+                            <button type="submit" class="btn btn-light btn-sm text-danger" onclick="return confirm('Delete this employee?')"><i class="bi bi-trash"></i> Delete</button>
                         </form>
                     </td>
                 </tr>
                 @endforeach
             </tbody>
         </table>
-
-        <!-- Pagination -->
-        <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
+        
+        <div class="px-4 py-3 border-top">
             {{ $employees->links() }}
         </div>
     @else
-        <div class="p-12 text-center">
-            <div class="mx-auto h-16 w-16 text-gray-300 mb-4">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
-                </svg>
+        <div class="p-5 text-center">
+            <div class="d-inline-flex align-items-center justify-content-center bg-light text-muted mb-3 rounded-circle" style="width: 64px; height: 64px;">
+                <i class="bi bi-people fs-3"></i>
             </div>
-            <h3 class="text-lg font-medium text-gray-900">No employees found</h3>
-            <p class="mt-1 text-sm text-gray-500">Try adjusting your search or add a new staff member.</p>
-            <div class="mt-6">
-                <a href="{{ route('admin.employees.create') }}" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
-                    Add Employee
+            <h3 class="h5 fw-bold mb-1">No employees found</h3>
+            <p class="text-muted small">Try adjusting your search or add a new staff member.</p>
+            <div class="mt-3">
+                <a href="{{ route('admin.employees.create') }}" class="btn btn-primary">
+                    <i class="bi bi-plus-lg me-1"></i> Add Employee
                 </a>
             </div>
         </div>
     @endif
-</div>
+  </div>
+</section>
 @endsection

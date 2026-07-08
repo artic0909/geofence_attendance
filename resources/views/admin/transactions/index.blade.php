@@ -2,89 +2,89 @@
 @section('header_title', 'Transactions History')
 
 @section('content')
-<div class="mb-8">
-    <h1 class="text-3xl font-bold text-gray-800">Transactions</h1>
-    <p class="text-gray-600">View all your past subscription payments and invoices.</p>
+<div class="page-heading">
+  <div class="page-heading-copy">
+    <span class="page-icon"><i class="bi bi-receipt" aria-hidden="true"></i></span>
+    <div>
+      <p class="eyebrow mb-1">Billing</p>
+      <h1 class="h3 mb-1">Transactions</h1>
+      <p class="text-muted mb-0">View all your past subscription payments and invoices.</p>
+    </div>
+  </div>
 </div>
 
-<div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-    <div class="px-6 py-5 border-b border-gray-100 bg-gray-50/50">
-        <h2 class="text-lg font-bold text-navy">Payment History</h2>
+<section class="panel mt-3">
+  <div class="panel-header">
+    <div>
+      <h2 class="h5 mb-1 section-title"><i class="bi bi-clock-history" aria-hidden="true"></i><span>Payment History</span></h2>
     </div>
+  </div>
+  
+  <div class="table-responsive">
+    @if($transactions->count() > 0)
+    <table class="table align-middle mb-0">
+        <thead>
+            <tr>
+                <th scope="col">Transaction ID</th>
+                <th scope="col">Plan</th>
+                <th scope="col">Amount</th>
+                <th scope="col">Date</th>
+                <th scope="col">Status</th>
+                <th scope="col" class="text-end">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($transactions as $transaction)
+            <tr>
+                <td>
+                    <div class="font-monospace text-muted small">{{ $transaction->razorpay_payment_id ?? $transaction->id }}</div>
+                </td>
+                <td>
+                    <div class="fw-bold text-primary">{{ $transaction->subscription->plan_name ?? $transaction->plan->name ?? 'Custom Plan' }}</div>
+                </td>
+                <td class="fw-bold">
+                    ₹{{ number_format($transaction->amount, 2) }}
+                </td>
+                <td>
+                    <div>{{ $transaction->created_at->format('M d, Y') }}</div>
+                    <div class="small text-muted">{{ $transaction->created_at->format('h:i A') }}</div>
+                </td>
+                <td>
+                    @if($transaction->status === 'successful' || $transaction->status === 'success')
+                    <span class="badge text-bg-success"><i class="bi bi-check-circle me-1"></i> Success</span>
+                    @else
+                    <span class="badge text-bg-danger"><i class="bi bi-x-circle me-1"></i> Failed</span>
+                    @endif
+                </td>
+                <td class="text-end">
+                    @if($transaction->status === 'successful' || $transaction->status === 'success')
+                    <a href="{{ route('admin.transactions.invoice', ['id' => $transaction->id, 'view' => 1]) }}" class="btn btn-light btn-sm me-1" target="_blank" title="View Invoice">
+                        <i class="bi bi-eye"></i> View
+                    </a>
+                    <a href="{{ route('admin.transactions.invoice', $transaction->id) }}" class="btn btn-primary btn-sm" title="Download Invoice">
+                        <i class="bi bi-download"></i> Download
+                    </a>
+                    @else
+                    <span class="text-muted small italic">-</span>
+                    @endif
+                </td>
+            </tr>
+            @endforeach
+        </tbody>
+    </table>
     
-    <div class="overflow-x-auto">
-        @if($transactions->count() > 0)
-        <table class="w-full text-sm text-left text-gray-600">
-            <thead class="text-xs text-gray-500 uppercase bg-gray-50/50">
-                <tr>
-                    <th scope="col" class="px-6 py-4 font-semibold tracking-wider">Transaction ID</th>
-                    <th scope="col" class="px-6 py-4 font-semibold tracking-wider">Plan</th>
-                    <th scope="col" class="px-6 py-4 font-semibold tracking-wider">Amount</th>
-                    <th scope="col" class="px-6 py-4 font-semibold tracking-wider">Date</th>
-                    <th scope="col" class="px-6 py-4 font-semibold tracking-wider">Status</th>
-                    <th scope="col" class="px-6 py-4 font-semibold tracking-wider text-right">Action</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-100">
-                @foreach($transactions as $transaction)
-                <tr class="hover:bg-gray-50/80 transition-colors">
-                    <td class="px-6 py-4">
-                        <div class="font-mono text-xs text-gray-500">{{ $transaction->razorpay_payment_id ?? $transaction->id }}</div>
-                    </td>
-                    <td class="px-6 py-4">
-                        <div class="font-bold text-navy">{{ $transaction->subscription->plan_name ?? $transaction->plan->name ?? 'Custom Plan' }}</div>
-                    </td>
-                    <td class="px-6 py-4 font-semibold text-gray-900">
-                        ₹{{ number_format($transaction->amount, 2) }}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-gray-900">{{ $transaction->created_at->format('M d, Y') }}</div>
-                        <div class="text-xs text-gray-500">{{ $transaction->created_at->format('h:i A') }}</div>
-                    </td>
-                    <td class="px-6 py-4">
-                        @if($transaction->status === 'successful' || $transaction->status === 'success')
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700 border border-green-100">
-                            <span class="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5"></span>
-                            Success
-                        </span>
-                        @else
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-50 text-red-700 border border-red-100">
-                            <span class="w-1.5 h-1.5 rounded-full bg-red-500 mr-1.5"></span>
-                            Failed
-                        </span>
-                        @endif
-                    </td>
-                    <td class="px-6 py-4 text-right space-x-2 whitespace-nowrap">
-                        @if($transaction->status === 'successful' || $transaction->status === 'success')
-                        <a href="{{ route('admin.transactions.invoice', ['id' => $transaction->id, 'view' => 1]) }}" class="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 transition-colors" target="_blank" title="View Invoice">
-                            <svg class="w-4 h-4 mr-1.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                            View
-                        </a>
-                        <a href="{{ route('admin.transactions.invoice', $transaction->id) }}" class="inline-flex items-center px-3 py-1.5 border border-transparent shadow-sm text-xs font-medium rounded text-white bg-navy hover:bg-[#233554] transition-colors" title="Download Invoice">
-                            <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                            Download
-                        </a>
-                        @else
-                        <span class="text-gray-400 text-xs italic">-</span>
-                        @endif
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
-        
-        <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/30">
-            {{ $transactions->links() }}
-        </div>
-        @else
-        <div class="py-16 text-center">
-            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-50 text-gray-400 mb-4 shadow-sm border border-gray-100">
-                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
-            </div>
-            <h3 class="text-lg font-bold text-navy mb-1">No Transactions Found</h3>
-            <p class="text-gray-500 text-sm">You haven't made any payments yet.</p>
-        </div>
-        @endif
+    <div class="px-4 py-3 border-top">
+        {{ $transactions->links() }}
     </div>
-</div>
+    @else
+    <div class="py-5 text-center">
+        <div class="d-inline-flex align-items-center justify-content-center bg-light text-muted mb-3 rounded-circle" style="width: 64px; height: 64px;">
+            <i class="bi bi-receipt fs-3"></i>
+        </div>
+        <h3 class="h5 fw-bold mb-1">No Transactions Found</h3>
+        <p class="text-muted small">You haven't made any payments yet.</p>
+    </div>
+    @endif
+  </div>
+</section>
 @endsection

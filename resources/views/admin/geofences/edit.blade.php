@@ -2,112 +2,115 @@
 @section('header_title', 'Edit Site (Geofence)')
 
 @section('content')
-<div class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+<div class="page-heading">
+  <div class="page-heading-copy">
+    <span class="page-icon"><i class="bi bi-pencil-square" aria-hidden="true"></i></span>
     <div>
-        <h1 class="text-3xl font-bold text-gray-800">Edit Site</h1>
-        <p class="text-gray-600 mt-1">Update geographical boundaries and details.</p>
+      <p class="eyebrow mb-1">Locations</p>
+      <h1 class="h3 mb-1">Edit Site</h1>
+      <p class="text-muted mb-0">Update geographical boundaries and details.</p>
     </div>
-    <a href="{{ route('admin.geofences.index') }}" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
-        <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-        Back to Sites
-    </a>
+  </div>
+  <div class="heading-actions">
+    <a href="{{ route('admin.geofences.index') }}" class="btn btn-light btn-sm"><i class="bi bi-arrow-left"></i> Back to Sites</a>
+  </div>
 </div>
 
-<form action="{{ route('admin.geofences.update', $geofence) }}" method="POST" class="space-y-8 max-w-4xl validate-form">
+<form action="{{ route('admin.geofences.update', $geofence) }}" method="POST" class="validate-form mt-4">
     @csrf
     @method('PUT')
-    
     <input type="hidden" name="admin_id" value="{{ auth()->user()->id }}">
 
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <div class="px-8 py-6 border-b border-gray-100 bg-gray-50/50">
-            <h2 class="text-xl font-bold text-navy">Site Details</h2>
+    <section class="panel mb-4">
+        <div class="panel-header">
+            <div>
+                <h2 class="h5 mb-1 section-title"><i class="bi bi-info-circle" aria-hidden="true"></i><span>Site Details</span></h2>
+            </div>
         </div>
-        <div class="p-8">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="md:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700 mb-1" for="name">Site Name <span class="text-red-500">*</span></label>
-                    <input type="text" name="name" id="name" data-rule-required="true" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-saffron focus:border-saffron outline-none transition-all" value="{{ old('name', $geofence->name) }}">
-                    @error('name')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+        <div class="panel-body p-4">
+            <div class="row g-4">
+                <div class="col-12">
+                    <label for="name" class="form-label fw-bold">Site Name <span class="text-danger">*</span></label>
+                    <input type="text" name="name" id="name" data-rule-required="true" class="form-control" value="{{ old('name', $geofence->name) }}">
+                    @error('name')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
                 </div>
 
-                <div class="md:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700 mb-1" for="address">Full Address <span class="text-red-500">*</span></label>
-                    <textarea name="address" id="address" data-rule-required="true" rows="3" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-saffron focus:border-saffron outline-none transition-all">{{ old('address', $geofence->address) }}</textarea>
-                    @error('address')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                <div class="col-12">
+                    <label for="address" class="form-label fw-bold">Full Address <span class="text-danger">*</span></label>
+                    <textarea name="address" id="address" data-rule-required="true" rows="3" class="form-control">{{ old('address', $geofence->address) }}</textarea>
+                    @error('address')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
                 </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1" for="latitude">Latitude <span class="text-red-500">*</span></label>
-                    <input type="text" name="latitude" id="latitude" data-rule-required="true" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-saffron focus:border-saffron outline-none transition-all font-mono text-sm" value="{{ old('latitude', $geofence->latitude) }}">
-                    @error('latitude')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                <div class="col-md-6">
+                    <label for="latitude" class="form-label fw-bold">Latitude <span class="text-danger">*</span></label>
+                    <input type="text" name="latitude" id="latitude" data-rule-required="true" class="form-control font-monospace" value="{{ old('latitude', $geofence->latitude) }}">
+                    @error('latitude')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
                 </div>
                 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1" for="longitude">Longitude <span class="text-red-500">*</span></label>
-                    <input type="text" name="longitude" id="longitude" data-rule-required="true" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-saffron focus:border-saffron outline-none transition-all font-mono text-sm" value="{{ old('longitude', $geofence->longitude) }}">
-                    @error('longitude')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                <div class="col-md-6">
+                    <label for="longitude" class="form-label fw-bold">Longitude <span class="text-danger">*</span></label>
+                    <input type="text" name="longitude" id="longitude" data-rule-required="true" class="form-control font-monospace" value="{{ old('longitude', $geofence->longitude) }}">
+                    @error('longitude')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
                 </div>
                 
-                <div class="md:col-span-2 bg-blue-50 border border-blue-100 rounded-xl p-4 flex gap-3">
-                    <svg class="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    <div>
-                        <h4 class="text-sm font-bold text-blue-800">How to get coordinates</h4>
-                        <ol class="list-decimal list-inside text-sm text-blue-700 mt-1 space-y-1">
-                            <li>Open <a href="https://www.google.com/maps" target="_blank" class="font-bold underline hover:text-blue-900">Google Maps</a></li>
-                            <li>Right-click on your exact location</li>
-                            <li>Click on the coordinates at the top to copy them</li>
-                        </ol>
+                <div class="col-12">
+                    <div class="alert alert-info d-flex align-items-center mb-0 mt-2" role="alert">
+                        <i class="bi bi-info-circle-fill me-3 fs-4"></i>
+                        <div>
+                            <h4 class="alert-heading h6 fw-bold mb-1">How to get coordinates</h4>
+                            <ol class="mb-0 small ps-3">
+                                <li>Open <a href="https://www.google.com/maps" target="_blank" class="fw-bold text-decoration-none">Google Maps</a></li>
+                                <li>Right-click on your exact location</li>
+                                <li>Click on the coordinates at the top to copy them</li>
+                            </ol>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
 
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <div class="px-8 py-6 border-b border-gray-100 bg-gray-50/50">
-            <h2 class="text-xl font-bold text-navy">Site Parameters</h2>
+    <section class="panel mb-4">
+        <div class="panel-header">
+            <div>
+                <h2 class="h5 mb-1 section-title"><i class="bi bi-sliders" aria-hidden="true"></i><span>Site Parameters</span></h2>
+            </div>
         </div>
-        <div class="p-8">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1" for="radius">Check-in Radius (meters) <span class="text-red-500">*</span></label>
-                    <div class="relative">
-                        <input type="number" name="radius" id="radius" data-rule-required="true" min="50" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-saffron focus:border-saffron outline-none transition-all pr-12" value="{{ old('radius', $geofence->radius) }}">
-                        <span class="absolute right-4 top-2.5 text-gray-400 font-medium">m</span>
+        <div class="panel-body p-4">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <label for="radius" class="form-label fw-bold">Check-in Radius (meters) <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <input type="number" name="radius" id="radius" data-rule-required="true" min="50" class="form-control" value="{{ old('radius', $geofence->radius) }}">
+                        <span class="input-group-text">m</span>
                     </div>
-                    <p class="text-xs text-gray-500 mt-1">The maximum distance allowed from the center to check in.</p>
-                    @error('radius')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                    <div class="form-text">The maximum distance allowed from the center to check in.</div>
+                    @error('radius')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
                 </div>
                 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1" for="tracking_radius">Tracking Radius (Optional)</label>
-                    <div class="relative">
-                        <input type="number" name="tracking_radius" id="tracking_radius" min="0" placeholder="e.g. 500" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-saffron focus:border-saffron outline-none transition-all pr-12" value="{{ old('tracking_radius', $geofence->tracking_radius) }}">
-                        <span class="absolute right-4 top-2.5 text-gray-400 font-medium">m</span>
+                <div class="col-md-6">
+                    <label for="tracking_radius" class="form-label fw-bold">Tracking Radius (Optional)</label>
+                    <div class="input-group">
+                        <input type="number" name="tracking_radius" id="tracking_radius" min="0" placeholder="e.g. 500" class="form-control" value="{{ old('tracking_radius', $geofence->tracking_radius) }}">
+                        <span class="input-group-text">m</span>
                     </div>
-                    <p class="text-xs text-gray-500 mt-1">Leave empty if outside tracking is disabled.</p>
-                    @error('tracking_radius')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                    <div class="form-text">Leave empty if outside tracking is disabled.</div>
+                    @error('tracking_radius')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                </div>
+                
+                <div class="col-12 mt-4 pt-3 border-top">
+                    <div class="form-check form-switch form-check-lg d-flex align-items-center">
+                        <input class="form-check-input fs-4 mt-0 me-3" type="checkbox" role="switch" name="is_active" id="is_active" value="1" {{ old('is_active', $geofence->is_active) ? 'checked' : '' }}>
+                        <label class="form-check-label fw-bold" for="is_active">Site is Active</label>
+                    </div>
                 </div>
             </div>
-
-            <div class="mt-8 pt-6 border-t border-gray-100">
-                <label class="flex items-center cursor-pointer">
-                    <input type="checkbox" name="is_active" value="1" {{ old('is_active', $geofence->is_active) ? 'checked' : '' }} class="w-5 h-5 rounded border-gray-300 text-navy focus:ring focus:ring-navy focus:ring-opacity-20">
-                    <span class="ml-3 text-sm font-bold text-gray-700">Site is Active</span>
-                </label>
-            </div>
         </div>
-    </div>
+    </section>
 
-    <div class="flex justify-end pt-2 pb-16 space-x-4">
-        <a href="{{ route('admin.geofences.index') }}" class="px-6 py-3 bg-white text-gray-700 border border-gray-300 font-bold rounded-xl shadow-sm hover:bg-gray-50 transition-all duration-300">
-            Cancel
-        </a>
-        <button type="submit" class="px-8 py-3 bg-navy text-white font-bold rounded-xl shadow-lg hover:bg-[#233554] transition-all duration-300 transform hover:-translate-y-1 flex items-center">
-            <svg class="w-5 h-5 mr-2 text-saffron" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-            Update Geofence
-        </button>
+    <div class="d-flex justify-content-end pb-5 gap-2">
+        <a href="{{ route('admin.geofences.index') }}" class="btn btn-light btn-lg px-4">Cancel</a>
+        <button type="submit" class="btn btn-primary btn-lg px-5 shadow"><i class="bi bi-check2-circle me-2"></i> Update Geofence</button>
     </div>
 </form>
 @endsection
