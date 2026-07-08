@@ -98,6 +98,7 @@
     <table class="table align-middle mb-0">
         <thead>
             <tr>
+                <th scope="col">SL</th>
                 <th scope="col">Type</th>
                 <th scope="col">Employee Name</th>
                 <th scope="col">Date</th>
@@ -110,6 +111,7 @@
         <tbody>
             @foreach($attendances as $attendance)
             <tr class="{{ $attendance->is_auto_checkout_trap ? 'table-danger' : '' }}">
+                <td>{{ $loop->iteration }}</td>
                 <td>
                     <span class="badge {{ $attendance->attendance_type == 'outside' ? 'text-bg-warning' : 'text-bg-success' }}">
                         {{ ucfirst($attendance->attendance_type) }}

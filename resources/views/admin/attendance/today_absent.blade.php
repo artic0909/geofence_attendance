@@ -34,6 +34,7 @@
         <table class="table align-middle mb-0">
             <thead>
                 <tr>
+                    <th scope="col">SL</th>
                     <th scope="col">Employee</th>
                     <th scope="col">Contact</th>
                     <th scope="col">Assigned Sites</th>
@@ -43,6 +44,7 @@
             <tbody>
                 @foreach($pending_employees as $employee)
                 <tr>
+                    <td>{{ ($pending_employees->currentPage() - 1) * $pending_employees->perPage() + $loop->iteration }}</td>
                     <td>
                         <div class="fw-bold text-primary">{{ $employee->name }}</div>
                         <div class="small text-muted mt-1">ID: {{ $employee->employee_id ?? 'N/A' }}</div>

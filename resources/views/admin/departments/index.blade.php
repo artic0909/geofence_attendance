@@ -27,7 +27,7 @@
         <table class="table align-middle mb-0">
             <thead>
                 <tr>
-                    <th scope="col">ID</th>
+                    <th scope="col">SL</th>
                     <th scope="col">Name</th>
                     <th scope="col" class="text-end">Actions</th>
                 </tr>
@@ -35,7 +35,7 @@
             <tbody>
                 @foreach($departments as $department)
                 <tr>
-                    <td>{{ $department->id }}</td>
+                    <td>{{ ($departments->currentPage() - 1) * $departments->perPage() + $loop->iteration }}</td>
                     <td class="fw-semibold">{{ $department->name }}</td>
                     <td class="text-end">
                         <a href="{{ route('admin.departments.edit', $department) }}" class="btn btn-light btn-sm text-primary me-2"><i class="bi bi-pencil"></i> Edit</a>

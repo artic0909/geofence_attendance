@@ -25,6 +25,7 @@
     <table class="table align-middle mb-0">
         <thead>
             <tr>
+                <th scope="col">SL</th>
                 <th scope="col">Transaction ID</th>
                 <th scope="col">Plan</th>
                 <th scope="col">Amount</th>
@@ -36,6 +37,7 @@
         <tbody>
             @foreach($transactions as $transaction)
             <tr>
+                <td>{{ ($transactions->currentPage() - 1) * $transactions->perPage() + $loop->iteration }}</td>
                 <td>
                     <div class="font-monospace text-muted small">{{ $transaction->razorpay_payment_id ?? $transaction->id }}</div>
                 </td>

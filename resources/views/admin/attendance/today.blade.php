@@ -60,6 +60,7 @@
         <table class="table align-middle mb-0">
             <thead>
                 <tr>
+                    <th scope="col">SL</th>
                     <th scope="col">Type</th>
                     <th scope="col">Employee</th>
                     <th scope="col">Check In</th>
@@ -72,6 +73,7 @@
             <tbody>
                 @foreach($recent_attendances as $attendance)
                 <tr class="{{ $attendance->is_auto_checkout_trap ? 'table-danger' : '' }}">
+                    <td>{{ ($recent_attendances->currentPage() - 1) * $recent_attendances->perPage() + $loop->iteration }}</td>
                     <td>
                         <span class="badge {{ $attendance->attendance_type == 'outside' ? 'text-bg-warning' : 'text-bg-success' }}">
                             {{ ucfirst($attendance->attendance_type) }}
