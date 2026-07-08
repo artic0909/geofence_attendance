@@ -74,7 +74,7 @@
           </span>
           <span class="brand-copy">
             <span class="brand-title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px;">{{ auth()->user()->business_name }}</span>
-            <span class="brand-subtitle">Attendance System</span>
+            <span class="brand-subtitle">Geofence Attendance</span>
           </span>
         </a>
       </div>
@@ -122,7 +122,6 @@
         <div class="avatar-img avatar-md sidebar-user-avatar bg-primary text-white d-flex align-items-center justify-content-center fw-bold rounded-circle">
             {{ auth()->user()->initials() ?? 'US' }}
         </div>
-        <strong>{{ auth()->user()->name ?? 'Admin' }}</strong>
         <small style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px; display: inline-block;">{{ auth()->user()->email ?? 'admin@example.com' }}</small>
       </div>
 
@@ -155,7 +154,6 @@
                 <div class="avatar-img avatar-sm bg-primary text-white d-flex align-items-center justify-content-center fw-bold rounded-circle">
                     {{ auth()->user()->initials() ?? 'US' }}
                 </div>
-                <span class="profile-name d-none d-sm-inline">{{ auth()->user()->name ?? 'Admin' }}</span>
               </button>
               <ul class="dropdown-menu dropdown-menu-end">
                 <li><a class="dropdown-item" href="{{ route('admin.settings.index') }}">Settings</a></li>
@@ -180,8 +178,8 @@
 
       <footer class="admin-footer mt-auto">
         <div class="container-fluid px-3 px-lg-4">
-          <span>Copyright {{ date('Y') }} {{ auth()->user()->business_name }}.</span>
-          <span>Geofence Attendance System</span>
+          <span>Copyright {{ date('Y') }} Sumatra Sales Private Limited.</span>
+          <span>Smart Geofence Attendance</span>
         </div>
       </footer>
     </div>
