@@ -141,10 +141,28 @@
                 <p class="mt-4 text-gray-600 max-w-3xl mx-auto">Scale at your own pace with our flexible multi-tenant SaaS plans, or take complete ownership with a Lifetime License.</p>
             </div>
             
-            <!-- Standard Plan Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16 max-w-6xl mx-auto">
-                @foreach($plans as $plan)
-                <div class="bg-white rounded-2xl shadow-xl overflow-hidden border {{ $plan->is_trial ? 'border-gray-200' : 'border-saffron' }} flex flex-col hover:-translate-y-2 transition-transform duration-300">
+            <!-- Standard Plan Cards Carousel -->
+            <div class="relative max-w-7xl mx-auto mb-16 px-4 sm:px-12">
+                
+                <!-- Slide Instruction (Mobile & Desktop) -->
+                <div class="flex justify-end mb-3">
+                    <span class="inline-block bg-saffron text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-md animate-pulse whitespace-nowrap">
+                        &larr; Slide to show &rarr;
+                    </span>
+                </div>
+
+                <!-- Left Button -->
+                <button onclick="document.getElementById('plans-carousel').scrollBy({left: -350, behavior: 'smooth'})" 
+                        class="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-lg rounded-full w-12 h-12 flex items-center justify-center text-navy hover:bg-navy hover:text-white transition-colors border border-gray-100 hidden md:flex focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                </button>
+                
+                <div id="plans-carousel" class="flex overflow-x-auto gap-8 pb-8 pt-4 snap-x snap-mandatory hide-scrollbar" style="scroll-snap-type: x mandatory; scrollbar-width: none; -ms-overflow-style: none;">
+                    <style>
+                        .hide-scrollbar::-webkit-scrollbar { display: none; }
+                    </style>
+                    @foreach($plans as $plan)
+                    <div class="min-w-[300px] max-w-[350px] w-full flex-none snap-center bg-white rounded-2xl shadow-xl overflow-hidden border {{ $plan->is_trial ? 'border-gray-200' : 'border-saffron' }} flex flex-col hover:-translate-y-2 transition-transform duration-300">
                     <div class="p-8 {{ $plan->is_trial ? 'bg-gray-50 text-gray-800' : 'bg-navy text-white' }} text-center">
                         <h4 class="text-2xl font-bold mb-2">{{ $plan->name }}</h4>
                         <div class="text-sm {{ $plan->is_trial ? 'text-gray-500' : 'text-gray-300' }} mb-4">{{ $plan->duration_days }} Days Access</div>
@@ -178,7 +196,14 @@
                         @endif
                     </div>
                 </div>
-                @endforeach
+                    @endforeach
+                </div>
+                
+                <!-- Right Button -->
+                <button onclick="document.getElementById('plans-carousel').scrollBy({left: 350, behavior: 'smooth'})" 
+                        class="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-lg rounded-full w-12 h-12 flex items-center justify-center text-navy hover:bg-navy hover:text-white transition-colors border border-gray-100 hidden md:flex focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                </button>
             </div>
             
             <!-- Custom Plan Calculator -->
