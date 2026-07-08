@@ -32,6 +32,10 @@ Route::prefix('superadmin')->name('superadmin.')->group(function () {
 });
 
 // Auth Routes
+Route::get("/password/reset", [App\Http\Controllers\Auth\ForgotPasswordController::class, "showLinkRequestForm"])->name("password.request");
+Route::post("/password/email", [App\Http\Controllers\Auth\ForgotPasswordController::class, "sendOtp"])->name("password.email");
+Route::post("/password/verify-otp", [App\Http\Controllers\Auth\ForgotPasswordController::class, "verifyOtp"])->name("password.verify");
+Route::post("/password/reset", [App\Http\Controllers\Auth\ForgotPasswordController::class, "resetPassword"])->name("password.update");
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
 Route::post('/login', [LoginController::class, 'login'])->name('login.submit');

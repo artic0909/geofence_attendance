@@ -40,7 +40,7 @@
                     <div>
                         <div class="flex justify-between items-center mb-1">
                             <label for="password" class="block text-sm font-semibold text-gray-700">Password</label>
-                            <a href="#" class="text-xs font-semibold text-saffron hover:text-orange-600 transition-colors">Forgot Password?</a>
+                            <a href="{{ route('password.request') }}" class="text-xs font-semibold text-saffron hover:text-orange-600 transition-colors">Forgot Password?</a>
                         </div>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
