@@ -2,132 +2,113 @@
 @section('header_title', 'Dashboard')
 
 @section('content')
+<div class="page-heading">
+  <div class="page-heading-copy">
+    <span class="page-icon"><i class="bi bi-speedometer2" aria-hidden="true"></i></span>
+    <div>
+      <p class="eyebrow mb-1">Overview</p>
+      <h1 class="h3 mb-1">Dashboard</h1>
+      <p class="text-muted mb-0">Monitor your organization's attendance and statistics.</p>
+    </div>
+  </div>
+</div>
 
 <!-- Subscription Status Banner -->
-<div class="bg-gradient-to-r from-navy via-[#233554] to-navy rounded-2xl shadow-xl border border-white/10 mb-8 overflow-hidden relative">
-    <!-- Decorative background circle -->
-    <div class="absolute -right-16 -top-24 w-64 h-64 rounded-full bg-saffron/10 blur-3xl"></div>
-    <div class="absolute right-32 -bottom-24 w-48 h-48 rounded-full bg-white/5 blur-2xl"></div>
-
-    <div class="p-8 md:flex md:items-center md:justify-between relative z-10">
-        <div class="text-white">
-            <h3 class="text-3xl font-extrabold tracking-tight mb-2">
-                {{ auth()->user()->business_name }}
-            </h3>
-            <p class="text-gray-300 flex items-center text-sm md:text-base">
-                <span class="inline-block w-2 h-2 rounded-full {{ auth()->user()->subscription_status === 'active' ? 'bg-green-400 shadow-[0_0_8px_#4ade80]' : 'bg-red-500 shadow-[0_0_8px_#ef4444]' }} mr-2"></span>
+<div class="panel border-primary border-top border-4 mb-4">
+    <div class="panel-body d-md-flex align-items-center justify-content-between p-4">
+        <div>
+            <h3 class="h4 fw-bold mb-2">{{ auth()->user()->business_name }}</h3>
+            <p class="text-muted mb-0 d-flex align-items-center">
+                <span class="status-dot {{ auth()->user()->subscription_status === 'active' ? 'bg-success' : 'bg-danger' }} me-2"></span>
                 Subscription Status: 
-                <span class="font-bold ml-1 uppercase tracking-wider {{ auth()->user()->subscription_status === 'active' ? 'text-green-400' : 'text-red-400' }}">
+                <strong class="ms-1 text-uppercase {{ auth()->user()->subscription_status === 'active' ? 'text-success' : 'text-danger' }}">
                     {{ auth()->user()->subscription_status ?? 'Inactive' }}
-                </span>
+                </strong>
             </p>
         </div>
-        
-        <div class="mt-6 md:mt-0 flex flex-col md:items-end text-white">
-            <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-xl px-6 py-4 flex gap-8 shadow-inner">
-                <div>
-                    <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold mb-1">Current Plan</p>
-                    <p class="font-bold text-xl text-saffron">{{ $current_plan->plan_name ?? 'Free / Trial' }}</p>
-                </div>
-                <div>
-                    <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold mb-1">Expires On</p>
-                    <p class="font-bold text-xl">
-                        {{ auth()->user()->subscription_expires_at ? \Carbon\Carbon::parse(auth()->user()->subscription_expires_at)->format('M d, Y') : 'N/A' }}
-                    </p>
-                </div>
+        <div class="mt-3 mt-md-0 d-flex gap-4">
+            <div>
+                <p class="text-muted small text-uppercase fw-bold mb-1">Current Plan</p>
+                <p class="fw-bold h5 text-primary mb-0">{{ $current_plan->plan_name ?? 'Free / Trial' }}</p>
+            </div>
+            <div>
+                <p class="text-muted small text-uppercase fw-bold mb-1">Expires On</p>
+                <p class="fw-bold h5 mb-0">
+                    {{ auth()->user()->subscription_expires_at ? \Carbon\Carbon::parse(auth()->user()->subscription_expires_at)->format('M d, Y') : 'N/A' }}
+                </p>
             </div>
             @if(auth()->user()->subscription_status !== 'active')
-                <a href="{{ route('pricing') }}" class="mt-4 inline-flex items-center text-sm font-bold text-navy bg-saffron hover:bg-saffron-hover px-5 py-2 rounded-lg transition-colors shadow-lg">
-                    Renew Subscription <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                </a>
+            <div class="ms-3 d-flex align-items-center">
+                <a href="{{ route('pricing') }}" class="btn btn-warning fw-bold">Renew Subscription</a>
+            </div>
             @endif
         </div>
     </div>
-
-    <!-- Subscription Progress Bar -->
     @if(!$subscription['is_expired'])
-    <div class="px-8 pb-6 relative z-10">
-        <div class="flex justify-between text-xs text-gray-300 mb-1 font-semibold">
+    <div class="px-4 pb-4">
+        <div class="d-flex justify-content-between small text-muted fw-bold mb-1">
             <span>Subscription Progress</span>
             <span>{{ $subscription['days_left'] }} Days Left</span>
         </div>
-        <div class="w-full bg-white/20 rounded-full h-2.5 overflow-hidden">
-            <div class="h-2.5 rounded-full transition-all duration-500 
-                {{ $subscription['percentage'] > 90 ? 'bg-red-500' : ($subscription['percentage'] > 70 ? 'bg-orange-400' : 'bg-green-400') }}" 
-                style="width: {{ $subscription['percentage'] }}%">
-            </div>
+        <div class="progress" style="height: 10px;">
+            <div class="progress-bar {{ $subscription['percentage'] > 90 ? 'bg-danger' : ($subscription['percentage'] > 70 ? 'bg-warning' : 'bg-success') }}" role="progressbar" style="width: {{ $subscription['percentage'] }}%" aria-valuenow="{{ $subscription['percentage'] }}" aria-valuemin="0" aria-valuemax="100"></div>
         </div>
     </div>
     @endif
 </div>
 
 <!-- Stats Grid -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-    <!-- Card 1: Total Employees -->
-    <div class="bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-300 p-6 border border-gray-100 group">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-sm font-medium text-gray-500 mb-1">Total Employees</p>
-                <h3 class="text-3xl font-bold text-navy">{{ $stats['total_employees'] }}</h3>
-            </div>
-            <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                </svg>
-            </div>
-        </div>
-    </div>
+<section class="row g-3 mt-1 mb-4" aria-label="Dashboard metrics">
+  <div class="col-12 col-sm-6 col-xl-3">
+    <article class="metric-card metric-primary">
+      <div class="metric-top">
+        <span class="metric-label">Total Employees</span>
+        <span class="metric-icon"><i class="bi bi-people" aria-hidden="true"></i></span>
+      </div>
+      <div class="metric-value">{{ $stats['total_employees'] }}</div>
+    </article>
+  </div>
 
-    <!-- Card 2: Today's Check-ins -->
-    <div class="bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-300 p-6 border border-gray-100 group">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-sm font-medium text-gray-500 mb-1">Today's Check-ins</p>
-                <h3 class="text-3xl font-bold text-navy">{{ $stats['today_attendances'] }}</h3>
-            </div>
-            <div class="w-12 h-12 rounded-xl bg-green-50 text-green-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-            </div>
-        </div>
-    </div>
+  <div class="col-12 col-sm-6 col-xl-3">
+    <article class="metric-card metric-success">
+      <div class="metric-top">
+        <span class="metric-label">Today's Check-ins</span>
+        <span class="metric-icon"><i class="bi bi-calendar-check" aria-hidden="true"></i></span>
+      </div>
+      <div class="metric-value">{{ $stats['today_attendances'] }}</div>
+    </article>
+  </div>
 
-    <!-- Card 3: Today's Absents -->
-    <div class="bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-300 p-6 border border-gray-100 group">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-sm font-medium text-gray-500 mb-1">Today's Absents</p>
-                <h3 class="text-3xl font-bold text-navy">{{ $stats['today_absents'] }}</h3>
-            </div>
-            <div class="w-12 h-12 rounded-xl bg-red-50 text-red-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-            </div>
-        </div>
-    </div>
+  <div class="col-12 col-sm-6 col-xl-3">
+    <article class="metric-card metric-danger">
+      <div class="metric-top">
+        <span class="metric-label">Today's Absents</span>
+        <span class="metric-icon"><i class="bi bi-calendar-x" aria-hidden="true"></i></span>
+      </div>
+      <div class="metric-value">{{ $stats['today_absents'] }}</div>
+    </article>
+  </div>
 
-    <!-- Card 4: Total Payments -->
-    <div class="bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-300 p-6 border border-gray-100 group">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-sm font-medium text-gray-500 mb-1">Total Payments</p>
-                <h3 class="text-3xl font-bold text-navy">₹{{ number_format($stats['total_payments'], 2) }}</h3>
-            </div>
-            <div class="w-12 h-12 rounded-xl bg-saffron/20 text-saffron flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-            </div>
-        </div>
-    </div>
-</div>
+  <div class="col-12 col-sm-6 col-xl-3">
+    <article class="metric-card metric-warning">
+      <div class="metric-top">
+        <span class="metric-label">Total Payments</span>
+        <span class="metric-icon"><i class="bi bi-currency-dollar" aria-hidden="true"></i></span>
+      </div>
+      <div class="metric-value">₹{{ number_format($stats['total_payments'], 2) }}</div>
+    </article>
+  </div>
+</section>
 
 <!-- Charts Section -->
-<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8">
-    <h3 class="text-lg font-bold text-navy mb-4">7-Day Attendance Trend</h3>
-    <div class="relative h-72">
+<div class="panel">
+    <div class="panel-header">
+        <div>
+            <h2 class="h5 mb-1 section-title"><i class="bi bi-graph-up" aria-hidden="true"></i><span>7-Day Attendance Trend</span></h2>
+            <p class="text-muted mb-0">Overview of employees presence over the last 7 days.</p>
+        </div>
+    </div>
+    <div class="panel-body p-4" style="height: 350px;">
         <canvas id="attendanceChart"></canvas>
     </div>
 </div>
@@ -145,7 +126,7 @@
                     {
                         label: 'Total Employees',
                         data: @json($stats['chart_totals']),
-                        borderColor: '#9ca3af', // gray-400
+                        borderColor: '#9ca3af',
                         backgroundColor: 'transparent',
                         borderWidth: 2,
                         borderDash: [5, 5],
@@ -158,12 +139,12 @@
                     {
                         label: 'Present',
                         data: @json($stats['chart_presents']),
-                        borderColor: '#4ade80', // green-400
-                        backgroundColor: 'rgba(74, 222, 128, 0.1)',
+                        borderColor: '#198754', // Bootstrap success
+                        backgroundColor: 'rgba(25, 135, 84, 0.1)',
                         borderWidth: 3,
                         fill: true,
                         tension: 0.4,
-                        pointBackgroundColor: '#166534',
+                        pointBackgroundColor: '#146c43',
                         pointBorderColor: '#fff',
                         pointBorderWidth: 2,
                         pointRadius: 5,
@@ -172,12 +153,12 @@
                     {
                         label: 'Absent',
                         data: @json($stats['chart_absents']),
-                        borderColor: '#f87171', // red-400
-                        backgroundColor: 'rgba(248, 113, 113, 0.1)',
+                        borderColor: '#dc3545', // Bootstrap danger
+                        backgroundColor: 'rgba(220, 53, 69, 0.1)',
                         borderWidth: 3,
                         fill: true,
                         tension: 0.4,
-                        pointBackgroundColor: '#991b1b',
+                        pointBackgroundColor: '#b02a37',
                         pointBorderColor: '#fff',
                         pointBorderWidth: 2,
                         pointRadius: 5,
@@ -195,7 +176,7 @@
                         labels: { usePointStyle: true, boxWidth: 8 }
                     },
                     tooltip: {
-                        backgroundColor: '#1a2639',
+                        backgroundColor: '#212529',
                         titleColor: '#fff',
                         bodyColor: '#fff',
                         padding: 10,
@@ -206,11 +187,11 @@
                 scales: {
                     y: { 
                         beginAtZero: true,
-                        ticks: { stepSize: 1, color: '#6b7280' },
-                        grid: { color: '#f3f4f6', drawBorder: false }
+                        ticks: { stepSize: 1, color: '#6c757d' },
+                        grid: { color: '#f8f9fa', drawBorder: false }
                     },
                     x: {
-                        ticks: { color: '#6b7280' },
+                        ticks: { color: '#6c757d' },
                         grid: { display: false, drawBorder: false }
                     }
                 },
@@ -223,5 +204,4 @@
     });
 </script>
 @endpush
-
 @endsection
