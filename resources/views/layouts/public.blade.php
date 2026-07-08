@@ -66,7 +66,7 @@
                 </a>
                 <div class="sm:border-l-2 sm:border-gray-300 sm:pl-4">
                     <h1 class="text-xl md:text-3xl font-bold text-navy uppercase tracking-wide"><a href="{{ url('/') }}">Geofence Attendance Portal</a></h1>
-                    <p class="text-sm md:text-base text-gray-600 font-medium mt-1 sm:mt-0">Centralized Workforce Management</p>
+                    <p class="text-sm md:text-base text-gray-600 font-medium mt-1 sm:mt-0">PROJECT ATTENDANCE</p>
                 </div>
             </div>
             
@@ -120,14 +120,14 @@
                     </div>
                     <div>
                         <p class="font-bold text-xl md:text-2xl">Geofence Attendance Portal</p>
-                        <p class="text-sm md:text-base text-saffron font-medium mt-1 sm:mt-0">Digital Compliance Initiative</p>
+                        <p class="text-sm md:text-base text-saffron font-medium mt-1 sm:mt-0">PROJECT ATTENDANCE</p>
                     </div>
                 </div>
                 <div class="grid grid-cols-2 sm:flex sm:space-x-8 text-sm text-gray-300 gap-y-4">
+                    <a href="{{ url('/about') }}" class="hover:text-white hover:underline transition">Aboutus</a>
+                    <a href="{{ url('/industries') }}" class="hover:text-white hover:underline transition">Industries</a>
                     <a href="{{ url('/terms') }}" class="hover:text-white hover:underline transition">Terms & Conditions</a>
                     <a href="{{ url('/privacy-policy') }}" class="hover:text-white hover:underline transition">Privacy Policy</a>
-                    <a href="#" class="hover:text-white hover:underline transition">Copyright Policy</a>
-                    <a href="#" class="hover:text-white hover:underline transition">Disclaimer</a>
                 </div>
             </div>
             
