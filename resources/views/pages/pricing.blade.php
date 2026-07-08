@@ -268,7 +268,7 @@
                     </div>
                 </div>
             </div>
-            <a href="#" class="inline-block bg-navy text-white px-10 py-4 rounded text-xl font-bold shadow hover:bg-blue-800 transition">Contact Sales for Quote</a>
+            <a href="/contact" class="inline-block bg-navy text-white px-10 py-4 rounded text-xl font-bold shadow hover:bg-blue-800 transition">Contact Sales for Quote</a>
         </div>
     </div>
 </section>
