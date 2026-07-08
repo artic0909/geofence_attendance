@@ -42,7 +42,7 @@
                         <form action="{{ route('admin.departments.destroy', $department) }}" method="POST" class="d-inline">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="btn btn-light btn-sm text-danger" onclick="return confirm('Delete this department?')"><i class="bi bi-trash"></i> Delete</button>
+                            <button type="button" class="btn btn-light btn-sm text-danger delete-btn" data-item="department"><i class="bi bi-trash"></i> Delete</button>
                         </form>
                     </td>
                 </tr>

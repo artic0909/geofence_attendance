@@ -265,6 +265,27 @@
             $('.select2').on('change', function() {
                 $(this).valid();
             });
+
+            // Global delete confirmation
+            $(document).on('click', '.delete-btn', function(e) {
+                e.preventDefault();
+                var form = $(this).closest('form');
+                var itemType = $(this).data('item') || 'item';
+                
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "You want to delete this " + itemType + "? This action cannot be undone.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#dc3545',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Yes, delete it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
         });
   </script>
   @stack('scripts')

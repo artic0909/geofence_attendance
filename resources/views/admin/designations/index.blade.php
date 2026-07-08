@@ -42,7 +42,7 @@
                         <form action="{{ route('admin.designations.destroy', $designation) }}" method="POST" class="d-inline">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="btn btn-light btn-sm text-danger" onclick="return confirm('Delete this designation?')"><i class="bi bi-trash"></i> Delete</button>
+                            <button type="button" class="btn btn-light btn-sm text-danger delete-btn" data-item="designation"><i class="bi bi-trash"></i> Delete</button>
                         </form>
                     </td>
                 </tr>
