@@ -290,6 +290,11 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
+                    if (data.is_free) {
+                        alert(data.message);
+                        window.location.href = data.redirect_url;
+                        return;
+                    }
                     var options = {
                         "key": data.key,
                         "amount": data.amount,

@@ -492,6 +492,19 @@ class AdminApiController extends Controller
         try {
             $api->utility->verifyPaymentSignature($attributes);
             
+            // Prevent duplicate transaction processing using atomic locks
+            $lock = \Illuminate\Support\Facades\Cache::lock('api_payment_process_'.$request->razorpay_payment_id, 10);
+            
+            if (!$lock->get()) {
+                return response()->json(['success' => true, 'message' => 'Subscription activated successfully']);
+            }
+
+            $existingTransaction = Transaction::where('razorpay_payment_id', $request->razorpay_payment_id)->first();
+            if ($existingTransaction) {
+                $lock->release();
+                return response()->json(['success' => true, 'message' => 'Subscription activated successfully']);
+            }
+
             // Payment is successful
             $amount = $plan->price + ($plan->price_per_employee * $employeeCount);
 
@@ -538,6 +551,8 @@ class AdminApiController extends Controller
             } catch (\Exception $mailException) {
                 Log::error('Failed to send invoice email from API: ' . $mailException->getMessage());
             }
+
+            $lock->release();
 
             return response()->json(['success' => true, 'message' => 'Subscription activated successfully']);
         } catch (\Exception $e) {

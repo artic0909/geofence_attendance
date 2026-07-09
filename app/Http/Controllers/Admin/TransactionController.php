@@ -22,7 +22,7 @@ class TransactionController extends Controller
     {
         $transaction = Transaction::with('plan')->findOrFail($id);
         
-        if ($transaction->user_id !== auth()->id()) {
+        if ($transaction->user_id != auth()->id()) {
             abort(403, 'Unauthorized action.');
         }
 

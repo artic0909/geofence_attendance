@@ -53,9 +53,53 @@ class SubscriptionController extends Controller
                 return response()->json(['success' => false, 'message' => 'You have already claimed a trial pack.'], 403);
             }
 
-            $amount = 2; // Charge 2 INR for trial to authenticate card
+            $amount = 0; // Free trial
         } else {
             $amount = $plan->price + ($plan->price_per_employee * $employeeCount);
+        }
+        
+        if ($amount <= 0 && $plan->is_trial) {
+            // Directly activate free trial without Razorpay
+            $transaction = Transaction::create([
+                'user_id' => $user->id,
+                'plan_id' => $plan->id,
+                'razorpay_payment_id' => 'free_trial_' . time(),
+                'razorpay_order_id' => 'free_trial_' . time(),
+                'amount' => 0,
+                'currency' => 'INR',
+                'status' => 'successful',
+                'employee_count' => $employeeCount,
+            ]);
+
+            Subscription::where('user_id', $user->id)->where('status', 'active')->update(['status' => 'expired']);
+
+            $expiresAt = Carbon::now()->addDays($plan->duration_days);
+
+            Subscription::create([
+                'user_id' => $user->id,
+                'transaction_id' => $transaction->id,
+                'plan_name' => $plan->name,
+                'features' => $plan->features,
+                'price' => 0,
+                'duration_days' => $plan->duration_days,
+                'employee_count' => $employeeCount,
+                'starts_at' => Carbon::now(),
+                'expires_at' => $expiresAt,
+                'status' => 'active',
+            ]);
+            
+            $user->update([
+                'plan_id' => $plan->id,
+                'subscription_status' => 'active',
+                'subscription_expires_at' => $expiresAt,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'is_free' => true,
+                'message' => 'Free trial activated successfully!',
+                'redirect_url' => route('admin.dashboard')
+            ]);
         }
         
         $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
@@ -128,6 +172,19 @@ class SubscriptionController extends Controller
         }
 
         try {
+            // Prevent duplicate transaction processing using atomic locks
+            $lock = \Illuminate\Support\Facades\Cache::lock('payment_process_'.$request->razorpay_payment_id, 10);
+            
+            if (!$lock->get()) {
+                return response()->json(['success' => true, 'redirect_url' => route('admin.dashboard')]);
+            }
+
+            $existingTransaction = Transaction::where('razorpay_payment_id', $request->razorpay_payment_id)->first();
+            if ($existingTransaction) {
+                $lock->release();
+                return response()->json(['success' => true, 'redirect_url' => route('admin.dashboard')]);
+            }
+
             // Payment is successful or Trial activated
             $user = Auth::user();
 
@@ -174,6 +231,8 @@ class SubscriptionController extends Controller
             } catch (\Exception $mailException) {
                 Log::error('Failed to send invoice email: ' . $mailException->getMessage());
             }
+
+            $lock->release();
 
             return response()->json(['success' => true, 'redirect_url' => route('admin.dashboard')]);
         } catch (\Exception $e) {
