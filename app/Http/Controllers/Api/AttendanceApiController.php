@@ -22,6 +22,15 @@ class AttendanceApiController extends Controller
             ]);
 
             $employee = $request->user();
+            $admin = $employee->admin;
+            $isExpired = $admin->subscription_expires_at && now()->greaterThan($admin->subscription_expires_at);
+
+            if ($admin->subscription_status !== 'active' || $isExpired) {
+                return response()->json([
+                    'error' => 'Your organization\'s subscription has expired. Attendance is disabled.',
+                ], 403);
+            }
+
             $time = $request->filled('timestamp') ? \Carbon\Carbon::parse($request->timestamp) : now();
             $today = $time->format('Y-m-d');
 
@@ -311,10 +320,15 @@ class AttendanceApiController extends Controller
 
         $geofences = $user->employeeGeofences()->select('name', 'latitude', 'longitude', 'radius', 'tracking_radius')->get();
 
+        $admin = $user->admin;
+        $isExpired = $admin->subscription_expires_at && now()->greaterThan($admin->subscription_expires_at);
+        $adminSubStatus = ($admin->subscription_status !== 'active' || $isExpired) ? 'inactive' : 'active';
+
         return response()->json([
             'employee_name' => $user->name,
-            'admin_name' => $user->admin->business_name ?? $user->admin->name ?? 'Admin',
+            'admin_name' => $admin->business_name ?? $admin->name ?? 'Admin',
             'phone_restriction' => $user->phone_used_restricted ?? false,
+            'admin_subscription_status' => $adminSubStatus,
             'assigned_geofences' => $geofences,
             'attendance_status' => [
                 'is_checked_in' => ($attendance && $attendance->check_in && !$attendance->check_out) || ($outside && $outside->check_in && !$outside->check_out),
@@ -335,6 +349,15 @@ class AttendanceApiController extends Controller
             ]);
 
             $employee = $request->user();
+            $admin = $employee->admin;
+            $isExpired = $admin->subscription_expires_at && now()->greaterThan($admin->subscription_expires_at);
+
+            if ($admin->subscription_status !== 'active' || $isExpired) {
+                return response()->json([
+                    'error' => 'Your organization\'s subscription has expired. Attendance is disabled.',
+                ], 403);
+            }
+
             $time = $request->filled('timestamp') ? \Carbon\Carbon::parse($request->timestamp) : now();
             $today = $time->format('Y-m-d');
 
