@@ -22,6 +22,11 @@
     <meta name="twitter:title" content="@yield('meta_title', 'Geofence Employee Attendance System | Location-Based Tracking')">
     <meta name="twitter:description" content="@yield('meta_description', 'Secure, scalable, and tamper-proof geofencing attendance system for field forces, construction, healthcare, and corporate industries.')">
 
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
+    <link rel="shortcut icon" type="image/png" href="{{ asset('favicon.png') }}">
+
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
