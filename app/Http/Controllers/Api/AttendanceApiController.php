@@ -334,6 +334,7 @@ class AttendanceApiController extends Controller
                 'is_checked_in' => ($attendance && $attendance->check_in && !$attendance->check_out) || ($outside && $outside->check_in && !$outside->check_out),
                 'is_completed' => ($attendance && $attendance->check_out) || ($outside && $outside->check_out),
                 'is_outside' => ($outside && $outside->check_in && !$outside->check_out),
+                'checked_in_geofence_name' => ($attendance && $attendance->check_in && !$attendance->check_out) ? ($attendance->geofence->name ?? null) : null,
             ]
         ]);
     }
