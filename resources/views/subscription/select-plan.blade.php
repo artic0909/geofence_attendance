@@ -291,8 +291,14 @@
             .then(data => {
                 if (data.success) {
                     if (data.is_free) {
-                        alert(data.message);
-                        window.location.href = data.redirect_url;
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: data.message,
+                            confirmButtonColor: '#000080'
+                        }).then(() => {
+                            window.location.href = data.redirect_url;
+                        });
                         return;
                     }
                     var options = {
@@ -322,7 +328,12 @@
                                 if (resData.success) {
                                     window.location.href = resData.redirect_url;
                                 } else {
-                                    alert('Payment verification failed. Please contact support.');
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Verification Failed',
+                                        text: 'Payment verification failed. Please contact support.',
+                                        confirmButtonColor: '#000080'
+                                    });
                                     btnElement.innerHTML = originalText;
                                     btnElement.disabled = false;
                                 }
@@ -347,14 +358,24 @@
                     var rzp1 = new Razorpay(options);
                     rzp1.open();
                 } else {
-                    alert('Error initializing payment: ' + data.message);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Payment Error',
+                        text: 'Error initializing payment: ' + data.message,
+                        confirmButtonColor: '#000080'
+                    });
                     btnElement.innerHTML = originalText;
                     btnElement.disabled = false;
                 }
             })
             .catch(err => {
                 console.error(err);
-                alert('Something went wrong.');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Something went wrong.',
+                    confirmButtonColor: '#000080'
+                });
                 btnElement.innerHTML = originalText;
                 btnElement.disabled = false;
             });
