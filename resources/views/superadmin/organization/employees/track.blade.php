@@ -76,7 +76,7 @@
     </div>
 </div>
 
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDWRO8RCysDN9UMY1wUfydwLR5fD8CHB34"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDWRO8RCysDN9UMY1wUfydwLR5fD8CHB34&callback=initMap" async defer></script>
 <script>
     var map;
     var employeeMarker = null;
@@ -216,7 +216,5 @@
                 document.getElementById('status-badge').className = 'px-4 py-2 bg-gray-100 text-gray-600 rounded-full font-bold text-sm inline-flex items-center gap-2';
             });
     }
-
-    window.onload = initMap;
 </script>
 @endsection
