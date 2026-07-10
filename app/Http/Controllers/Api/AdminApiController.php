@@ -396,52 +396,9 @@ class AdminApiController extends Controller
             if ($hasTrial) {
                 return response()->json(['success' => false, 'message' => 'You have already claimed a trial pack.'], 403);
             }
-            $amount = 0;
+            $amount = 2; // Trigger Razorpay for 2 INR for trial
         } else {
             $amount = $plan->price + ($plan->price_per_employee * $employeeCount);
-        }
-
-        if ($amount <= 0 && $plan->is_trial) {
-            // Directly activate free trial without Razorpay
-            $transaction = Transaction::create([
-                'user_id' => $user->id,
-                'plan_id' => $plan->id,
-                'razorpay_payment_id' => 'free_trial_' . time(),
-                'razorpay_order_id' => 'free_trial_' . time(),
-                'amount' => 0,
-                'currency' => 'INR',
-                'status' => 'successful',
-                'employee_count' => $employeeCount,
-            ]);
-
-            Subscription::where('user_id', $user->id)->where('status', 'active')->update(['status' => 'expired']);
-
-            $expiresAt = now()->addDays($plan->duration_days);
-
-            Subscription::create([
-                'user_id' => $user->id,
-                'transaction_id' => $transaction->id,
-                'plan_name' => $plan->name,
-                'features' => $plan->features,
-                'price' => 0,
-                'duration_days' => $plan->duration_days,
-                'employee_count' => $employeeCount,
-                'starts_at' => now(),
-                'expires_at' => $expiresAt,
-                'status' => 'active',
-            ]);
-            
-            $user->update([
-                'plan_id' => $plan->id,
-                'subscription_status' => 'active',
-                'subscription_expires_at' => $expiresAt,
-            ]);
-
-            return response()->json([
-                'success' => true,
-                'is_free' => true,
-                'message' => 'Free trial activated successfully!'
-            ]);
         }
         
         $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
