@@ -81,6 +81,12 @@ class AdminApiController extends Controller
             }
         }
 
+        $hasClaimedTrial = \App\Models\Transaction::where('user_id', $user->id)
+            ->where('status', 'successful')
+            ->whereHas('plan', function($q) {
+                $q->where('is_trial', true);
+            })->exists();
+
         $trialPlan = Plan::where('active', true)->where('is_trial', true)->first();
 
         return response()->json([
@@ -94,6 +100,7 @@ class AdminApiController extends Controller
             'subscription_days_left' => $subscriptionDaysLeft,
             'subscription_percentage' => $subscriptionPercentage,
             'is_expired' => $isExpired,
+            'has_claimed_trial' => $hasClaimedTrial,
             'trial_plan_name' => $trialPlan ? $trialPlan->name : 'Trial Pack',
             'trial_plan_price' => $trialPlan ? $trialPlan->price : 0,
         ]);
