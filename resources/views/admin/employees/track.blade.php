@@ -124,11 +124,17 @@
                 'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
                 'Accept': 'application/json'
             },
-        }).then(response => {
+        }).then(async response => {
             if (response.ok) {
                 // optionally show success toast
+            } else {
+                let data = await response.json();
+                alert("Failed: " + (data.message || data.error || 'Could not send alert.'));
             }
-        }).catch(error => console.error('Error:', error));
+        }).catch(error => {
+            alert('Error sending alert: ' + error);
+            console.error('Error:', error);
+        });
     });
 
     function initMap() {
