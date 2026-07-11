@@ -575,8 +575,8 @@ class AdminApiController extends Controller
             $androidConfig = AndroidConfig::fromArray([
                 'priority' => 'high',
                 'notification' => [
-                    'sound' => 'default',
-                    'channel_id' => 'admin_alerts',
+                    'sound' => 'alert',
+                    'channel_id' => 'admin_alerts_v2',
                 ],
             ]);
 
