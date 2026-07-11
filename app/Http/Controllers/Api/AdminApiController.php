@@ -580,7 +580,7 @@ class AdminApiController extends Controller
                 ],
             ]);
 
-            $message = CloudMessage::withTarget('token', $employee->fcm_token)
+            $message = CloudMessage::new()->withToken($employee->fcm_token)
                 ->withNotification(Notification::create('ADMIN ALERT', 'Return to app immediately!'))
                 ->withData(['title' => 'ADMIN ALERT', 'body' => 'Return to app immediately!'])
                 ->withAndroidConfig($androidConfig);
