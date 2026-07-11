@@ -21,7 +21,7 @@ class AuthController extends Controller
         $employee = User::whereIn('role', ['employee', 'admin', 'superadmin'])
             ->where(function ($query) use ($loginId) {
                 $query->where('email', $loginId)
-                      ->orWhere('employee_id', $loginId);
+                      ->orWhere('phone', $loginId);
             })->first();
 
         if (!$employee || !Hash::check($request->password, $employee->password)) {
