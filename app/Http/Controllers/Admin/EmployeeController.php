@@ -196,9 +196,12 @@ class EmployeeController extends Controller
         return response()->json(['error' => 'No data found'], 404);
     }
 
-    public function sendAlert(User $employee)
+    public function sendAlert(User $employee, \Illuminate\Http\Request $request)
     {
         if (!$employee->fcm_token) {
+            if ($request->expectsJson()) {
+                return response()->json(['error' => 'Employee device token not found. They must login to the app first.'], 400);
+            }
             return back()->with('error', 'Employee device token not found. They must login to the app first.');
         }
 
@@ -222,9 +225,15 @@ class EmployeeController extends Controller
 
             $messaging->send($message);
 
+            if ($request->expectsJson()) {
+                return response()->json(['success' => 'High priority alert sent successfully.']);
+            }
             return back()->with('success', 'High priority alert sent successfully.');
         } catch (\Exception $e) {
             \Log::error('Firebase Alert Error: ' . $e->getMessage());
+            if ($request->expectsJson()) {
+                return response()->json(['error' => 'Failed to send alert. Make sure Firebase is configured correctly: ' . $e->getMessage()], 500);
+            }
             return back()->with('error', 'Failed to send alert. Make sure Firebase is configured correctly: ' . $e->getMessage());
         }
     }
