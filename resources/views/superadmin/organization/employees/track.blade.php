@@ -76,7 +76,7 @@
     </div>
 </div>
 
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDvD49DuMmgBFJmgLw0dVfGbwhIsHH7UrM&callback=initMap" async defer></script>
+<script src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google_maps.key') }}&callback=initMap" async defer></script>
 <script>
     var map;
     var employeeMarker = null;
