@@ -36,6 +36,11 @@ class AuthController extends Controller
         // Create access token
         $token = $employee->createToken($request->device_name)->plainTextToken;
 
+        if ($request->has('fcm_token') && $request->fcm_token) {
+            $employee->fcm_token = $request->fcm_token;
+            $employee->save();
+        }
+
         // Combine employee data with admin name
         $data = [
             'id' => $employee->id,

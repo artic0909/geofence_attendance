@@ -8,6 +8,10 @@ use App\Models\Geofence;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Kreait\Firebase\Factory;
+use Kreait\Firebase\Messaging\CloudMessage;
+use Kreait\Firebase\Messaging\Notification;
+use Kreait\Firebase\Messaging\AndroidConfig;
 
 class EmployeeController extends Controller
 {
@@ -190,5 +194,38 @@ class EmployeeController extends Controller
         }
         
         return response()->json(['error' => 'No data found'], 404);
+    }
+
+    public function sendAlert(User $employee)
+    {
+        if (!$employee->fcm_token) {
+            return back()->with('error', 'Employee device token not found. They must login to the app first.');
+        }
+
+        try {
+            $factory = (new Factory)
+                ->withServiceAccount(base_path(env('FIREBASE_CREDENTIALS', 'storage/app/firebase/service-account.json')));
+            $messaging = $factory->createMessaging();
+
+            $androidConfig = AndroidConfig::fromArray([
+                'priority' => 'high',
+                'notification' => [
+                    'sound' => 'default',
+                    'channel_id' => 'admin_alerts',
+                ],
+            ]);
+
+            $message = CloudMessage::withTarget('token', $employee->fcm_token)
+                ->withNotification(Notification::create('ADMIN ALERT', 'Return to app immediately!'))
+                ->withData(['title' => 'ADMIN ALERT', 'body' => 'Return to app immediately!'])
+                ->withAndroidConfig($androidConfig);
+
+            $messaging->send($message);
+
+            return back()->with('success', 'High priority alert sent successfully.');
+        } catch (\Exception $e) {
+            \Log::error('Firebase Alert Error: ' . $e->getMessage());
+            return back()->with('error', 'Failed to send alert. Make sure Firebase is configured correctly: ' . $e->getMessage());
+        }
     }
 }

@@ -17,6 +17,10 @@ use App\Models\Transaction;
 use App\Models\Subscription;
 use Razorpay\Api\Api;
 use Illuminate\Support\Facades\Log;
+use Kreait\Firebase\Factory;
+use Kreait\Firebase\Messaging\CloudMessage;
+use Kreait\Firebase\Messaging\Notification;
+use Kreait\Firebase\Messaging\AndroidConfig;
 
 class AdminApiController extends Controller
 {
@@ -547,6 +551,46 @@ class AdminApiController extends Controller
         return response()->json([
             'success' => true,
             'transactions' => $transactions,
-        ]);
+        ], 200);
+    }
+
+    public function sendAlert(Request $request, $employee_id)
+    {
+        $adminId = $request->user()->id;
+        $employee = User::where('admin_id', $adminId)->where('id', $employee_id)->first();
+
+        if (!$employee) {
+            return response()->json(['message' => 'Employee not found'], 404);
+        }
+
+        if (!$employee->fcm_token) {
+            return response()->json(['message' => 'Employee device token not found. They must login to the app first.'], 400);
+        }
+
+        try {
+            $factory = (new Factory)
+                ->withServiceAccount(base_path(env('FIREBASE_CREDENTIALS', 'storage/app/firebase/service-account.json')));
+            $messaging = $factory->createMessaging();
+
+            $androidConfig = AndroidConfig::fromArray([
+                'priority' => 'high',
+                'notification' => [
+                    'sound' => 'default',
+                    'channel_id' => 'admin_alerts',
+                ],
+            ]);
+
+            $message = CloudMessage::withTarget('token', $employee->fcm_token)
+                ->withNotification(Notification::create('ADMIN ALERT', 'Return to app immediately!'))
+                ->withData(['title' => 'ADMIN ALERT', 'body' => 'Return to app immediately!'])
+                ->withAndroidConfig($androidConfig);
+
+            $messaging->send($message);
+
+            return response()->json(['message' => 'Alert sent successfully.']);
+        } catch (\Exception $e) {
+            Log::error('Firebase Alert Error API: ' . $e->getMessage());
+            return response()->json(['message' => 'Failed to send alert. Make sure Firebase is configured correctly.'], 500);
+        }
     }
 }

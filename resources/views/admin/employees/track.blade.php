@@ -72,6 +72,14 @@
             <p class="text-sm text-gray-600"><strong>ID:</strong> {{ $employee->employee_id }}</p>
             <p class="text-sm text-gray-600"><strong>Email:</strong> {{ $employee->email }}</p>
             <p class="text-sm text-gray-600"><strong>Phone:</strong> {{ $employee->phone }}</p>
+
+            <form id="send-alert-form" action="{{ route('admin.employees.send-alert', $employee->id) }}" method="POST" class="mt-4">
+                @csrf
+                <button type="submit" id="send-alert-btn" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors duration-200">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                    <span id="send-alert-text">Send Urgent Alert</span>
+                </button>
+            </form>
         </div>
     </div>
 </div>
@@ -81,6 +89,47 @@
     var map;
     var employeeMarker = null;
     var infoWindow;
+
+    document.getElementById('send-alert-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        let btn = document.getElementById('send-alert-btn');
+        let text = document.getElementById('send-alert-text');
+        let form = this;
+
+        btn.disabled = true;
+        btn.classList.replace('bg-red-600', 'bg-gray-400');
+        btn.classList.replace('hover:bg-red-700', 'hover:bg-gray-400');
+        btn.style.cursor = 'not-allowed';
+
+        let countdown = 15;
+        text.innerText = `Wait ${countdown}s`;
+
+        let interval = setInterval(() => {
+            countdown--;
+            if (countdown > 0) {
+                text.innerText = `Wait ${countdown}s`;
+            } else {
+                clearInterval(interval);
+                btn.disabled = false;
+                btn.classList.replace('bg-gray-400', 'bg-red-600');
+                btn.classList.replace('hover:bg-gray-400', 'hover:bg-red-700');
+                btn.style.cursor = 'pointer';
+                text.innerText = 'Send Urgent Alert';
+            }
+        }, 1000);
+
+        fetch(form.action, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
+                'Accept': 'application/json'
+            },
+        }).then(response => {
+            if (response.ok) {
+                // optionally show success toast
+            }
+        }).catch(error => console.error('Error:', error));
+    });
 
     function initMap() {
         map = new google.maps.Map(document.getElementById('map'), {
