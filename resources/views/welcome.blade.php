@@ -169,10 +169,16 @@
                         @if($plan->is_trial)
                             <div class="text-4xl font-extrabold text-navy">Free</div>
                         @else
+                            @php
+                                $baseCardPrice = $plan->price + ($plan->price_per_employee * ($plan->employee_count ?? 10));
+                                $gstCardPrice = $baseCardPrice * 0.18;
+                                $totalCardPrice = $baseCardPrice + $gstCardPrice;
+                            @endphp
                             <div class="text-4xl font-extrabold text-saffron">
-                                ₹{{ number_format($plan->price + ($plan->price_per_employee * ($plan->employee_count ?? 10)), 2) }}
+                                ₹{{ number_format($totalCardPrice, 2) }}
                             </div>
                             <div class="text-xs {{ $plan->is_trial ? 'text-gray-500' : 'text-gray-300' }} mt-2">Includes {{ $plan->employee_count ?? 10 }} Employees (Base)</div>
+                            <div class="text-[10px] {{ $plan->is_trial ? 'text-gray-400' : 'text-gray-400' }} mt-1">+ ₹{{ number_format($gstCardPrice, 2) }} (18% GST)</div>
                         @endif
                     </div>
                     <div class="p-8 flex-grow">
@@ -256,11 +262,15 @@
                                     <span>Employee Cost <span id="display_employee_calc" class="text-xs"></span>:</span>
                                     <span id="display_employee_total" class="font-medium">₹0.00</span>
                                 </div>
+                                <div class="flex justify-between items-center text-gray-500 text-sm border-b border-gray-200 pb-2">
+                                    <span>+ 18% GST:</span>
+                                    <span id="display_gst_amount" class="font-medium">₹0.00</span>
+                                </div>
                                 <div class="flex justify-between items-end pt-2">
                                     <span class="text-lg font-bold text-navy">Total Value:</span>
                                     <div class="text-right">
                                         <span id="display_total_price" class="text-4xl font-extrabold text-saffron block">₹0.00</span>
-                                        <span class="text-xs text-gray-500">Excluding GST</span>
+                                        <span class="text-xs text-gray-500">Including GST</span>
                                     </div>
                                 </div>
                             </div>
@@ -353,6 +363,7 @@
                             displayBase.innerText = "₹0.00 (Trial)";
                             displayEmpCalc.innerText = `(${count} Employees)`;
                             displayEmpTotal.innerText = "₹0.00";
+                            document.getElementById('display_gst_amount').innerText = "₹0.00";
                             displayTotal.innerText = "₹0.00";
                             return;
                         }
@@ -360,11 +371,14 @@
                         const base = activePlan.basePrice;
                         const perEmp = activePlan.perEmployee;
                         const empTotal = count * perEmp;
-                        const grandTotal = base + empTotal;
+                        const baseTotal = base + empTotal;
+                        const gstAmount = baseTotal * 0.18;
+                        const grandTotal = baseTotal + gstAmount;
                         
                         displayBase.innerText = "₹" + base.toLocaleString('en-IN', {minimumFractionDigits: 2});
                         displayEmpCalc.innerText = `(${count} x ₹${perEmp})`;
                         displayEmpTotal.innerText = "₹" + empTotal.toLocaleString('en-IN', {minimumFractionDigits: 2});
+                        document.getElementById('display_gst_amount').innerText = "₹" + gstAmount.toLocaleString('en-IN', {minimumFractionDigits: 2});
                         displayTotal.innerText = "₹" + grandTotal.toLocaleString('en-IN', {minimumFractionDigits: 2});
                     }
                 });
