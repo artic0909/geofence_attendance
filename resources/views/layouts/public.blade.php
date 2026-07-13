@@ -113,6 +113,7 @@
                     <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-xl py-2 z-50 invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-300 border border-gray-100 origin-top">
                         <a href="{{ route('login') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-saffron font-medium">Login</a>
                         <a href="{{ route('register') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-saffron font-medium">Dashboard</a>
+                        <a href="https://play.google.com/store/apps/details?id=smart.geofence.attendance&pcampaignid=web_share" target="_blank" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-saffron font-medium">Mobile App</a>
                     </div>
                 </div>
             </div>
@@ -121,6 +122,7 @@
             <div class="w-full lg:hidden flex justify-center mt-2 space-x-4">
                 <a href="{{ url('/about') }}" class="text-navy font-semibold">About</a>
                 <a href="{{ url('/industries') }}" class="text-navy font-semibold">Industries</a>
+                <a href="https://play.google.com/store/apps/details?id=smart.geofence.attendance&pcampaignid=web_share" target="_blank" class="text-navy font-semibold">App</a>
                 <a href="{{ route('login') }}" class="text-navy font-semibold">Login</a>
                 <a href="{{ route('register') }}" class="text-navy font-semibold">Dashboard</a>
             </div>
