@@ -121,7 +121,7 @@
                                 Sumatra Sales Private Limited<br>
                                 CIN No. : U51909WB2020PTC237800<br>
                                 GSTIN : 19ABDCS8853N1ZG<br>
-                                Contact: +91 6292237200/201/202/207
+                                Contact: +91 6292237205
                             </td>
                             <td style="color: #4b5563;">
                                 <strong style="color: #0A1172;">Billed To:</strong><br>
