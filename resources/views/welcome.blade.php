@@ -33,7 +33,7 @@
                 </p>
                 
                 <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-                    <a href="https://play.google.com/store/apps/details?id=smart.geofence.attendance&pcampaignid=web_share" target="_blank" class="bg-saffron text-white px-8 py-3 rounded text-lg font-bold shadow-lg hover:bg-orange-600 transition text-center flex items-center justify-center">
+                    <a href="https://play.google.com/store/apps/details?id=smart.geofence.attendance&pcampaignid=web_share" target="_blank" rel="noopener noreferrer" title="Download Geofence Attendance App on Google Play Store" aria-label="Download Geofence Attendance App on Google Play Store" class="bg-saffron text-white px-8 py-3 rounded text-lg font-bold shadow-lg hover:bg-orange-600 transition text-center flex items-center justify-center">
                         Download Mobile App
                         <svg class="w-6 h-6 ml-2" fill="currentColor" viewBox="0 0 512 512"><path d="M325.3 234.3L104.6 13l280.8 161.2-60.1 60.1zM47 0C34 6.8 25.3 19.2 25.3 35.3v441.3c0 16.1 8.7 28.5 21.7 35.3l256.6-256L47 0zm425.2 225.6l-58.9-34.1-65.7 64.5 65.7 64.5 60.1-34.1c18-14.3 18-46.5-1.2-60.8zM104.6 499l280.8-161.2-60.1-60.1L104.6 499z"/></svg>
                     </a>
@@ -76,8 +76,8 @@
 
         <!-- App Download Section -->
     <section class="w-full border-t border-gray-200 py-16 md:py-24" style="background-color: #EAF0FD;">
-        <a href="https://play.google.com/store/apps/details?id=smart.geofence.attendance&pcampaignid=web_share" target="_blank" class="container mx-auto px-4 flex justify-center">
-            <img src="{{ asset('mobileappsection.png') }}" alt="Geofence Attendance Mobile App" class="w-[95%] md:w-[85%] lg:w-[75%] max-w-6xl h-auto rounded-2xl shadow-xl border-4 border-white/50 block">
+        <a href="https://play.google.com/store/apps/details?id=smart.geofence.attendance&pcampaignid=web_share" target="_blank" rel="noopener noreferrer" title="Download Geofence Attendance App on Google Play Store" aria-label="Download Geofence Attendance App on Google Play Store" class="container mx-auto px-4 flex justify-center">
+            <img src="{{ asset('mobileappsection.png') }}" alt="Geofence Attendance Android Mobile App Download on Google Play Store" class="w-[95%] md:w-[85%] lg:w-[75%] max-w-6xl h-auto rounded-2xl shadow-xl border-4 border-white/50 block">
         </a>
     </section>
 

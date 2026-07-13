@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Dynamic SEO Meta Tags -->
-    <title>@yield('meta_title', 'Geofence Employee Attendance System | Location-Based Tracking | ProjectAttendance.com')</title>
+    <title>@yield('meta_title', 'Smart Geofence Attendance System | Location-Based Tracking | ProjectAttendance.com')</title>
     <meta name="description" content="@yield('meta_description', 'Secure, scalable, and tamper-proof geofencing attendance system for field forces, construction, healthcare, and corporate industries. ProjectAttendance.com provides the ultimate location-based employee tracking software.')">
     <meta name="keywords" content="@yield('meta_keywords', 'geofence attendance, location based tracking, employee attendance system, geofencing software, field sales tracking, construction attendance, projectattendance.com')">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="{{ url()->current() }}">
 
     <!-- OpenGraph / Social Meta Tags -->
-    <meta property="og:title" content="@yield('meta_title', 'Geofence Employee Attendance System | Location-Based Tracking')">
+    <meta property="og:title" content="@yield('meta_title', 'Smart Geofence Attendance System | Location-Based Tracking')">
     <meta property="og:description" content="@yield('meta_description', 'Secure, scalable, and tamper-proof geofencing attendance system for field forces, construction, healthcare, and corporate industries.')">
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ url()->current() }}">
@@ -19,7 +19,7 @@
     
     <!-- Twitter Cards -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="@yield('meta_title', 'Geofence Employee Attendance System | Location-Based Tracking')">
+    <meta name="twitter:title" content="@yield('meta_title', 'Smart Geofence Attendance System | Location-Based Tracking')">
     <meta name="twitter:description" content="@yield('meta_description', 'Secure, scalable, and tamper-proof geofencing attendance system for field forces, construction, healthcare, and corporate industries.')">
 
     <!-- Favicon -->
@@ -91,7 +91,7 @@
                     <img src="/logo.png" alt="Emblem" class="h-16 sm:h-20 md:h-24 w-auto mb-2 sm:mb-0">
                 </a>
                 <div class="sm:border-l-2 sm:border-gray-300 sm:pl-4">
-                    <h1 class="text-xl md:text-3xl font-bold text-navy uppercase tracking-wide"><a href="{{ url('/') }}">Geofence Attendance Portal</a></h1>
+                    <h1 class="text-xl md:text-3xl font-bold text-navy uppercase tracking-wide"><a href="{{ url('/') }}">Smart Geofence Attendance</a></h1>
                     <p class="text-sm md:text-base text-gray-600 font-medium mt-1 sm:mt-0">PROJECT ATTENDANCE</p>
                 </div>
             </div>
@@ -113,7 +113,7 @@
                     <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-xl py-2 z-50 invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-300 border border-gray-100 origin-top">
                         <a href="{{ route('login') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-saffron font-medium">Login</a>
                         <a href="{{ route('register') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-saffron font-medium">Dashboard</a>
-                        <a href="https://play.google.com/store/apps/details?id=smart.geofence.attendance&pcampaignid=web_share" target="_blank" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-saffron font-medium">Mobile App</a>
+                        <a href="https://play.google.com/store/apps/details?id=smart.geofence.attendance&pcampaignid=web_share" target="_blank" rel="noopener noreferrer" title="Download Geofence Attendance App on Google Play Store" aria-label="Download Geofence Attendance App on Google Play Store" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-saffron font-medium">Mobile App</a>
                     </div>
                 </div>
             </div>
@@ -122,7 +122,7 @@
             <div class="w-full lg:hidden flex justify-center mt-2 space-x-4">
                 <a href="{{ url('/about') }}" class="text-navy font-semibold">About</a>
                 <a href="{{ url('/industries') }}" class="text-navy font-semibold">Industries</a>
-                <a href="https://play.google.com/store/apps/details?id=smart.geofence.attendance&pcampaignid=web_share" target="_blank" class="text-navy font-semibold">App</a>
+                <a href="https://play.google.com/store/apps/details?id=smart.geofence.attendance&pcampaignid=web_share" target="_blank" rel="noopener noreferrer" title="Download Geofence Attendance App on Google Play Store" aria-label="Download Geofence Attendance App on Google Play Store" class="text-navy font-semibold">App</a>
                 <a href="{{ route('login') }}" class="text-navy font-semibold">Login</a>
                 <a href="{{ route('register') }}" class="text-navy font-semibold">Dashboard</a>
             </div>
@@ -147,7 +147,7 @@
                         <img src="/logo.png" alt="Emblem" class="h-16 sm:h-20 w-auto">
                     </div>
                     <div>
-                        <p class="font-bold text-xl md:text-2xl">Geofence Attendance Portal</p>
+                        <p class="font-bold text-xl md:text-2xl">Smart Geofence Attendance</p>
                         <p class="text-sm md:text-base text-saffron font-medium mt-1 sm:mt-0">PROJECT ATTENDANCE</p>
                     </div>
                 </div>
