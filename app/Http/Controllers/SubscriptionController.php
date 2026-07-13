@@ -55,7 +55,9 @@ class SubscriptionController extends Controller
 
             $amount = 2; // Trigger Razorpay for 2 INR for trial
         } else {
-            $amount = $plan->price + ($plan->price_per_employee * $employeeCount);
+            $baseAmount = $plan->price + ($plan->price_per_employee * $employeeCount);
+            $gstAmount = $baseAmount * 0.18;
+            $amount = $baseAmount + $gstAmount;
         }
         
         $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
@@ -108,8 +110,11 @@ class SubscriptionController extends Controller
                 return response()->json(['success' => false, 'message' => 'You have already claimed a trial pack.'], 403);
             }
             $amount = 2;
+            $gstAmount = 0;
         } else {
-            $amount = $plan->price + ($plan->price_per_employee * $employeeCount);
+            $baseAmount = $plan->price + ($plan->price_per_employee * $employeeCount);
+            $gstAmount = $baseAmount * 0.18;
+            $amount = $baseAmount + $gstAmount;
         }
 
         $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
@@ -151,6 +156,7 @@ class SubscriptionController extends Controller
                 'razorpay_payment_id' => $request->razorpay_payment_id,
                 'razorpay_order_id' => $request->razorpay_order_id,
                 'amount' => $amount,
+                'gst_amount' => $gstAmount,
                 'currency' => 'INR',
                 'status' => 'successful',
                 'employee_count' => $employeeCount,

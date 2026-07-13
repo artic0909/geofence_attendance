@@ -117,8 +117,11 @@
                             <td style="color: #0A1172;">
                                 <strong style="color: #0A1172;">Billed From:</strong><br>
                                 Geofence Attendance System<br>
-                                <span style="color: #F58220;">{{ config('app.url', 'https://geofence_attendance.test/') }}</span><br>
-                                Sumatra Sales Private Limited
+                                <span style="color: #F58220;">{{ config('app.url', 'projectattendance.com') }}</span><br>
+                                Sumatra Sales Private Limited<br>
+                                CIN No. : U51909WB2020PTC237800<br>
+                                GSTIN : 19ABDCS8853N1ZG<br>
+                                Contact: +91 6292237200/201/202/207
                             </td>
                             <td style="color: #4b5563;">
                                 <strong style="color: #0A1172;">Billed To:</strong><br>
@@ -150,12 +153,23 @@
                 <td>Amount</td>
             </tr>
 
-            <tr class="item last">
+            @php
+                $gstAmount = $transaction->gst_amount ?? 0;
+                $baseAmount = $transaction->amount - $gstAmount;
+            @endphp
+            <tr class="item">
                 <td>
                     Subscription Plan: <strong>{{ $transaction->subscription->plan_name ?? $transaction->plan->name ?? 'Custom Plan' }}</strong><br>
                     <small>Validity: {{ $transaction->subscription->duration_days ?? $transaction->plan->duration_days ?? 30 }} days</small>
                 </td>
-                <td>Rs. {{ number_format($transaction->amount, 2) }}</td>
+                <td>Rs. {{ number_format($baseAmount, 2) }}</td>
+            </tr>
+
+            <tr class="item last">
+                <td>
+                    GST (18%)
+                </td>
+                <td>Rs. {{ number_format($gstAmount, 2) }}</td>
             </tr>
 
             <tr class="total">
