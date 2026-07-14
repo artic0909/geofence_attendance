@@ -19,6 +19,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
+            darkMode: 'class',
+            corePlugins: {
+                preflight: false,
+            },
             important: true, /* Added important to prevent bootstrap from completely breaking tailwind inner views */
             theme: {
                 extend: {
@@ -58,14 +62,77 @@
             align-items: center;
             justify-content: space-between;
         }
-        /* Dark mode headings fix */
-        .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6,
-        [data-bs-theme="dark"] h1, [data-bs-theme="dark"] h2, [data-bs-theme="dark"] h3, 
-        [data-bs-theme="dark"] h4, [data-bs-theme="dark"] h5, [data-bs-theme="dark"] h6 {
-            color: #f3f4f6 !important; /* Tailwind gray-100 */
+        
+        /* Dark Mode Template Variables Fix */
+        [data-theme="dark"] {
+            --admin-bg: #111827;
+            --admin-surface: #1f2937;
+            --admin-surface-soft: #374151;
+            --admin-border: #374151;
+            --admin-text: #f3f4f6;
+            --admin-muted: #9ca3af;
+            --admin-shadow-sm: 0 10px 24px rgba(0, 0, 0, 0.5);
+            --admin-shadow: 0 18px 46px rgba(0, 0, 0, 0.6);
+            --admin-shadow-lg: 0 26px 70px rgba(0, 0, 0, 0.7);
+        }
+        [data-theme="dark"] body {
+            background: var(--admin-bg) !important;
+            color: var(--admin-text) !important;
+        }
+        
+        /* Dark mode headings & elements fix */
+        [data-theme="dark"] .panel, [data-theme="dark"] .card {
+            background-color: var(--admin-surface);
+            border-color: var(--admin-border);
+        }
+        [data-theme="dark"] .table {
+            --bs-table-bg: transparent;
+            --bs-table-color: var(--admin-text);
+            --bs-table-border-color: var(--admin-border);
+        }
+        [data-theme="dark"] .page-heading h1, [data-theme="dark"] .page-heading p {
+            color: var(--admin-text) !important;
+        }
+        [data-theme="dark"] .text-gray-800, [data-theme="dark"] .text-dark {
+            color: var(--admin-text) !important;
+        }
+        [data-theme="dark"] .bg-white, [data-theme="dark"] .bg-light {
+            background-color: var(--admin-surface) !important;
+        }
+        [data-theme="dark"] .border-gray-300, [data-theme="dark"] .border-gray-200 {
+            border-color: var(--admin-border) !important;
         }
     </style>
     @stack('styles')
+    
+    <script>
+        // Sync Tailwind dark mode class with the template's data-theme attribute
+        document.addEventListener('DOMContentLoaded', () => {
+            const htmlEl = document.documentElement;
+            
+            const syncTheme = () => {
+                if (htmlEl.getAttribute('data-theme') === 'dark') {
+                    htmlEl.classList.add('dark');
+                } else {
+                    htmlEl.classList.remove('dark');
+                }
+            };
+            
+            // Initial sync
+            syncTheme();
+            
+            // Watch for changes
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    if (mutation.attributeName === 'data-theme') {
+                        syncTheme();
+                    }
+                });
+            });
+            
+            observer.observe(htmlEl, { attributes: true });
+        });
+    </script>
 </head>
 
 <body>
