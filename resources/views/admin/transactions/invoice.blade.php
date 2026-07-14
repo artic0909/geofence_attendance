@@ -91,14 +91,16 @@
     </style>
 </head>
 <body>
+    <div style="max-width: 800px; margin: 15px auto 10px auto; padding: 0 30px; text-align: left; font-size: 14px; font-weight: bold; color: #F58220; letter-spacing: 0.5px;">
+        SMART GEOFENCE ATTENDANCE | SUMATRA SALES PVT. LTD.
+    </div>
     <div class="invoice-box">
         <table cellpadding="0" cellspacing="0">
             <tr class="top">
                 <td colspan="2">
                     <table>
                         <tr>
-                            <td class="title" style="line-height: 1.2;">
-                                <span style="font-size: 14px; font-weight: bold; color: #F58220; display: block; margin-bottom: 8px; letter-spacing: 0.5px;">SMART GEOFENCE ATTENDANCE | SUMATRA SALES PVT. LTD.</span>
+                            <td class="title">
                                 INVOICE
                             </td>
                             <td>
