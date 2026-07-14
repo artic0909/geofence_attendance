@@ -144,7 +144,7 @@
         <a class="brand-mark" href="{{ route('admin.dashboard') }}" aria-label="Dashboard">
           <span class="brand-copy">
             <span class="brand-title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px;">
-              <img src="{{asset('logo.png')}}" alt="" style="width: 48px; height: 48px; border-radius: 5px; color: white;">                                                                                                                                                                    {{ auth()->user()->business_name }}
+              <img src="{{asset('logo.png')}}" alt="" style="width: 48px; height: 48px; border-radius: 5px;">                                                                                                                                                                    {{ auth()->user()->business_name }}
             </span>
             <span class="brand-subtitle">Geofence Attendance</span>
           </span>
