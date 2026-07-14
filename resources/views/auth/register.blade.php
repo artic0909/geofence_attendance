@@ -44,7 +44,7 @@
                         
                         <!-- Business Owner -->
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
-                            <label class="block text-gray-800 font-semibold md:text-right md:pt-2">Business Owner <span class="text-red-500">*</span></label>
+                            <label class="block text-gray-800 font-semibold md:text-right md:pt-2">Business Representative <span class="text-red-500">*</span></label>
                             <div class="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <input type="text" name="first_name" required class="block w-full border-gray-300 rounded shadow-sm focus:ring-navy focus:border-navy sm:text-sm px-3 py-2 border transition-colors" value="{{ old('first_name') }}">
