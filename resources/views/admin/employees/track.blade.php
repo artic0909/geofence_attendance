@@ -2,7 +2,7 @@
 
 @section('content')
 <style>
-    #map { height: 600px; width: 100%; border-radius: 12px; border: 4px solid white; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+    #map { height: 600px; width: 100%; border-radius: 12px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
     .pulse { border-radius: 50%; height: 20px; width: 20px; background: #22c55e; box-shadow: 0 0 0 0 rgba(34, 197, 94, 1); animation: pulse-green 2s infinite; }
     @keyframes pulse-green {
         0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
@@ -13,65 +13,65 @@
 
 <div class="mb-6 flex justify-between items-center">
     <div>
-        <h1 class="text-3xl font-bold text-gray-800">Live Tracking: {{ $employee->name }}</h1>
-        <p class="text-gray-600">Site-based location monitoring (Active only within tracking radius)</p>
+        <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-100">Live Tracking: {{ $employee->name }}</h1>
+        <p class="text-gray-600 dark:text-gray-400">Site-based location monitoring (Active only within tracking radius)</p>
     </div>
     <div class="text-right">
-        <div id="status-badge" class="px-4 py-2 bg-gray-100 text-gray-600 rounded-full font-bold text-sm inline-flex items-center gap-2">
+        <div id="status-badge" class="px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-full font-bold text-sm inline-flex items-center gap-2 border border-transparent dark:border-gray-700">
             <span class="w-3 h-3 bg-gray-400 rounded-full"></span>
             Checking Status...
         </div>
-        <p id="last-update" class="text-xs text-gray-500 mt-1">Waiting for signal...</p>
+        <p id="last-update" class="text-xs text-gray-500 dark:text-gray-400 mt-1">Waiting for signal...</p>
     </div>
 </div>
 
 <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
     <div class="lg:col-span-3">
-        <div id="map"></div>
+        <div id="map" class="border-4 border-white dark:border-gray-800"></div>
     </div>
     
     <div class="lg:col-span-1 space-y-6">
-        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-            <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
-                <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
+            <h3 class="font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
+                <svg class="w-5 h-5 text-green-500 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                 Checked In Geofence
             </h3>
             <div class="space-y-4">
                 @if(isset($attendance) && $attendance->geofence)
-                    <div class="p-4 bg-green-50 rounded-xl border border-green-100 shadow-sm relative overflow-hidden">
+                    <div class="p-4 bg-green-50 dark:bg-green-900/30 rounded-xl border border-green-100 dark:border-green-800 shadow-sm relative overflow-hidden">
                         <div class="absolute top-0 right-0 p-2 opacity-10">
-                            <svg class="w-16 h-16 text-green-800" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path></svg>
+                            <svg class="w-16 h-16 text-green-800 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path></svg>
                         </div>
-                        <p class="font-bold text-green-800 text-base mb-2">{{ $attendance->geofence->name }}</p>
-                        <div class="flex items-center gap-2 text-green-700 text-xs mt-1">
-                            <span class="font-bold bg-green-100 px-2 py-0.5 rounded border border-green-200">Radius: {{ $attendance->geofence->radius }}m</span>
+                        <p class="font-bold text-green-800 dark:text-green-400 text-base mb-2">{{ $attendance->geofence->name }}</p>
+                        <div class="flex items-center gap-2 text-green-700 dark:text-green-300 text-xs mt-1">
+                            <span class="font-bold bg-green-100 dark:bg-green-800/50 px-2 py-0.5 rounded border border-green-200 dark:border-green-700">Radius: {{ $attendance->geofence->radius }}m</span>
                         </div>
-                        <div class="flex items-center gap-2 text-orange-700 text-xs mt-2">
-                            <span class="font-bold bg-orange-100 px-2 py-0.5 rounded border border-orange-200">Track Area: {{ $attendance->geofence->tracking_radius ?? 'Disabled' }}m</span>
+                        <div class="flex items-center gap-2 text-orange-700 dark:text-orange-300 text-xs mt-2">
+                            <span class="font-bold bg-orange-100 dark:bg-orange-800/50 px-2 py-0.5 rounded border border-orange-200 dark:border-orange-700">Track Area: {{ $attendance->geofence->tracking_radius ?? 'Disabled' }}m</span>
                         </div>
                     </div>
                 @elseif(isset($attendance) && $attendance->attendance_type == 'outside')
-                    <div class="p-4 bg-orange-50 rounded-xl border border-orange-100 shadow-sm relative overflow-hidden">
+                    <div class="p-4 bg-orange-50 dark:bg-orange-900/30 rounded-xl border border-orange-100 dark:border-orange-800 shadow-sm relative overflow-hidden">
                         <div class="absolute top-0 right-0 p-2 opacity-10">
-                            <svg class="w-16 h-16 text-orange-800" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path></svg>
+                            <svg class="w-16 h-16 text-orange-800 dark:text-orange-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path></svg>
                         </div>
-                        <p class="font-bold text-orange-800 text-base mb-2">Outside Check-in</p>
-                        <p class="text-xs text-orange-700 mt-1 font-medium">{{ $attendance->checkin_location ?? 'Location not recorded' }}</p>
+                        <p class="font-bold text-orange-800 dark:text-orange-400 text-base mb-2">Outside Check-in</p>
+                        <p class="text-xs text-orange-700 dark:text-orange-300 mt-1 font-medium">{{ $attendance->checkin_location ?? 'Location not recorded' }}</p>
                     </div>
                 @else
-                    <div class="p-4 bg-gray-50 rounded-xl border border-gray-100 shadow-sm text-center">
-                        <p class="font-bold text-gray-500 text-sm">Not Checked In</p>
-                        <p class="text-xs text-gray-400 mt-1">Employee has no active attendance.</p>
+                    <div class="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm text-center">
+                        <p class="font-bold text-gray-500 dark:text-gray-400 text-sm">Not Checked In</p>
+                        <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Employee has no active attendance.</p>
                     </div>
                 @endif
             </div>
         </div>
 
-        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-            <h3 class="font-bold text-gray-800 mb-2 italic text-sm">Employee Details</h3>
-            <p class="text-sm text-gray-600"><strong>ID:</strong> {{ $employee->employee_id }}</p>
-            <p class="text-sm text-gray-600"><strong>Email:</strong> {{ $employee->email }}</p>
-            <p class="text-sm text-gray-600"><strong>Phone:</strong> {{ $employee->phone }}</p>
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
+            <h3 class="font-bold text-gray-800 dark:text-gray-100 mb-2 italic text-sm">Employee Details</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400"><strong>ID:</strong> {{ $employee->employee_id }}</p>
+            <p class="text-sm text-gray-600 dark:text-gray-400"><strong>Email:</strong> {{ $employee->email }}</p>
+            <p class="text-sm text-gray-600 dark:text-gray-400"><strong>Phone:</strong> {{ $employee->phone }}</p>
 
             <form id="send-alert-form" action="{{ route('admin.employees.send-alert', $employee->id) }}" method="POST" class="mt-4">
                 @csrf
@@ -220,11 +220,11 @@
 
                     if (diffMinutes > 2) {
                         document.getElementById('status-badge').innerHTML = '<span class="w-3 h-3 bg-gray-400 rounded-full"></span> Signal Lost (Offline)';
-                        document.getElementById('status-badge').className = 'px-4 py-2 bg-gray-100 text-gray-600 rounded-full font-bold text-sm inline-flex items-center gap-2 border border-gray-200';
+                        document.getElementById('status-badge').className = 'px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-full font-bold text-sm inline-flex items-center gap-2 border border-gray-200 dark:border-gray-700';
                         document.getElementById('last-update').innerText = 'Last signal was ' + Math.floor(diffMinutes) + ' mins ago. App might be closed.';
                     } else {
                         document.getElementById('status-badge').innerHTML = '<span class="pulse"></span> Live Tracking Active';
-                        document.getElementById('status-badge').className = 'px-4 py-2 bg-green-100 text-green-700 rounded-full font-bold text-sm inline-flex items-center gap-2 border border-green-200';
+                        document.getElementById('status-badge').className = 'px-4 py-2 bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400 rounded-full font-bold text-sm inline-flex items-center gap-2 border border-green-200 dark:border-green-800';
                         var dateObj = new Date(data.updated_at);
                         var timeStr = dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
                         var dateStr = dateObj.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -263,14 +263,14 @@
                     }
                 } else {
                     document.getElementById('status-badge').innerHTML = '<span class="w-3 h-3 bg-red-400 rounded-full"></span> Outside Tracking Area';
-                    document.getElementById('status-badge').className = 'px-4 py-2 bg-red-100 text-red-700 rounded-full font-bold text-sm inline-flex items-center gap-2 border border-red-200';
+                    document.getElementById('status-badge').className = 'px-4 py-2 bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-400 rounded-full font-bold text-sm inline-flex items-center gap-2 border border-red-200 dark:border-red-800';
                     document.getElementById('last-update').innerText = 'Employee is outside the site tracking radius.';
                 }
             })
             .catch(error => {
                 console.error('Tracking Error:', error);
                 document.getElementById('status-badge').innerHTML = '<span class="w-3 h-3 bg-gray-400 rounded-full"></span> Signal Lost';
-                document.getElementById('status-badge').className = 'px-4 py-2 bg-gray-100 text-gray-600 rounded-full font-bold text-sm inline-flex items-center gap-2';
+                document.getElementById('status-badge').className = 'px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-full font-bold text-sm inline-flex items-center gap-2 border border-gray-200 dark:border-gray-700';
             });
     }
 </script>
