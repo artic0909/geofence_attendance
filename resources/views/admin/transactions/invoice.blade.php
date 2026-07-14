@@ -116,12 +116,12 @@
                         <tr>
                             <td style="color: #0A1172;">
                                 <strong style="color: #0A1172;">Billed From:</strong><br>
-                                Geofence Attendance System<br>
-                                <span style="color: #F58220;">{{ config('app.url', 'projectattendance.com') }}</span><br>
                                 Sumatra Sales Private Limited<br>
                                 CIN No. : U51909WB2020PTC237800<br>
                                 GSTIN : 19ABDCS8853N1ZG<br>
-                                Contact: +91 6292237205
+                                Contact: +91 6292237205<br>
+                                Geofence Attendance System<br>
+                                <span style="color: #F58220;">{{ config('app.url', 'projectattendance.com') }}</span><br>
                             </td>
                             <td style="color: #4b5563;">
                                 <strong style="color: #0A1172;">Billed To:</strong><br>
