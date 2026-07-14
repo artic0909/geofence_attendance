@@ -97,7 +97,8 @@
                 <td colspan="2">
                     <table>
                         <tr>
-                            <td class="title">
+                            <td class="title" style="line-height: 1.2;">
+                                <span style="font-size: 14px; font-weight: bold; color: #F58220; display: block; margin-bottom: 8px; letter-spacing: 0.5px;">SMART GEOFENCE ATTENDANCE | SUMATRA SALES PVT. LTD.</span>
                                 INVOICE
                             </td>
                             <td>
@@ -185,6 +186,9 @@
         <div class="footer">
             <p>This is a computer-generated invoice and does not require a physical signature.</p>
             <p>Thank you for doing business with Geofence Attendance System | Sumatra Sales Private Limited.</p>
+            <p style="font-size: 11px; margin-top: 12px; color: #4b5563;">
+                <strong>Email:</strong> sales@projectattendance.com &nbsp;|&nbsp; <strong>Contact:</strong> +916292237205 &nbsp;|&nbsp; <strong>Whatsapp:</strong> +916292237205
+            </p>
         </div>
     </div>
 </body>
