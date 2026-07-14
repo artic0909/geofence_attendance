@@ -60,10 +60,10 @@
                 </td>
                 <td class="text-end">
                     @if($transaction->status === 'successful' || $transaction->status === 'success')
-                    <a href="{{ route('admin.transactions.invoice', ['id' => $transaction->id, 'view' => 1]) }}" class="btn btn-light btn-sm me-1" target="_blank" title="View Invoice">
+                    <a href="{{ route('admin.transactions.invoice', ['invoice_number' => $transaction->invoice_number, 'view' => 1]) }}" class="btn btn-light btn-sm me-1" target="_blank" title="View Invoice">
                         <i class="bi bi-eye"></i> View
                     </a>
-                    <a href="{{ route('admin.transactions.invoice', $transaction->id) }}" class="btn btn-primary btn-sm" title="Download Invoice">
+                    <a href="{{ route('admin.transactions.invoice', $transaction->invoice_number) }}" class="btn btn-primary btn-sm" title="Download Invoice">
                         <i class="bi bi-download"></i> Download
                     </a>
                     @else

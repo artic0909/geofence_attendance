@@ -28,7 +28,7 @@ Route::middleware(['auth', 'subscribed'])->prefix('admin')->group(function () {
     Route::resource('departments', \App\Http\Controllers\Admin\DepartmentController::class, ['as' => 'admin'])->except(['show']);
     Route::resource('designations', \App\Http\Controllers\Admin\DesignationController::class, ['as' => 'admin'])->except(['show']);
     Route::get('/transactions', [\App\Http\Controllers\Admin\TransactionController::class, 'index'])->name('admin.transactions.index');
-    Route::get('/transactions/{id}/invoice', [\App\Http\Controllers\Admin\TransactionController::class, 'downloadInvoice'])->name('admin.transactions.invoice');
+    Route::get('/transactions/{invoice_number}/invoice', [\App\Http\Controllers\Admin\TransactionController::class, 'downloadInvoice'])->name('admin.transactions.invoice');
     Route::get('/settings', [\App\Http\Controllers\Admin\SettingController::class, 'index'])->name('admin.settings.index');
     Route::post('/settings', [\App\Http\Controllers\Admin\SettingController::class, 'update'])->name('admin.settings.update');
 

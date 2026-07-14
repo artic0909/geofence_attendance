@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Invoice - {{ $transaction->razorpay_payment_id ?? $transaction->id }}</title>
+    <title>Invoice - {{ $transaction->invoice_number }}</title>
     <style>
         body {
             font-family: 'Inter', 'Roboto', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
@@ -101,7 +101,7 @@
                                 INVOICE
                             </td>
                             <td>
-                                Invoice #: {{ $transaction->razorpay_payment_id ?? $transaction->id }}<br>
+                                Invoice #: {{ $transaction->invoice_number }}<br>
                                 Created: {{ $transaction->created_at->format('F d, Y') }}<br>
                                 Status: <strong class="text-success">PAID</strong>
                             </td>

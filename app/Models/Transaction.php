@@ -16,7 +16,23 @@ class Transaction extends Model
         'gst_amount',
         'currency',
         'status',
+        'invoice_number',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($transaction) {
+            if (empty($transaction->invoice_number)) {
+                do {
+                    $invoiceNumber = 'INV-' . date('ymd') . '-' . strtoupper(\Illuminate\Support\Str::random(6));
+                } while (self::where('invoice_number', $invoiceNumber)->exists());
+                
+                $transaction->invoice_number = $invoiceNumber;
+            }
+        });
+    }
 
     public function user()
     {
