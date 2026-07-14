@@ -122,7 +122,7 @@
                                 Sumatra Sales Private Limited<br>
                                 CIN No. : U51909WB2020PTC237800<br>
                                 GSTIN : 19ABDCS8853N1ZG<br>
-                                Contact: +91 6292237205<br>
+                                Contact: +916292237205<br>
                                 Geofence Attendance System<br>
                                 <span style="color: #F58220;">{{ config('app.url', 'projectattendance.com') }}</span><br>
                             </td>
