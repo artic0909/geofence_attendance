@@ -152,7 +152,7 @@
                     </td>
                     <td class="text-end">
                         @if($attendance->check_in && !$attendance->check_out && \Carbon\Carbon::parse($attendance->date)->isToday())
-                        <a href="{{ route('admin.employees.track', $attendance->employee_id) }}" class="btn btn-primary btn-sm" title="Track Live Location">
+                        <a href="{{ route('admin.employees.track', $attendance->employee) }}" class="btn btn-primary btn-sm" title="Track Live Location">
                             <i class="bi bi-geo-fill me-1"></i> Track
                         </a>
                         @endif

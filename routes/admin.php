@@ -18,9 +18,9 @@ Route::middleware(['auth', 'subscribed'])->prefix('admin')->group(function () {
     Route::get('/attendances/today/export', [AttendanceController::class, 'todayExport'])->name('admin.attendances.today.export');
     Route::get('attendances/delete', [AttendanceController::class, 'deleteAttendances'])->name('admin.attendances.delete');
     Route::delete('attendances/bulk-delete', [AttendanceController::class, 'bulkDeleteAttendances'])->name('admin.attendances.bulk-delete');
-    Route::get('/employees/{employee}/track', [EmployeeController::class, 'track'])->name('admin.employees.track');
+    Route::get('/employees/{employee:phone}/track', [EmployeeController::class, 'track'])->name('admin.employees.track');
     Route::post('/employees/{employee}/send-alert', [EmployeeController::class, 'sendAlert'])->name('admin.employees.send-alert');
-    Route::get('/employees/{employee}/latest-location', [EmployeeController::class, 'getLatestLocation'])->name('admin.employees.latest-location');
+    Route::get('/employees/{employee:phone}/latest-location', [EmployeeController::class, 'getLatestLocation'])->name('admin.employees.latest-location');
     Route::resource('employees', EmployeeController::class, ['as' => 'admin']);
     Route::resource('geofences', GeofenceController::class, ['as' => 'admin']);
     
