@@ -26,6 +26,7 @@
         <thead>
             <tr>
                 <th scope="col">SL</th>
+                <th scope="col">Invoice No</th>
                 <th scope="col">Transaction ID</th>
                 <th scope="col">Plan</th>
                 <th scope="col">Amount</th>
@@ -39,7 +40,10 @@
             <tr>
                 <td>{{ ($transactions->currentPage() - 1) * $transactions->perPage() + $loop->iteration }}</td>
                 <td>
-                    <div class="font-monospace text-muted small">{{ $transaction->razorpay_payment_id ?? $transaction->id }}</div>
+                    <div class="font-monospace text-muted small">{{ $transaction->invoice_number }}</div>
+                </td>
+                <td>
+                    <div class="fw-bold text-primary">{{ $transaction->razorpay_payment_id ?? $transaction->id }}</div>
                 </td>
                 <td>
                     <div class="fw-bold text-primary">{{ $transaction->subscription->plan_name ?? $transaction->plan->name ?? 'Custom Plan' }}</div>
