@@ -58,6 +58,12 @@
             align-items: center;
             justify-content: space-between;
         }
+        /* Dark mode headings fix */
+        .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6,
+        [data-bs-theme="dark"] h1, [data-bs-theme="dark"] h2, [data-bs-theme="dark"] h3, 
+        [data-bs-theme="dark"] h4, [data-bs-theme="dark"] h5, [data-bs-theme="dark"] h6 {
+            color: #f3f4f6 !important; /* Tailwind gray-100 */
+        }
     </style>
     @stack('styles')
 </head>
@@ -140,7 +146,7 @@
             <span></span>
           </button>
 
-          <h2 class="h5 mb-0 ms-3 fw-bold d-none d-md-block text-gray-800">
+          <h2 class="h5 mb-0 ms-3 fw-bold d-none d-md-block text-gray-800 dark:text-white">
               @yield('header_title', 'Organization Portal')
           </h2>
 
