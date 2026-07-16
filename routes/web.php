@@ -9,13 +9,50 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Superadmin\AuthController as SuperadminAuthController;
 use App\Http\Controllers\Superadmin\PlanController;
 
-use Spatie\Sitemap\SitemapGenerator;
+use Spatie\Sitemap\Sitemap;
+use Spatie\Sitemap\Tags\Url;
 
 Route::get('/generate-sitemap', function () {
-    SitemapGenerator::create(config('app.url'))
+
+    Sitemap::create()
+
+        ->add(
+            Url::create('/')
+                ->setPriority(1.0)
+                ->setChangeFrequency(Url::CHANGE_FREQUENCY_WEEKLY)
+        )
+
+        ->add(
+            Url::create('/about')
+                ->setPriority(0.8)
+        )
+
+        ->add(
+            Url::create('/pricing')
+                ->setPriority(0.9)
+        )
+
+        ->add(
+            Url::create('/industries')
+                ->setPriority(0.8)
+        )
+
+        ->add(
+            Url::create('/contact')
+                ->setPriority(0.8)
+        )
+
+        ->add(
+            Url::create('/privacy-policy')
+        )
+
+        ->add(
+            Url::create('/terms')
+        )
+
         ->writeToFile(public_path('sitemap.xml'));
 
-    return 'Sitemap generated!';
+    return 'Sitemap generated successfully!';
 });
 
 // Superadmin Routes
