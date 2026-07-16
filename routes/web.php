@@ -9,6 +9,15 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Superadmin\AuthController as SuperadminAuthController;
 use App\Http\Controllers\Superadmin\PlanController;
 
+use Spatie\Sitemap\SitemapGenerator;
+
+Route::get('/generate-sitemap', function () {
+    SitemapGenerator::create(config('app.url'))
+        ->writeToFile(public_path('sitemap.xml'));
+
+    return 'Sitemap generated!';
+});
+
 // Superadmin Routes
 Route::prefix('superadmin')->name('superadmin.')->group(function () {
     Route::get('/login', [SuperadminAuthController::class, 'showLoginForm'])->name('login');
