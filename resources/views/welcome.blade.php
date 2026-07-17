@@ -1,6 +1,6 @@
 @extends('layouts.public')
 
-@section('meta_title', 'Geofence Employee Attendance System | Location-Based Tracking')
+@section('meta_title', 'Project Attendance Geofence System | Location-Based Tracking | ProjectAttendance.com')
 @section('meta_description', 'Secure, scalable, and tamper-proof geofencing attendance system for field forces, construction, healthcare, and corporate industries. ProjectAttendance.com provides the ultimate location-based employee tracking software.')
 @section('meta_keywords', 'geofence attendance, location based tracking, employee attendance system, geofencing software, field sales tracking, construction attendance, projectattendance.com')
 
