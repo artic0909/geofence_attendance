@@ -191,9 +191,23 @@ class OrganizationController extends Controller
             ->where('status', 'active')
             ->update(['status' => 'expired']);
 
+        // Create a transaction record for the coupon application
+        $transaction = \App\Models\Transaction::create([
+            'user_id' => $organization->id,
+            'plan_id' => null,
+            'razorpay_payment_id' => 'COUPON-' . strtoupper(str_replace(' ', '', $coupon->name)),
+            'razorpay_order_id' => null,
+            'amount' => 0.00,
+            'gst_amount' => 0.00,
+            'currency' => 'INR',
+            'status' => 'successful',
+            'employee_count' => $coupon->no_of_employee,
+        ]);
+
         // Create new subscription based on coupon
         \App\Models\Subscription::create([
             'user_id' => $organization->id,
+            'transaction_id' => $transaction->id,
             'plan_name' => $coupon->name,
             'employee_count' => $coupon->no_of_employee,
             'price' => 0.00,
