@@ -42,6 +42,11 @@ class OrganizationController extends Controller
                     $q->where('subscription_status', 'expired')
                       ->orWhere('subscription_expires_at', '<', now());
                 });
+            } elseif ($filter == 'pending') {
+                $query->where(function($q) {
+                    $q->where('subscription_status', 'pending')
+                      ->orWhereNull('subscription_status');
+                });
             }
         }
 
