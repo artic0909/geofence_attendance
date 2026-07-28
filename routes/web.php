@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Superadmin\AuthController as SuperadminAuthController;
 use App\Http\Controllers\Superadmin\PlanController;
+use App\Http\Controllers\Superadmin\CouponController;
 
 use Spatie\Sitemap\Sitemap;
 use Spatie\Sitemap\Tags\Url;
@@ -65,12 +66,17 @@ Route::prefix('superadmin')->name('superadmin.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Superadmin\DashboardController::class, 'index'])->name('dashboard');
         
         Route::resource('plans', PlanController::class)->except(['show']);
+        
+        Route::get('organizations/need-inform', [\App\Http\Controllers\Superadmin\OrganizationController::class, 'needInform'])->name('organizations.need-inform');
+        Route::get('organizations/expired', [\App\Http\Controllers\Superadmin\OrganizationController::class, 'expired'])->name('organizations.expired');
         Route::resource('organizations', \App\Http\Controllers\Superadmin\OrganizationController::class);
         Route::get('organizations/{organization}/employees/{employee}/track', [\App\Http\Controllers\Superadmin\OrganizationEmployeeController::class, 'track'])->name('organizations.employees.track');
         Route::get('organizations/{organization}/employees/{employee}/latest-location', [\App\Http\Controllers\Superadmin\OrganizationEmployeeController::class, 'latestLocation'])->name('organizations.employees.latest-location');
         Route::resource('organizations.employees', \App\Http\Controllers\Superadmin\OrganizationEmployeeController::class);
         Route::resource('organizations.geofences', \App\Http\Controllers\Superadmin\OrganizationGeofenceController::class);
+        Route::post('organizations/{organization}/apply-coupon', [\App\Http\Controllers\Superadmin\OrganizationController::class, 'applyCoupon'])->name('organizations.apply-coupon');
         Route::resource('subscriptions', \App\Http\Controllers\Superadmin\SubscriptionController::class);
+        Route::resource('coupons', CouponController::class);
         Route::resource('contacts', \App\Http\Controllers\Superadmin\ContactController::class)->only(['index', 'show', 'destroy']);
         
         Route::get('settings', [\App\Http\Controllers\Superadmin\SettingController::class, 'index'])->name('settings.index');
