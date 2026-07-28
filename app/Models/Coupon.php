@@ -11,4 +11,9 @@ class Coupon extends Model
         'no_of_employee',
         'duration',
     ];
+
+    protected $casts = [
+        'no_of_employee' => 'integer',
+        'duration' => 'integer',
+    ];
 }
