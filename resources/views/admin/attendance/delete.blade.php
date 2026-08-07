@@ -2,6 +2,23 @@
 @section('header_title', 'Delete Attendances')
 
 @section('content')
+@push('styles')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+    .select2-container--default .select2-selection--single {
+        height: 31px; /* match input-sm */
+        padding: 2px 12px;
+        border: 1px solid #dee2e6;
+        border-radius: 0.375rem;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 30px;
+    }
+    .select2-container .select2-selection--single .select2-selection__rendered {
+        padding-left: 0;
+    }
+</style>
+@endpush
 <div class="page-heading">
   <div class="page-heading-copy">
     <span class="page-icon"><i class="bi bi-trash" aria-hidden="true"></i></span>
@@ -53,7 +70,7 @@
 
         <div class="col-md-3">
             <label for="geofence" class="form-label fw-bold small">Geofence (Optional)</label>
-            <select name="geofence" id="geofence" class="form-select">
+            <select name="geofence" id="geofence" class="form-select select2">
                 <option value="">All Geofences</option>
                 @foreach($geofences as $geofence)
                 <option value="{{ $geofence->id }}" {{ $selectedGeofence == $geofence->id ? 'selected' : '' }}>
@@ -284,3 +301,13 @@
 </script>
 @endpush
 @endsection
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('.select2').select2({
+            width: '100%'
+        });
+    });
+</script>
+@endpush
