@@ -11,18 +11,46 @@
       <p class="text-muted mb-0">Employees who have not logged attendance yet.</p>
     </div>
   </div>
-  <div class="heading-actions d-flex gap-2">
-    <form method="GET" action="{{ route('admin.attendances.today-absent') }}" class="d-flex align-items-center">
-        <div class="input-group input-group-sm">
-            <input type="text" name="employee_name" placeholder="Search by name..." value="{{ request('employee_name') }}" class="form-control">
-            <button type="submit" class="btn btn-primary">Search</button>
-        </div>
-    </form>
+  <div class="heading-actions">
     <a href="{{ route('admin.dashboard.export-pending') }}" class="btn btn-warning btn-sm d-flex align-items-center"><i class="bi bi-filetype-csv me-1" aria-hidden="true"></i> Export CSV</a>
   </div>
 </div>
 
-<section class="panel mt-3">
+<section class="panel mt-3 mb-4">
+  <div class="panel-header">
+    <div>
+      <h2 class="h5 mb-1 section-title"><i class="bi bi-funnel" aria-hidden="true"></i><span>Filter Records</span></h2>
+    </div>
+  </div>
+  <div class="panel-body p-4">
+    <form method="GET" id="filterForm" action="{{ route('admin.attendances.today-absent') }}" class="row g-3 align-items-end">
+        <div class="col-md-4">
+            <label for="geofence" class="form-label fw-bold small">Site / Geofence</label>
+            <select name="geofence" id="geofence" class="form-select">
+                <option value="">All Sites</option>
+                @foreach($geofences as $geofence)
+                <option value="{{ $geofence->id }}" {{ request('geofence') == $geofence->id ? 'selected' : '' }}>
+                    {{ $geofence->name }}
+                </option>
+                @endforeach
+                <option value="outside" {{ request('geofence') == 'outside' ? 'selected' : '' }}>Outside</option>
+            </select>
+        </div>
+
+        <div class="col-md-5">
+            <label for="employee_name" class="form-label fw-bold small">Employee Name</label>
+            <input type="text" name="employee_name" id="employee_name" class="form-control" placeholder="Search by name..." value="{{ request('employee_name') }}">
+        </div>
+
+        <div class="col-md-3 d-flex gap-2">
+            <button type="submit" id="filterBtn" class="btn btn-primary flex-grow-1">Filter</button>
+            <a href="{{ route('admin.attendances.today-absent') }}" class="btn btn-light">Reset</a>
+        </div>
+    </form>
+  </div>
+</section>
+
+<section class="panel">
   <div class="panel-header">
     <div class="d-flex align-items-center gap-2">
       <h2 class="h5 mb-1 section-title mb-0"><i class="bi bi-list-ul" aria-hidden="true"></i><span>Pending Attendance</span></h2>

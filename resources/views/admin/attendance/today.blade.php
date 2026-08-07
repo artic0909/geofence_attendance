@@ -33,6 +33,7 @@
                     {{ $geofence->name }}
                 </option>
                 @endforeach
+                <option value="outside" {{ request('geofence') == 'outside' ? 'selected' : '' }}>Outside</option>
             </select>
         </div>
 

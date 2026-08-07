@@ -63,8 +63,12 @@ class AttendanceController extends Controller
 
         // Geofence filter only applies to Normal Attendance
         if ($request->filled('geofence')) {
-            $normalQuery->where('geofence_id', $request->geofence);
-            $outsideQuery->whereRaw('1 = 0'); 
+            if ($request->geofence === 'outside') {
+                $normalQuery->whereRaw('1 = 0');
+            } else {
+                $normalQuery->where('geofence_id', $request->geofence);
+                $outsideQuery->whereRaw('1 = 0'); 
+            }
         }
 
         // Fetch and Merge
@@ -120,8 +124,12 @@ class AttendanceController extends Controller
         }
 
         if ($request->filled('geofence')) {
-            $normalQuery->where('geofence_id', $request->geofence);
-            $outsideQuery->whereRaw('1 = 0');
+            if ($request->geofence === 'outside') {
+                $normalQuery->whereRaw('1 = 0');
+            } else {
+                $normalQuery->where('geofence_id', $request->geofence);
+                $outsideQuery->whereRaw('1 = 0');
+            }
         }
 
         $attendances = $normalQuery->get()->map(function($a){ $a->attendance_type = 'normal'; return $a; })
@@ -253,8 +261,12 @@ class AttendanceController extends Controller
             ->whereDate('date', today());
 
         if ($request->filled('geofence')) {
-            $normalQuery->where('geofence_id', $request->geofence);
-            $outsideQuery->whereRaw('1 = 0');
+            if ($request->geofence === 'outside') {
+                $normalQuery->whereRaw('1 = 0');
+            } else {
+                $normalQuery->where('geofence_id', $request->geofence);
+                $outsideQuery->whereRaw('1 = 0');
+            }
         }
 
         if ($request->filled('employee_name')) {
@@ -303,14 +315,27 @@ class AttendanceController extends Controller
             ->where('is_active', true)
             ->whereNotIn('id', $attendedEmployeeIds);
 
+        // Get only this admin's geofences
+        $geofences = Geofence::where('admin_id', $adminId)->get();
+
         // Apply filters if any
         if ($request->filled('employee_name')) {
             $pendingQuery->where('name', 'like', '%' . $request->employee_name . '%');
         }
 
+        if ($request->filled('geofence')) {
+            if ($request->geofence === 'outside') {
+                $pendingQuery->whereRaw('1 = 0');
+            } else {
+                $pendingQuery->whereHas('employeeGeofences', function($q) use ($request) {
+                    $q->where('geofence_id', $request->geofence);
+                });
+            }
+        }
+
         $pending_employees = $pendingQuery->with('employeeGeofences')->orderBy('name', 'asc')->paginate(10);
 
-        return view('admin.attendance.today_absent', compact('pending_employees'));
+        return view('admin.attendance.today_absent', compact('pending_employees', 'geofences'));
     }
 
     public function todayExport(Request $request)
@@ -461,10 +486,14 @@ class AttendanceController extends Controller
 
         // Filter by geofence if selected (only affects Normal Attendance)
         if ($request->filled('geofence')) {
-            $normalQuery->where('geofence_id', $request->geofence);
-            // If geofence is specified, we DON'T delete outside attendances 
-            // because they are never tied to a geofence.
-            $outsideQuery->whereRaw('1 = 0');
+            if ($request->geofence === 'outside') {
+                $normalQuery->whereRaw('1 = 0');
+            } else {
+                $normalQuery->where('geofence_id', $request->geofence);
+                // If geofence is specified, we DON'T delete outside attendances 
+                // because they are never tied to a geofence.
+                $outsideQuery->whereRaw('1 = 0');
+            }
         }
 
         // Filter by employee name if provided
