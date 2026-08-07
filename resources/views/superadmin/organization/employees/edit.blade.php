@@ -3,22 +3,7 @@
 
 @push('styles')
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<style>
-    .select2-container--default .select2-selection--single {
-        height: 46px;
-        padding: 8px 12px;
-        border: 1px solid #d1d5db;
-        border-radius: 0.5rem;
-        background-color: #f9fafb;
-    }
-    .select2-container--default .select2-selection--single .select2-selection__arrow {
-        height: 44px;
-    }
-    .select2-container--default .select2-selection--single:focus {
-        border-color: #f6c449;
-        box-shadow: 0 0 0 2px rgba(246, 196, 73, 0.2);
-    }
-</style>
+
 @endpush
 
 @section('content')

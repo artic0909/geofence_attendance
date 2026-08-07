@@ -4,20 +4,7 @@
 @section('content')
 @push('styles')
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<style>
-    .select2-container--default .select2-selection--single {
-        height: 31px; /* match input-sm */
-        padding: 2px 12px;
-        border: 1px solid #dee2e6;
-        border-radius: 0.375rem;
-    }
-    .select2-container--default .select2-selection--single .select2-selection__arrow {
-        height: 30px;
-    }
-    .select2-container .select2-selection--single .select2-selection__rendered {
-        padding-left: 0;
-    }
-</style>
+
 @endpush
 <div class="page-heading">
   <div class="page-heading-copy">
