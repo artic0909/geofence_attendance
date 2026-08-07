@@ -24,9 +24,18 @@ class EmployeeController extends Controller
 
     public function index(Request $request)
     {
-        $query = User::where('role', 'employee')->where('admin_id', auth()->id());
+        $adminId = auth()->id();
+        $query = User::where('role', 'employee')->where('admin_id', $adminId);
 
-        if ($request->filled('search')) {
+        if ($request->filled('employee_name')) {
+            $search = $request->employee_name;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('phone', 'like', "%{$search}%")
+                  ->orWhere('employee_id', 'like', "%{$search}%");
+            });
+        } elseif ($request->filled('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
@@ -36,8 +45,20 @@ class EmployeeController extends Controller
             });
         }
 
+        if ($request->filled('geofence')) {
+            if ($request->geofence === 'outside') {
+                $query->whereRaw('1 = 0');
+            } else {
+                $query->whereHas('employeeGeofences', function($q) use ($request) {
+                    $q->where('geofence_id', $request->geofence);
+                });
+            }
+        }
+
+        $geofences = Geofence::where('admin_id', $adminId)->get();
+
         $employees = $query->with(['employeeGeofences', 'department', 'designation'])->orderBy('name', 'asc')->paginate(10)->withQueryString();
-        return view('admin.employees.index', compact('employees'));
+        return view('admin.employees.index', compact('employees', 'geofences'));
     }
 
     public function create()
