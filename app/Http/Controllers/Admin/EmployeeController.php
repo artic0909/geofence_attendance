@@ -146,7 +146,8 @@ class EmployeeController extends Controller
         ]);
 
         $data = $request->only(['name', 'email', 'phone', 'employee_id', 'department_id', 'designation_id']);
-        $data['phone_used_restricted'] = $request->has('phone_used_restricted');
+        $data['phone_used_restricted'] = $request->boolean('phone_used_restricted');
+        $data['is_active'] = $request->boolean('is_active');
 
         if ($request->filled('password')) {
             $data['password'] = Hash::make($request->password);

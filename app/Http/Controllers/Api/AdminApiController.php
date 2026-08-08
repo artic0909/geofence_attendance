@@ -49,7 +49,8 @@ class AdminApiController extends Controller
 
         $allPresentIds = array_unique(array_merge($onsitePresent, $outsidePresent));
         $todayPresentCount = count($allPresentIds);
-        $todayAbsentCount = max(0, $totalEmployees - $todayPresentCount);
+        $activeEmployeesCount = User::where('admin_id', $adminId)->where('role', 'employee')->where('is_active', true)->count();
+        $todayAbsentCount = max(0, $activeEmployeesCount - $todayPresentCount);
 
         $user = $request->user();
         
@@ -200,6 +201,7 @@ class AdminApiController extends Controller
 
         $absentEmployees = User::with(['designation', 'geofences'])->where('admin_id', $adminId)
             ->where('role', 'employee')
+            ->where('is_active', true)
             ->whereNotIn('id', $allPresentIds)
             ->get()->map(function($user) {
                 return [

@@ -141,12 +141,8 @@ class OrganizationEmployeeController extends Controller
             $employee->phone = $request->phone;
             $employee->department_id = $request->department_id;
             $employee->designation_id = $request->designation_id;
-            $employee->is_active = $request->has('is_active') ? $request->is_active : false;
-            if ($request->has('phone_used_restricted')) {
-                $employee->phone_used_restricted = $request->phone_used_restricted;
-            } else {
-                $employee->phone_used_restricted = false;
-            }
+            $employee->is_active = $request->boolean('is_active');
+            $employee->phone_used_restricted = $request->boolean('phone_used_restricted');
             
             $employee->save();
 
