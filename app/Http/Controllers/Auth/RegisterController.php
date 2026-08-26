@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-
+use Illuminate\Support\Facades\Mail;
+use App\Mail\OrganizationWelcomeMail;
+use App\Mail\AdminNewOrganizationNotification;
 class RegisterController extends Controller
 {
     public function showRegistrationForm()
@@ -54,6 +56,13 @@ class RegisterController extends Controller
         $validated['role'] = 'admin';
 
         $user = User::create($validated);
+
+        try {
+            Mail::to($user->email)->send(new OrganizationWelcomeMail($user));
+            Mail::to('sumatra.sales2424@gmail.com')->send(new AdminNewOrganizationNotification($user));
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Registration Email Error: ' . $e->getMessage());
+        }
 
         auth()->login($user);
 
