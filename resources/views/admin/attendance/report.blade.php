@@ -127,6 +127,54 @@
     </div>
 </div>
 
+<!-- Dynamic Salary Calculator -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white border-bottom py-3">
+        <h6 class="mb-0 fw-bold text-secondary">Salary Calculator</h6>
+    </div>
+    <div class="card-body p-4 bg-light rounded-bottom">
+        <div class="row align-items-center g-4">
+            <!-- Inputs -->
+            <div class="col-md-5">
+                <div class="row g-3">
+                    <div class="col-6">
+                        <label for="daily_amount" class="form-label small text-muted fw-bold text-uppercase">Daily Amount (₹)</label>
+                        <div class="input-group input-group-lg shadow-sm">
+                            <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-currency-rupee"></i></span>
+                            <input type="number" id="daily_amount" class="form-control border-start-0 ps-0 fw-bold" placeholder="0" oninput="calculateSalary()">
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <label for="ot_amount" class="form-label small text-muted fw-bold text-uppercase">OT Per Hour (₹)</label>
+                        <div class="input-group input-group-lg shadow-sm">
+                            <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-currency-rupee"></i></span>
+                            <input type="number" id="ot_amount" class="form-control border-start-0 ps-0 fw-bold" placeholder="0" oninput="calculateSalary()">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Live Results -->
+            <div class="col-md-7">
+                <div class="d-flex justify-content-between align-items-center bg-white p-4 rounded-3 border shadow-sm h-100">
+                    <div class="text-center px-3">
+                        <p class="text-muted small fw-bold mb-2 text-uppercase">Total Daily Salary</p>
+                        <h4 class="mb-0 text-dark fw-bold font-monospace" id="total_daily_salary">₹0</h4>
+                    </div>
+                    <div class="text-center px-3 border-start border-end">
+                        <p class="text-muted small fw-bold mb-2 text-uppercase">Total OT Salary</p>
+                        <h4 class="mb-0 text-dark fw-bold font-monospace" id="total_ot_salary">₹0</h4>
+                    </div>
+                    <div class="text-center px-3">
+                        <p class="text-primary small fw-bold mb-2 text-uppercase">Grand Total</p>
+                        <h3 class="mb-0 text-primary fw-bold font-monospace" id="grand_total">₹0</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Detailed Table -->
 <div class="card border-0 shadow-sm mb-4">
     <div class="card-header bg-white border-bottom py-3">
@@ -201,5 +249,28 @@
             this.form.submit();
         });
     });
+
+    @if($selectedEmployee && count($reportData) > 0)
+    function calculateSalary() {
+        const totalP = {{ $totals['P'] }};
+        const totalOT = {{ $totals['OT'] }};
+        
+        const dailyAmount = parseFloat(document.getElementById('daily_amount').value) || 0;
+        const otAmount = parseFloat(document.getElementById('ot_amount').value) || 0;
+        
+        const totalDailySalary = totalP * dailyAmount;
+        const totalOTSalary = totalOT * otAmount;
+        const grandTotal = totalDailySalary + totalOTSalary;
+        
+        // Format as Indian Rupee without decimal if it's a whole number, or with 2 decimals
+        const formatCurrency = (amount) => {
+            return '₹' + amount.toLocaleString('en-IN', { maximumFractionDigits: 2 });
+        };
+        
+        document.getElementById('total_daily_salary').innerText = formatCurrency(totalDailySalary);
+        document.getElementById('total_ot_salary').innerText = formatCurrency(totalOTSalary);
+        document.getElementById('grand_total').innerText = formatCurrency(grandTotal);
+    }
+    @endif
 </script>
 @endpush

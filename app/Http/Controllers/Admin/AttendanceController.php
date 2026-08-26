@@ -304,11 +304,23 @@ class AttendanceController extends Controller
                     $totals['A']++;
                 }
 
+                $hoursDisplay = '';
+                $otDisplay = '';
+
+                if ($attendance) {
+                    if ($attendance->check_in && $attendance->check_out) {
+                        $hoursDisplay = $regularHours > 0 ? $regularHours : '';
+                        $otDisplay = $otHours > 0 ? $otHours : '';
+                    } else if ($attendance->check_in && !$attendance->check_out) {
+                        $hoursDisplay = 'Missing Check-out';
+                    }
+                }
+
                 $reportData[] = [
                     'date' => $currentDate->format('d/m/Y'),
                     'status' => $status,
-                    'hours' => $regularHours > 0 ? $regularHours : '',
-                    'ot' => $otHours > 0 ? $otHours : ''
+                    'hours' => $hoursDisplay,
+                    'ot' => $otDisplay
                 ];
 
                 $currentDate->addDay();
