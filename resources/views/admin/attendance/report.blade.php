@@ -66,10 +66,13 @@
             <h6 class="mb-0 fw-bold text-secondary">Employee Summary</h6>
             <p class="text-muted small mb-0 mt-1">Period: {{ \Carbon\Carbon::parse(request('from_date'))->format('d M, Y') }} to {{ \Carbon\Carbon::parse(request('to_date'))->format('d M, Y') }}</p>
         </div>
+        <button class="btn btn-success btn-sm shadow-sm" onclick="exportOverallExcel()">
+            <i class="bi bi-file-earmark-excel me-1"></i> Export Excel
+        </button>
     </div>
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0 text-center">
+            <table class="table table-hover align-middle mb-0 text-center" id="overallSummaryTable">
                 <thead class="bg-light text-muted small text-uppercase">
                     <tr>
                         <th class="ps-4 text-start">Employee Name</th>
@@ -78,7 +81,7 @@
                         <th>Total P</th>
                         <th>Total A</th>
                         <th>Total OT</th>
-                        <th class="pe-4 text-end">Action</th>
+                        <th class="pe-4 text-end no-export">Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -90,7 +93,7 @@
                         <td class="fw-bold text-success">{{ $data['totals']['P'] }}</td>
                         <td class="fw-bold text-danger">{{ $data['totals']['A'] }}</td>
                         <td class="fw-bold text-warning">{{ $data['totals']['OT'] }} h</td>
-                        <td class="pe-4 text-end">
+                        <td class="pe-4 text-end no-export">
                             <button class="btn btn-sm btn-outline-primary" onclick="viewEmployeeReport({{ $empId }})">
                                 <i class="bi bi-eye me-1"></i> View
                             </button>
@@ -253,6 +256,9 @@
 
             </div>
             <div class="modal-footer bg-white">
+                <button type="button" class="btn btn-success me-auto shadow-sm" onclick="exportSingleEmployeeExcel()">
+                    <i class="bi bi-file-earmark-excel me-1"></i> Export Data & Salary
+                </button>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
@@ -263,6 +269,8 @@
 @push('scripts')
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<!-- SheetJS for Excel Export -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
     // Prepare JSON data for JS
     const reportData = @json($reportData ?? []);
@@ -368,6 +376,90 @@
         document.getElementById('total_daily_salary').innerText = formatCurrency(totalDailySalary);
         document.getElementById('total_ot_salary').innerText = formatCurrency(totalOTSalary);
         document.getElementById('grand_total').innerText = formatCurrency(grandTotal);
+    }
+
+    function exportOverallExcel() {
+        const table = document.getElementById('overallSummaryTable');
+        if(!table) return;
+
+        // Clone the table to remove 'no-export' columns/buttons
+        const clone = table.cloneNode(true);
+        const noExportElems = clone.querySelectorAll('.no-export');
+        noExportElems.forEach(el => el.remove());
+
+        const wb = XLSX.utils.table_to_book(clone, {sheet: "Summary"});
+        XLSX.writeFile(wb, "Attendance_Summary_Report.xlsx");
+    }
+
+    function exportSingleEmployeeExcel() {
+        if(!currentEmployeeId || !reportData[currentEmployeeId]) return;
+        
+        const data = reportData[currentEmployeeId];
+        const empName = data.employee.name;
+        const empId = data.employee.employee_id || '-';
+        
+        const periodStr = document.getElementById('modalPeriodText').innerText;
+        
+        // Read live salary values
+        const dailyRate = document.getElementById('daily_amount').value || '0';
+        const otRate = document.getElementById('ot_amount').value || '0';
+        const totalDailySal = document.getElementById('total_daily_salary').innerText.replace('₹', '').replace(/,/g, '');
+        const totalOtSal = document.getElementById('total_ot_salary').innerText.replace('₹', '').replace(/,/g, '');
+        const grandTotal = document.getElementById('grand_total').innerText.replace('₹', '').replace(/,/g, '');
+
+        // Construct Excel Data (Array of Arrays)
+        const aoa = [
+            ["EMPLOYEE ATTENDANCE & SALARY REPORT"],
+            [periodStr],
+            [],
+            ["Employee Details"],
+            ["Name", empName],
+            ["Employee ID", empId],
+            ["Designation", data.employee.designation?.name || '-'],
+            [],
+            ["Attendance Summary"],
+            ["Total Present", data.totals.P],
+            ["Total Absent", data.totals.A],
+            ["Total OT (Hours)", data.totals.OT],
+            [],
+            ["Salary Breakdown"],
+            ["Daily Amount Rate (Rs)", dailyRate],
+            ["OT Per Hour Rate (Rs)", otRate],
+            ["Total Daily Salary (Rs)", totalDailySal],
+            ["Total OT Salary (Rs)", totalOtSal],
+            ["GRAND TOTAL (Rs)", grandTotal],
+            [],
+            ["Detailed Day-by-Day Log"],
+            ["Date", "Site Name", "Present", "Daily Hours", "Daily Rate (Rs)", "OT (Hours)"]
+        ];
+
+        // Append log rows
+        data.dayByDay.forEach(row => {
+            let status = row.status === 'P' ? 'Present' : 'Absent';
+            aoa.push([
+                row.date,
+                row.site_name || '-',
+                status,
+                row.hours,
+                data.employee.daily_rate_amount || '-',
+                row.ot
+            ]);
+        });
+
+        const ws = XLSX.utils.aoa_to_sheet(aoa);
+        
+        // Auto-size columns slightly
+        const wscols = [
+            {wch: 15}, {wch: 25}, {wch: 12}, {wch: 15}, {wch: 15}, {wch: 15}
+        ];
+        ws['!cols'] = wscols;
+
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Salary Report");
+        
+        // Filename based on employee name
+        const filename = `${empName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_salary_report.xlsx`;
+        XLSX.writeFile(wb, filename);
     }
 </script>
 @endpush
