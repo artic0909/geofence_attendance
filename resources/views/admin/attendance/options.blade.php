@@ -63,7 +63,24 @@
                     </div>
                 </div>
                 <div class="bg-light text-secondary rounded p-3">
-                    <i class="bi bi-trash3 fs-2"></i>
+                    <i class="bi bi-trash3 text-danger fs-2"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-4">
+        <a class="card h-100 border-0 shadow-sm hover-elevate transition-all cursor-pointer" href="{{ route('admin.attendance.report') }}">
+            <div class="card-body p-4 d-flex align-items-start justify-content-between">
+                <div>
+                    <h6 class="text-muted fw-bold text-uppercase small mb-2">Attendance Report</h6>
+                    <h2 class="h3 fw-bold text-secondary mb-2 mt-3">Report</h2>
+                    <div class="d-flex align-items-center text-muted small mt-4">
+                        <i class="bi bi-file-earmark-text text-success me-1"></i> Generate
+                    </div>
+                </div>
+                <div class="bg-light text-secondary rounded p-3">
+                    <i class="bi bi-file-earmark-text text-success fs-2"></i>
                 </div>
             </div>
         </div>

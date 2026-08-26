@@ -13,6 +13,7 @@ Route::middleware(['auth', 'subscribed'])->prefix('admin')->group(function () {
     Route::get('/attendances/export', [AttendanceController::class, 'export'])->name('admin.attendances.export');
     Route::get('/attendances', [AttendanceController::class, 'index'])->name('admin.attendances');
     Route::get('/attendances/options', [AttendanceController::class, 'options'])->name('admin.attendances.options');
+    Route::get('/attendances/report', [AttendanceController::class, 'report'])->name('admin.attendance.report');
     Route::get('/attendances/today', [AttendanceController::class, 'todayAttedances'])->name('admin.attendances.today');
     Route::get('/attendances/today-absent', [AttendanceController::class, 'todayAbsent'])->name('admin.attendances.today-absent');
     Route::get('/attendances/today/export', [AttendanceController::class, 'todayExport'])->name('admin.attendances.today.export');

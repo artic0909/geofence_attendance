@@ -230,6 +230,11 @@ class AttendanceController extends Controller
         return view('admin.attendance.options', compact('stats', 'recent_attendances', 'geofences'));
     }
 
+    public function report(Request $request)
+    {
+        return view('admin.attendance.report');
+    }
+
     public function todayAttedances(Request $request)
     {
         $adminId = auth()->id();
