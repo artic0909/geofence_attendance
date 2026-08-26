@@ -53,7 +53,7 @@
             </div>
 
             <div class="col-md-2">
-                <button type="submit" class="btn btn-primary w-100">Generate</button>
+                <button type="submit" class="btn btn-primary w-100">Filter</button>
             </div>
         </form>
     </div>
@@ -72,10 +72,9 @@
                     Period: <span class="fw-semibold">{{ \Carbon\Carbon::parse(request('from_date'))->format('d M, Y') }}</span> to <span class="fw-semibold">{{ \Carbon\Carbon::parse(request('to_date'))->format('d M, Y') }}</span>
                 </p>
             </div>
-            <div class="text-end">
-                <button class="btn btn-danger btn-sm me-2"><i class="bi bi-file-earmark-pdf me-1"></i> Export PDF</button>
-                <button class="btn btn-success btn-sm"><i class="bi bi-whatsapp me-1"></i> Send to Employee</button>
-            </div>
+            <!-- <div class="text-end">
+                <button class="btn btn-success btn-sm"><i class="bi bi-download me-1"></i> Generate Report</button>
+            </div> -->
         </div>
 
         <!-- Employee Info & Summary Stats -->
