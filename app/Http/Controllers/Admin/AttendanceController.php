@@ -232,7 +232,81 @@ class AttendanceController extends Controller
 
     public function report(Request $request)
     {
-        return view('admin.attendance.report');
+        $adminId = auth()->id();
+        $geofences = Geofence::where('admin_id', $adminId)->get();
+        
+        $employeesQuery = User::where('role', 'employee')->where('admin_id', $adminId)->where('is_active', true);
+        
+        $employees = collect(); // Empty by default
+        
+        // Only load employees if a specific geofence (site) is chosen
+        if ($request->filled('geofence') && $request->geofence !== 'all') {
+            if ($request->geofence !== 'outside') {
+                $employeesQuery->whereHas('employeeGeofences', function($q) use ($request) {
+                    $q->where('geofence_id', $request->geofence);
+                });
+            }
+            $employees = $employeesQuery->orderBy('name', 'asc')->get();
+        }
+        
+        $reportData = [];
+        $totals = ['P' => 0, 'A' => 0, 'OT' => 0];
+        $selectedEmployee = null;
+
+        if ($request->filled('employee_id') && $request->filled('from_date') && $request->filled('to_date')) {
+            $selectedEmployee = User::find($request->employee_id);
+            $fromDate = \Carbon\Carbon::parse($request->from_date);
+            $toDate = \Carbon\Carbon::parse($request->to_date);
+
+            // Fetch all attendances for the employee in the date range
+            $normalAttendances = Attendance::where('employee_id', $request->employee_id)
+                ->whereBetween('date', [$fromDate->format('Y-m-d'), $toDate->format('Y-m-d')])
+                ->get()->keyBy('date');
+
+            $outsideAttendances = OutsideAttendance::where('employee_id', $request->employee_id)
+                ->whereBetween('date', [$fromDate->format('Y-m-d'), $toDate->format('Y-m-d')])
+                ->get()->keyBy('date');
+
+            // Iterate through dates
+            $currentDate = $fromDate->copy();
+            while ($currentDate->lte($toDate)) {
+                $dateString = $currentDate->format('Y-m-d');
+                
+                $attendance = $normalAttendances->get($dateString) ?? $outsideAttendances->get($dateString);
+                
+                $status = 'A';
+                $otHours = 0;
+                
+                if ($attendance) {
+                    $status = 'P';
+                    $totals['P']++;
+                    
+                    if ($attendance->check_in && $attendance->check_out) {
+                        $checkIn = \Carbon\Carbon::parse($attendance->check_in);
+                        $checkOut = \Carbon\Carbon::parse($attendance->check_out);
+                        $workedMinutes = $checkIn->diffInMinutes($checkOut);
+                        $workedHours = $workedMinutes / 60;
+                        
+                        if ($workedHours > 9) {
+                            $otHours = round($workedHours - 9, 2);
+                            $totals['OT'] += $otHours;
+                        }
+                    }
+                } else {
+                    $totals['A']++;
+                }
+
+                $reportData[] = [
+                    'date' => $currentDate->format('d/m/Y'),
+                    'status' => $status,
+                    'ot' => $otHours > 0 ? $otHours : ''
+                ];
+
+                $currentDate->addDay();
+            }
+        }
+
+        return view('admin.attendance.report', compact('geofences', 'employees', 'reportData', 'totals', 'selectedEmployee'));
     }
 
     public function todayAttedances(Request $request)
