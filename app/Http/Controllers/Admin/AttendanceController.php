@@ -261,11 +261,15 @@ class AttendanceController extends Controller
             // Fetch all attendances for the employee in the date range
             $normalAttendances = Attendance::where('employee_id', $request->employee_id)
                 ->whereBetween('date', [$fromDate->format('Y-m-d'), $toDate->format('Y-m-d')])
-                ->get()->keyBy('date');
+                ->get()->keyBy(function($item) {
+                    return \Carbon\Carbon::parse($item->date)->format('Y-m-d');
+                });
 
             $outsideAttendances = OutsideAttendance::where('employee_id', $request->employee_id)
                 ->whereBetween('date', [$fromDate->format('Y-m-d'), $toDate->format('Y-m-d')])
-                ->get()->keyBy('date');
+                ->get()->keyBy(function($item) {
+                    return \Carbon\Carbon::parse($item->date)->format('Y-m-d');
+                });
 
             // Iterate through dates
             $currentDate = $fromDate->copy();
