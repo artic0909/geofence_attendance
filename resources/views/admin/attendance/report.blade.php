@@ -140,14 +140,14 @@
                         <label for="daily_amount" class="form-label small text-muted fw-bold text-uppercase">Daily Amount (₹)</label>
                         <div class="input-group input-group-lg shadow-sm">
                             <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-currency-rupee"></i></span>
-                            <input type="number" id="daily_amount" class="form-control border-start-0 ps-0 fw-bold" placeholder="0" oninput="calculateSalary()">
+                            <input type="number" step="0.01" id="daily_amount" class="form-control border-start-0 ps-0 fw-bold" placeholder="0" value="{{ $selectedEmployee->daily_rate_amount ?? '' }}" oninput="calculateSalary()">
                         </div>
                     </div>
                     <div class="col-6">
                         <label for="ot_amount" class="form-label small text-muted fw-bold text-uppercase">OT Per Hour (₹)</label>
                         <div class="input-group input-group-lg shadow-sm">
                             <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-currency-rupee"></i></span>
-                            <input type="number" id="ot_amount" class="form-control border-start-0 ps-0 fw-bold" placeholder="0" oninput="calculateSalary()">
+                            <input type="number" step="0.01" id="ot_amount" class="form-control border-start-0 ps-0 fw-bold" placeholder="0" value="{{ $selectedEmployee->ot_rate_amount ?? '' }}" oninput="calculateSalary()">
                         </div>
                     </div>
                 </div>
@@ -270,6 +270,11 @@
         document.getElementById('total_ot_salary').innerText = formatCurrency(totalOTSalary);
         document.getElementById('grand_total').innerText = formatCurrency(grandTotal);
     }
+    
+    // Auto-calculate on load if values exist
+    $(document).ready(function() {
+        calculateSalary();
+    });
     @endif
 </script>
 @endpush

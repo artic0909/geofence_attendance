@@ -80,6 +80,18 @@
                     </select>
                     @error('designation_id')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
                 </div>
+                
+                <div class="col-md-6">
+                    <label for="daily_rate_amount" class="form-label fw-bold">Daily Rate Amount (₹)</label>
+                    <input type="number" step="0.01" name="daily_rate_amount" id="daily_rate_amount" class="form-control" value="{{ old('daily_rate_amount', $employee->daily_rate_amount) }}">
+                    @error('daily_rate_amount')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                </div>
+
+                <div class="col-md-6">
+                    <label for="ot_rate_amount" class="form-label fw-bold">OT Rate Amount per Hour (₹)</label>
+                    <input type="number" step="0.01" name="ot_rate_amount" id="ot_rate_amount" class="form-control" value="{{ old('ot_rate_amount', $employee->ot_rate_amount) }}">
+                    @error('ot_rate_amount')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                </div>
             </div>
         </div>
     </section>

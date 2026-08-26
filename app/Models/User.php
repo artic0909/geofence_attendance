@@ -27,6 +27,8 @@ class User extends Authenticatable
         'role',
         'admin_id',
         'phone',
+        'daily_rate_amount',
+        'ot_rate_amount',
         'employee_id',
         'business_name',
         'gst_number',

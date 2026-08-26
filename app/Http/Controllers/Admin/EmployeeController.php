@@ -97,6 +97,8 @@ class EmployeeController extends Controller
             'geofences'   => 'nullable|array',
             'department_id' => 'nullable|exists:departments,id',
             'designation_id' => 'nullable|exists:designations,id',
+            'daily_rate_amount' => 'nullable|numeric|min:0',
+            'ot_rate_amount'    => 'nullable|numeric|min:0',
         ]);
 
         $employee = User::create([
@@ -109,6 +111,8 @@ class EmployeeController extends Controller
             'password'    => Hash::make($request->password),
             'department_id' => $request->department_id,
             'designation_id' => $request->designation_id,
+            'daily_rate_amount' => $request->daily_rate_amount,
+            'ot_rate_amount' => $request->ot_rate_amount,
             'phone_used_restricted' => $request->has('phone_used_restricted'),
         ]);
 
@@ -143,9 +147,11 @@ class EmployeeController extends Controller
             'geofences'   => 'nullable|array',
             'department_id' => 'nullable|exists:departments,id',
             'designation_id' => 'nullable|exists:designations,id',
+            'daily_rate_amount' => 'nullable|numeric|min:0',
+            'ot_rate_amount'    => 'nullable|numeric|min:0',
         ]);
 
-        $data = $request->only(['name', 'email', 'phone', 'employee_id', 'department_id', 'designation_id']);
+        $data = $request->only(['name', 'email', 'phone', 'employee_id', 'department_id', 'designation_id', 'daily_rate_amount', 'ot_rate_amount']);
         $data['phone_used_restricted'] = $request->boolean('phone_used_restricted');
         $data['is_active'] = $request->boolean('is_active');
 
