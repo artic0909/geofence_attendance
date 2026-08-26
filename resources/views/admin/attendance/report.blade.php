@@ -236,8 +236,10 @@
                                 <thead class="bg-light text-muted small text-uppercase">
                                     <tr>
                                         <th class="ps-4 text-start">Date</th>
+                                        <th>Site Name</th>
                                         <th>Present</th>
                                         <th>Daily Hours</th>
+                                        <th>Daily Rate (₹)</th>
                                         <th>OT (Hours)</th>
                                     </tr>
                                 </thead>
@@ -311,6 +313,9 @@
             tdDate.className = 'ps-4 text-start fw-semibold';
             tdDate.innerText = row.date;
 
+            const tdSiteName = document.createElement('td');
+            tdSiteName.innerText = row.site_name;
+
             const tdStatus = document.createElement('td');
             if(row.status === 'P') {
                 tdStatus.innerHTML = '<span class="fw-bold text-success">P</span>';
@@ -324,9 +329,14 @@
             const tdOt = document.createElement('td');
             tdOt.innerText = row.ot;
 
+            const tdRate = document.createElement('td');
+            tdRate.innerText = data.employee.daily_rate_amount || '-';
+
             tr.appendChild(tdDate);
+            tr.appendChild(tdSiteName);
             tr.appendChild(tdStatus);
             tr.appendChild(tdHours);
+            tr.appendChild(tdRate);
             tr.appendChild(tdOt);
             tbody.appendChild(tr);
         });

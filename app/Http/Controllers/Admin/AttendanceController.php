@@ -260,7 +260,7 @@ class AttendanceController extends Controller
             $employeeIds = $targetEmployees->pluck('id')->toArray();
             
             // Fetch attendances for these employees
-            $normalAttendances = Attendance::whereIn('employee_id', $employeeIds)
+            $normalAttendances = Attendance::with('geofence')->whereIn('employee_id', $employeeIds)
                 ->whereBetween('date', [$fromDate->format('Y-m-d'), $toDate->format('Y-m-d')])
                 ->get()
                 ->groupBy('employee_id');
@@ -318,8 +318,15 @@ class AttendanceController extends Controller
 
                     $hoursDisplay = '0';
                     $otDisplay = '0';
+                    $siteName = '-';
 
                     if ($attendance) {
+                        if ($attendance instanceof \App\Models\OutsideAttendance) {
+                            $siteName = 'Outside';
+                        } else {
+                            $siteName = $attendance->geofence->name ?? 'Unknown Site';
+                        }
+
                         if ($attendance->check_in && $attendance->check_out) {
                             $hoursDisplay = $regularHours;
                             $otDisplay = $otHours;
@@ -330,6 +337,7 @@ class AttendanceController extends Controller
 
                     $dayByDay[] = [
                         'date' => $currentDate->format('d/m/Y'),
+                        'site_name' => $siteName,
                         'status' => $status,
                         'hours' => $hoursDisplay,
                         'ot' => $otDisplay
