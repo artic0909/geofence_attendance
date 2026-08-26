@@ -60,9 +60,77 @@
 </div>
 
 @if($selectedEmployee && count($reportData) > 0)
+<!-- Professional Report Header & Summary -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-4">
+        <!-- Title & Actions -->
+        <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4">
+            <div>
+                <h4 class="fw-bold mb-1 text-primary">Salary & Attendance Report</h4>
+                <p class="text-muted small mb-0">
+                    <i class="bi bi-calendar-range me-1"></i> 
+                    Period: <span class="fw-semibold">{{ \Carbon\Carbon::parse(request('from_date'))->format('d M, Y') }}</span> to <span class="fw-semibold">{{ \Carbon\Carbon::parse(request('to_date'))->format('d M, Y') }}</span>
+                </p>
+            </div>
+            <div class="text-end">
+                <button class="btn btn-danger btn-sm me-2"><i class="bi bi-file-earmark-pdf me-1"></i> Export PDF</button>
+                <button class="btn btn-success btn-sm"><i class="bi bi-whatsapp me-1"></i> Send to Employee</button>
+            </div>
+        </div>
+
+        <!-- Employee Info & Summary Stats -->
+        <div class="row align-items-center">
+            <!-- Employee Details -->
+            <div class="col-md-5">
+                <h6 class="text-muted text-uppercase small fw-bold mb-3">Employee Details</h6>
+                <table class="table table-sm table-borderless mb-0">
+                    <tr>
+                        <td class="text-muted" style="width: 100px;">Name:</td>
+                        <td class="fw-bold text-dark fs-6">{{ $selectedEmployee->name }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Emp ID:</td>
+                        <td class="fw-semibold text-secondary">{{ $selectedEmployee->employee_id ?? 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Phone:</td>
+                        <td class="fw-semibold text-secondary">{{ $selectedEmployee->phone ?? 'N/A' }}</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <!-- Summary Stats -->
+            <div class="col-md-7 border-start">
+                <h6 class="text-muted text-uppercase small fw-bold mb-3 ps-3">Attendance Summary</h6>
+                <div class="row text-center g-3 ps-2">
+                    <div class="col-4">
+                        <div class="bg-success bg-opacity-10 rounded p-3 border border-success border-opacity-25 h-100">
+                            <h3 class="text-success mb-1 fw-bold">{{ $totals['P'] }}</h3>
+                            <span class="small text-success fw-semibold text-uppercase">Total Present</span>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="bg-danger bg-opacity-10 rounded p-3 border border-danger border-opacity-25 h-100">
+                            <h3 class="text-danger mb-1 fw-bold">{{ $totals['A'] }}</h3>
+                            <span class="small text-danger fw-semibold text-uppercase">Total Absent</span>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="bg-warning bg-opacity-10 rounded p-3 border border-warning border-opacity-25 h-100">
+                            <h3 class="text-warning mb-1 fw-bold">{{ $totals['OT'] }}<span class="fs-6">h</span></h3>
+                            <span class="small text-warning fw-semibold text-uppercase">Total OT</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Detailed Table -->
 <div class="card border-0 shadow-sm mb-4">
     <div class="card-header bg-white border-bottom py-3">
-        <h6 class="mb-0 fw-bold text-secondary">Report for {{ $selectedEmployee->name }}</h6>
+        <h6 class="mb-0 fw-bold text-secondary">Detailed Log</h6>
     </div>
     <div class="card-body p-0">
         <div class="table-responsive">
@@ -71,6 +139,7 @@
                     <tr>
                         <th class="ps-4 text-start">Date</th>
                         <th>Present</th>
+                        <th>Daily Hours</th>
                         <th>OT (Hours)</th>
                     </tr>
                 </thead>
@@ -85,6 +154,7 @@
                                 <span class="fw-bold text-danger">A</span>
                             @endif
                         </td>
+                        <td>{{ $row['hours'] }}</td>
                         <td>{{ $row['ot'] }}</td>
                     </tr>
                     @endforeach
@@ -96,6 +166,7 @@
                             <span class="text-success me-3">Total P: {{ $totals['P'] }}</span>
                             <span class="text-danger">Total A: {{ $totals['A'] }}</span>
                         </td>
+                        <td></td>
                         <td>Total OT: {{ $totals['OT'] }} h</td>
                     </tr>
                 </tfoot>

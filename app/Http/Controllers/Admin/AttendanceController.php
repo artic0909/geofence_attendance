@@ -280,6 +280,7 @@ class AttendanceController extends Controller
                 
                 $status = 'A';
                 $otHours = 0;
+                $regularHours = 0;
                 
                 if ($attendance) {
                     $status = 'P';
@@ -289,11 +290,14 @@ class AttendanceController extends Controller
                         $checkIn = \Carbon\Carbon::parse($attendance->check_in);
                         $checkOut = \Carbon\Carbon::parse($attendance->check_out);
                         $workedMinutes = $checkIn->diffInMinutes($checkOut);
-                        $workedHours = $workedMinutes / 60;
+                        $workedHours = round($workedMinutes / 60, 2);
                         
                         if ($workedHours > 9) {
+                            $regularHours = 9;
                             $otHours = round($workedHours - 9, 2);
                             $totals['OT'] += $otHours;
+                        } else {
+                            $regularHours = $workedHours;
                         }
                     }
                 } else {
@@ -303,6 +307,7 @@ class AttendanceController extends Controller
                 $reportData[] = [
                     'date' => $currentDate->format('d/m/Y'),
                     'status' => $status,
+                    'hours' => $regularHours > 0 ? $regularHours : '',
                     'ot' => $otHours > 0 ? $otHours : ''
                 ];
 
