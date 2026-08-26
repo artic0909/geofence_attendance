@@ -233,101 +233,120 @@ class AttendanceController extends Controller
     public function report(Request $request)
     {
         $adminId = auth()->id();
-        $geofences = Geofence::where('admin_id', $adminId)->get();
+        $designations = \App\Models\Designation::where('admin_id', $adminId)->get();
         
         $employeesQuery = User::where('role', 'employee')->where('admin_id', $adminId)->where('is_active', true);
         
-        $employees = collect(); // Empty by default
+        $employees = collect(); // For dropdown
         
-        // Only load employees if a specific geofence (site) is chosen
-        if ($request->filled('geofence') && $request->geofence !== 'all') {
-            if ($request->geofence !== 'outside') {
-                $employeesQuery->whereHas('employeeGeofences', function($q) use ($request) {
-                    $q->where('geofence_id', $request->geofence);
-                });
-            }
+        if ($request->filled('designation') && $request->designation !== 'all') {
+            $employeesQuery->where('designation_id', $request->designation);
             $employees = $employeesQuery->orderBy('name', 'asc')->get();
         }
         
         $reportData = [];
-        $totals = ['P' => 0, 'A' => 0, 'OT' => 0];
-        $selectedEmployee = null;
-
-        if ($request->filled('employee_id') && $request->filled('from_date') && $request->filled('to_date')) {
-            $selectedEmployee = User::find($request->employee_id);
+        
+        if ($request->filled('from_date') && $request->filled('to_date')) {
             $fromDate = \Carbon\Carbon::parse($request->from_date);
             $toDate = \Carbon\Carbon::parse($request->to_date);
-
-            // Fetch all attendances for the employee in the date range
-            $normalAttendances = Attendance::where('employee_id', $request->employee_id)
+            
+            // If employee_id is selected, only fetch that employee, otherwise fetch all from the designation query
+            $targetEmployees = clone $employeesQuery;
+            if ($request->filled('employee_id') && $request->employee_id !== 'all') {
+                $targetEmployees->where('id', $request->employee_id);
+            }
+            $targetEmployees = $targetEmployees->get();
+            
+            $employeeIds = $targetEmployees->pluck('id')->toArray();
+            
+            // Fetch attendances for these employees
+            $normalAttendances = Attendance::whereIn('employee_id', $employeeIds)
                 ->whereBetween('date', [$fromDate->format('Y-m-d'), $toDate->format('Y-m-d')])
-                ->get()->keyBy(function($item) {
+                ->get()
+                ->groupBy('employee_id');
+
+            $outsideAttendances = OutsideAttendance::whereIn('employee_id', $employeeIds)
+                ->whereBetween('date', [$fromDate->format('Y-m-d'), $toDate->format('Y-m-d')])
+                ->get()
+                ->groupBy('employee_id');
+
+            foreach ($targetEmployees as $employee) {
+                $empNormal = $normalAttendances->get($employee->id, collect())->keyBy(function($item) {
                     return \Carbon\Carbon::parse($item->date)->format('Y-m-d');
                 });
-
-            $outsideAttendances = OutsideAttendance::where('employee_id', $request->employee_id)
-                ->whereBetween('date', [$fromDate->format('Y-m-d'), $toDate->format('Y-m-d')])
-                ->get()->keyBy(function($item) {
+                
+                $empOutside = $outsideAttendances->get($employee->id, collect())->keyBy(function($item) {
                     return \Carbon\Carbon::parse($item->date)->format('Y-m-d');
                 });
-
-            // Iterate through dates
-            $currentDate = $fromDate->copy();
-            while ($currentDate->lte($toDate)) {
-                $dateString = $currentDate->format('Y-m-d');
                 
-                $attendance = $normalAttendances->get($dateString) ?? $outsideAttendances->get($dateString);
+                $totals = ['P' => 0, 'A' => 0, 'OT' => 0];
+                $dayByDay = [];
                 
-                $status = 'A';
-                $otHours = 0;
-                $regularHours = 0;
-                
-                if ($attendance) {
-                    $status = 'P';
-                    $totals['P']++;
+                $currentDate = $fromDate->copy();
+                while ($currentDate->lte($toDate)) {
+                    $dateString = $currentDate->format('Y-m-d');
+                    $attendance = $empNormal->get($dateString) ?? $empOutside->get($dateString);
                     
-                    if ($attendance->check_in && $attendance->check_out) {
-                        $checkIn = \Carbon\Carbon::parse($attendance->check_in);
-                        $checkOut = \Carbon\Carbon::parse($attendance->check_out);
-                        $workedMinutes = $checkIn->diffInMinutes($checkOut);
-                        $workedHours = round($workedMinutes / 60, 2);
+                    $status = 'A';
+                    $otHours = 0;
+                    $regularHours = 0;
+                    
+                    if ($attendance) {
+                        $status = 'P';
+                        $totals['P']++;
                         
-                        if ($workedHours > 9) {
-                            $regularHours = 9;
-                            $otHours = round($workedHours - 9, 2);
-                            $totals['OT'] += $otHours;
-                        } else {
-                            $regularHours = $workedHours;
+                        if ($attendance->check_in && $attendance->check_out) {
+                            $checkIn = \Carbon\Carbon::parse($attendance->check_in);
+                            $checkOut = \Carbon\Carbon::parse($attendance->check_out);
+                            $workedMinutes = $checkIn->diffInMinutes($checkOut);
+                            $workedHours = round($workedMinutes / 60, 2);
+                            
+                            if ($workedHours > 9.25) {
+                                $regularHours = 9;
+                                $otHours = round($workedHours - 9, 2);
+                                $totals['OT'] += $otHours;
+                            } elseif ($workedHours >= 9 && $workedHours <= 9.25) {
+                                $regularHours = 9;
+                                $otHours = 0;
+                            } else {
+                                $regularHours = $workedHours;
+                            }
+                        }
+                    } else {
+                        $totals['A']++;
+                    }
+
+                    $hoursDisplay = '0';
+                    $otDisplay = '0';
+
+                    if ($attendance) {
+                        if ($attendance->check_in && $attendance->check_out) {
+                            $hoursDisplay = $regularHours;
+                            $otDisplay = $otHours;
+                        } else if ($attendance->check_in && !$attendance->check_out) {
+                            $hoursDisplay = 'Missing Check-out';
                         }
                     }
-                } else {
-                    $totals['A']++;
+
+                    $dayByDay[] = [
+                        'date' => $currentDate->format('d/m/Y'),
+                        'status' => $status,
+                        'hours' => $hoursDisplay,
+                        'ot' => $otDisplay
+                    ];
+
+                    $currentDate->addDay();
                 }
-
-                $hoursDisplay = '0';
-                $otDisplay = '0';
-
-                if ($attendance) {
-                    if ($attendance->check_in && $attendance->check_out) {
-                        $hoursDisplay = $regularHours;
-                        $otDisplay = $otHours;
-                    } else if ($attendance->check_in && !$attendance->check_out) {
-                        $hoursDisplay = 'Missing Check-out';
-                    }
-                }
-
-                $reportData[] = [
-                    'date' => $currentDate->format('d/m/Y'),
-                    'status' => $status,
-                    'hours' => $hoursDisplay,
-                    'ot' => $otDisplay
+                
+                $reportData[$employee->id] = [
+                    'employee' => $employee,
+                    'totals' => $totals,
+                    'dayByDay' => $dayByDay
                 ];
-
-                $currentDate->addDay();
             }
         }
-
-        return view('admin.attendance.report', compact('geofences', 'employees', 'reportData', 'totals', 'selectedEmployee'));
+        
+        return view('admin.attendance.report', compact('designations', 'employees', 'reportData'));
     }
 
     public function todayAttedances(Request $request)
