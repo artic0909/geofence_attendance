@@ -98,6 +98,18 @@
                     @error('tracking_radius')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
                 </div>
                 
+                <div class="col-md-6">
+                    <label for="lunch_start_time" class="form-label fw-bold">Lunch Start Time (Optional)</label>
+                    <input type="time" name="lunch_start_time" id="lunch_start_time" class="form-control" value="{{ old('lunch_start_time', $geofence->lunch_start_time ? \Carbon\Carbon::parse($geofence->lunch_start_time)->format('H:i') : '') }}">
+                    @error('lunch_start_time')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                </div>
+                
+                <div class="col-md-6">
+                    <label for="lunch_end_time" class="form-label fw-bold">Lunch End Time (Optional)</label>
+                    <input type="time" name="lunch_end_time" id="lunch_end_time" class="form-control" value="{{ old('lunch_end_time', $geofence->lunch_end_time ? \Carbon\Carbon::parse($geofence->lunch_end_time)->format('H:i') : '') }}">
+                    @error('lunch_end_time')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                </div>
+                
                 <div class="col-12 mt-4 pt-3 border-top">
                     <div class="form-check form-switch form-check-lg d-flex align-items-center">
                         <input class="form-check-input fs-4 mt-0 me-3" type="checkbox" role="switch" name="is_active" id="is_active" value="1" {{ old('is_active', $geofence->is_active) ? 'checked' : '' }}>

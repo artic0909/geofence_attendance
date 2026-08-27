@@ -47,6 +47,8 @@ class GeofenceController extends Controller
             'radius' => 'required|integer|min:50',
             'tracking_radius' => 'nullable|integer|min:0',
             'address' => 'required|string',
+            'lunch_start_time' => 'nullable|date_format:H:i',
+            'lunch_end_time' => 'nullable|date_format:H:i|after:lunch_start_time',
         ]);
 
         Geofence::create($request->all());
@@ -69,6 +71,8 @@ class GeofenceController extends Controller
             'radius' => 'required|integer|min:50',
             'tracking_radius' => 'nullable|integer|min:0',
             'address' => 'required|string',
+            'lunch_start_time' => 'nullable|date_format:H:i',
+            'lunch_end_time' => 'nullable|date_format:H:i|after:lunch_start_time',
         ]);
 
         $geofence->update($request->all());

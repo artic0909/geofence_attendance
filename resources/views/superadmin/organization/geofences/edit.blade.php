@@ -89,6 +89,22 @@
                     <p class="text-xs text-gray-500 mt-1">Leave empty if outside tracking is disabled.</p>
                     @error('tracking_radius')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                 </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1" for="lunch_start_time">Lunch Start Time (Optional)</label>
+                    <div class="relative">
+                        <input type="time" name="lunch_start_time" id="lunch_start_time" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-saffron focus:border-saffron outline-none transition-all" value="{{ old('lunch_start_time', $geofence->lunch_start_time ? \Carbon\Carbon::parse($geofence->lunch_start_time)->format('H:i') : '') }}">
+                    </div>
+                    @error('lunch_start_time')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1" for="lunch_end_time">Lunch End Time (Optional)</label>
+                    <div class="relative">
+                        <input type="time" name="lunch_end_time" id="lunch_end_time" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-saffron focus:border-saffron outline-none transition-all" value="{{ old('lunch_end_time', $geofence->lunch_end_time ? \Carbon\Carbon::parse($geofence->lunch_end_time)->format('H:i') : '') }}">
+                    </div>
+                    @error('lunch_end_time')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                </div>
             </div>
 
             <div class="mt-8 pt-6 border-t border-gray-100">

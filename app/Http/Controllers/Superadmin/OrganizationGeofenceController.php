@@ -41,6 +41,8 @@ class OrganizationGeofenceController extends Controller
             'longitude' => 'required|numeric',
             'radius' => 'required|numeric',
             'status' => 'boolean',
+            'lunch_start_time' => 'nullable|date_format:H:i',
+            'lunch_end_time' => 'nullable|date_format:H:i|after:lunch_start_time',
         ]);
 
         Geofence::create([
@@ -50,6 +52,8 @@ class OrganizationGeofenceController extends Controller
             'longitude' => $request->longitude,
             'radius' => $request->radius,
             'status' => $request->has('status') ? $request->status : true,
+            'lunch_start_time' => $request->lunch_start_time,
+            'lunch_end_time' => $request->lunch_end_time,
         ]);
 
         return redirect()->route('superadmin.organizations.geofences.index', $org->id)
@@ -75,6 +79,8 @@ class OrganizationGeofenceController extends Controller
             'longitude' => 'required|numeric',
             'radius' => 'required|numeric',
             'status' => 'boolean',
+            'lunch_start_time' => 'nullable|date_format:H:i',
+            'lunch_end_time' => 'nullable|date_format:H:i|after:lunch_start_time',
         ]);
 
         $geofence->update([
@@ -83,6 +89,8 @@ class OrganizationGeofenceController extends Controller
             'longitude' => $request->longitude,
             'radius' => $request->radius,
             'status' => $request->has('status') ? $request->status : false,
+            'lunch_start_time' => $request->lunch_start_time,
+            'lunch_end_time' => $request->lunch_end_time,
         ]);
 
         return redirect()->route('superadmin.organizations.geofences.index', $org->id)
