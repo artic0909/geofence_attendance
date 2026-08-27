@@ -42,6 +42,7 @@
                     <th scope="col">Location</th>
                     <th scope="col">Radius</th>
                     <th scope="col">Status</th>
+                    <th scope="col">Lunch Time</th>
                     <th scope="col" class="text-end">Actions</th>
                 </tr>
             </thead>
@@ -56,6 +57,13 @@
                         <span class="badge {{ $geofence->is_active ? 'text-bg-success' : 'text-bg-danger' }}">
                             {{ $geofence->is_active ? 'Active' : 'Inactive' }}
                         </span>
+                    </td>
+                    <td class="text-muted small fw-medium">
+                        @if($geofence->lunch_start_time && $geofence->lunch_end_time)
+                            {{ \Carbon\Carbon::parse($geofence->lunch_start_time)->format('h:i A') }} - {{ \Carbon\Carbon::parse($geofence->lunch_end_time)->format('h:i A') }}
+                        @else
+                            -
+                        @endif
                     </td>
                     <td class="text-end">
                         <a href="{{ route('admin.geofences.edit', $geofence) }}" class="btn btn-light btn-sm text-primary me-2"><i class="bi bi-pencil"></i> Edit</a>

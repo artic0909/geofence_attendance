@@ -39,6 +39,7 @@
                     <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Location</th>
                     <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Radius</th>
                     <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
+                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Lunch Time</th>
                     <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
             </thead>
@@ -55,6 +56,13 @@
                         <span class="px-2 py-1 inline-flex text-xs leading-5 font-bold rounded-full {{ $geofence->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
                             {{ $geofence->is_active ? 'Active' : 'Inactive' }}
                         </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-medium">
+                        @if($geofence->lunch_start_time && $geofence->lunch_end_time)
+                            {{ \Carbon\Carbon::parse($geofence->lunch_start_time)->format('h:i A') }} - {{ \Carbon\Carbon::parse($geofence->lunch_end_time)->format('h:i A') }}
+                        @else
+                            -
+                        @endif
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm space-x-3">
                         <a href="{{ route('superadmin.organizations.geofences.edit', [$org->id, $geofence]) }}" class="text-blue-500 hover:text-blue-700 font-medium">Edit</a>

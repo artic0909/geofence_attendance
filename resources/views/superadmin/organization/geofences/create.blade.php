@@ -90,17 +90,17 @@
                 </div>
                 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1" for="lunch_start_time">Lunch Start Time (Optional)</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1" for="lunch_start_time">Lunch Start Time <span class="text-red-500">*</span></label>
                     <div class="relative">
-                        <input type="time" name="lunch_start_time" id="lunch_start_time" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-saffron focus:border-saffron outline-none transition-all" value="{{ old('lunch_start_time') }}">
+                        <input type="time" name="lunch_start_time" id="lunch_start_time" data-rule-required="true" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-saffron focus:border-saffron outline-none transition-all" value="{{ old('lunch_start_time') }}">
                     </div>
                     @error('lunch_start_time')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                 </div>
                 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1" for="lunch_end_time">Lunch End Time (Optional)</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1" for="lunch_end_time">Lunch End Time <span class="text-red-500">*</span></label>
                     <div class="relative">
-                        <input type="time" name="lunch_end_time" id="lunch_end_time" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-saffron focus:border-saffron outline-none transition-all" value="{{ old('lunch_end_time') }}">
+                        <input type="time" name="lunch_end_time" id="lunch_end_time" data-rule-required="true" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-saffron focus:border-saffron outline-none transition-all" value="{{ old('lunch_end_time') }}">
                     </div>
                     @error('lunch_end_time')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                 </div>

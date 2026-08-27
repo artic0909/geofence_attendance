@@ -98,14 +98,14 @@
                 </div>
                 
                 <div class="col-md-6">
-                    <label for="lunch_start_time" class="form-label fw-bold">Lunch Start Time (Optional)</label>
-                    <input type="time" name="lunch_start_time" id="lunch_start_time" class="form-control" value="{{ old('lunch_start_time') }}">
+                    <label for="lunch_start_time" class="form-label fw-bold">Lunch Start Time <span class="text-danger">*</span></label>
+                    <input type="time" name="lunch_start_time" id="lunch_start_time" data-rule-required="true" class="form-control" value="{{ old('lunch_start_time') }}">
                     @error('lunch_start_time')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
                 </div>
                 
                 <div class="col-md-6">
-                    <label for="lunch_end_time" class="form-label fw-bold">Lunch End Time (Optional)</label>
-                    <input type="time" name="lunch_end_time" id="lunch_end_time" class="form-control" value="{{ old('lunch_end_time') }}">
+                    <label for="lunch_end_time" class="form-label fw-bold">Lunch End Time <span class="text-danger">*</span></label>
+                    <input type="time" name="lunch_end_time" id="lunch_end_time" data-rule-required="true" class="form-control" value="{{ old('lunch_end_time') }}">
                     @error('lunch_end_time')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
                 </div>
                 

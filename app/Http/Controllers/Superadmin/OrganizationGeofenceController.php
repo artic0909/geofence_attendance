@@ -41,8 +41,8 @@ class OrganizationGeofenceController extends Controller
             'longitude' => 'required|numeric',
             'radius' => 'required|numeric',
             'status' => 'boolean',
-            'lunch_start_time' => 'nullable|date_format:H:i',
-            'lunch_end_time' => 'nullable|date_format:H:i|after:lunch_start_time',
+            'lunch_start_time' => 'required|date_format:H:i',
+            'lunch_end_time' => 'required|date_format:H:i|after:lunch_start_time',
         ]);
 
         Geofence::create([
@@ -79,8 +79,8 @@ class OrganizationGeofenceController extends Controller
             'longitude' => 'required|numeric',
             'radius' => 'required|numeric',
             'status' => 'boolean',
-            'lunch_start_time' => 'nullable|date_format:H:i',
-            'lunch_end_time' => 'nullable|date_format:H:i|after:lunch_start_time',
+            'lunch_start_time' => 'required|date_format:H:i',
+            'lunch_end_time' => 'required|date_format:H:i|after:lunch_start_time',
         ]);
 
         $geofence->update([
