@@ -318,7 +318,7 @@ class AttendanceApiController extends Controller
         $attendance = Attendance::where('employee_id', $user->id)->where('date', $today)->first();
         $outside = \App\Models\OutsideAttendance::where('employee_id', $user->id)->where('date', $today)->first();
 
-        $geofences = $user->employeeGeofences()->select('name', 'latitude', 'longitude', 'radius', 'tracking_radius')->get();
+        $geofences = $user->employeeGeofences()->select('name', 'latitude', 'longitude', 'radius', 'tracking_radius', 'lunch_start_time', 'lunch_end_time')->get();
 
         $admin = $user->admin;
         $isExpired = $admin->subscription_expires_at && now()->greaterThan($admin->subscription_expires_at);
