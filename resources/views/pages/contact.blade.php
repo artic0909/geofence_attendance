@@ -52,8 +52,11 @@
             <form action="{{ route('contact.store') }}" method="POST" class="space-y-5 text-left">
                 @csrf
                 <div>
-                    <label for="name" class="block text-sm font-semibold text-gray-700 mb-1">Full Name</label>
-                    <input type="text" id="name" name="name" value="{{ old('name') }}" placeholder="John Doe" class="block w-full border border-gray-300 rounded-lg shadow-sm py-2.5 px-4 focus:ring-navy focus:border-navy transition" required>
+                    <div class="flex justify-between items-center mb-1">
+                        <label for="name" class="block text-sm font-semibold text-gray-700">Full Name</label>
+                        <span id="name-count" class="text-xs text-gray-500 font-medium">0/20</span>
+                    </div>
+                    <input type="text" id="name" name="name" value="{{ old('name') }}" placeholder="John Doe" maxlength="20" class="block w-full border border-gray-300 rounded-lg shadow-sm py-2.5 px-4 focus:ring-navy focus:border-navy transition" required>
                     @error('name') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                 </div>
                 
@@ -64,14 +67,20 @@
                 </div>
                 
                 <div>
-                    <label for="subject" class="block text-sm font-semibold text-gray-700 mb-1">Subject</label>
-                    <input type="text" id="subject" name="subject" value="{{ old('subject') }}" placeholder="How can we help?" class="block w-full border border-gray-300 rounded-lg shadow-sm py-2.5 px-4 focus:ring-navy focus:border-navy transition" required>
+                    <div class="flex justify-between items-center mb-1">
+                        <label for="subject" class="block text-sm font-semibold text-gray-700">Subject</label>
+                        <span id="subject-count" class="text-xs text-gray-500 font-medium">0/40</span>
+                    </div>
+                    <input type="text" id="subject" name="subject" value="{{ old('subject') }}" placeholder="How can we help?" maxlength="40" class="block w-full border border-gray-300 rounded-lg shadow-sm py-2.5 px-4 focus:ring-navy focus:border-navy transition" required>
                     @error('subject') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                 </div>
 
                 <div>
-                    <label for="message" class="block text-sm font-semibold text-gray-700 mb-1">Message</label>
-                    <textarea id="message" name="message" rows="4" placeholder="Tell us more about your needs..." class="block w-full border border-gray-300 rounded-lg shadow-sm py-2.5 px-4 focus:ring-navy focus:border-navy transition resize-none" required>{{ old('message') }}</textarea>
+                    <div class="flex justify-between items-center mb-1">
+                        <label for="message" class="block text-sm font-semibold text-gray-700">Message</label>
+                        <span id="message-count" class="text-xs text-gray-500 font-medium">0/100</span>
+                    </div>
+                    <textarea id="message" name="message" rows="4" placeholder="Tell us more about your needs..." maxlength="100" class="block w-full border border-gray-300 rounded-lg shadow-sm py-2.5 px-4 focus:ring-navy focus:border-navy transition resize-none" required>{{ old('message') }}</textarea>
                     @error('message') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                 </div>
                 
@@ -84,6 +93,23 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const updateCount = (inputId, countId, max) => {
+            const input = document.getElementById(inputId);
+            const count = document.getElementById(countId);
+            if (input && count) {
+                const update = () => count.innerText = `${input.value.length}/${max}`;
+                input.addEventListener('input', update);
+                update(); // Initial call to handle any old values on load
+            }
+        };
+
+        updateCount('name', 'name-count', 20);
+        updateCount('subject', 'subject-count', 40);
+        updateCount('message', 'message-count', 100);
+    });
+</script>
 @if(session('contact_success'))
 <script>
     document.addEventListener('DOMContentLoaded', function() {
