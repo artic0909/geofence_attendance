@@ -78,8 +78,9 @@ class AttendanceController extends Controller
         $merged = $normalRecords->concat($outsideRecords)->sortByDesc('date')->values();
 
         // Manual Pagination
+        $perPageParam = $request->input('per_page', 20);
+        $perPage = ($perPageParam === 'all' || $perPageParam == -1) ? max(1, $merged->count()) : (int)$perPageParam;
         $page = $request->get('page', 1);
-        $perPage = 10;
         $recent_attendances = new \Illuminate\Pagination\LengthAwarePaginator(
             $merged->forPage($page, $perPage),
             $merged->count(),
@@ -225,7 +226,9 @@ class AttendanceController extends Controller
         }
 
         // Get attendances
-        $recent_attendances = $query->orderBy('created_at', 'desc')->paginate(10)->withQueryString();
+        $perPageParam = $request->input('per_page', 20);
+        $perPage = ($perPageParam === 'all' || $perPageParam == -1) ? 5000 : (int)$perPageParam;
+        $recent_attendances = $query->orderBy('created_at', 'desc')->paginate($perPage)->withQueryString();
 
         return view('admin.attendance.options', compact('stats', 'recent_attendances', 'geofences'));
     }
@@ -409,8 +412,9 @@ class AttendanceController extends Controller
             ->concat($outsideQuery->get()->map(function($a){ $a->attendance_type = 'outside'; return $a; }))
             ->sortByDesc('check_in')->values();
 
+        $perPageParam = $request->input('per_page', 20);
+        $perPage = ($perPageParam === 'all' || $perPageParam == -1) ? max(1, $merged->count()) : (int)$perPageParam;
         $page = $request->get('page', 1);
-        $perPage = 15;
         $recent_attendances = new \Illuminate\Pagination\LengthAwarePaginator(
             $merged->forPage($page, $perPage),
             $merged->count(),
@@ -460,7 +464,10 @@ class AttendanceController extends Controller
             }
         }
 
-        $pending_employees = $pendingQuery->with('employeeGeofences')->orderBy('name', 'asc')->paginate(10);
+        $perPageParam = $request->input('per_page', 20);
+        $perPage = ($perPageParam === 'all' || $perPageParam == -1) ? 5000 : (int)$perPageParam;
+
+        $pending_employees = $pendingQuery->with('employeeGeofences')->orderBy('name', 'asc')->paginate($perPage)->withQueryString();
 
         return view('admin.attendance.today_absent', compact('pending_employees', 'geofences'));
     }

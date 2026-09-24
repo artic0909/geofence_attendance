@@ -12,9 +12,12 @@ class DesignationController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $designations = Designation::where('admin_id', Auth::id())->latest()->paginate(10);
+        $perPageParam = $request->input('per_page', 20);
+        $perPage = ($perPageParam === 'all' || $perPageParam == -1) ? 5000 : (int)$perPageParam;
+
+        $designations = Designation::where('admin_id', Auth::id())->latest()->paginate($perPage)->withQueryString();
         return view('admin.designations.index', compact('designations'));
     }
 

@@ -359,6 +359,14 @@
                 });
             });
         });
+
+        // Global helper for changing query parameters (such as per_page pagination)
+        function updateQueryParam(key, value) {
+            const url = new URL(window.location.href);
+            url.searchParams.set(key, value);
+            url.searchParams.set('page', 1);
+            return url.toString();
+        }
   </script>
   @stack('scripts')
 </body>

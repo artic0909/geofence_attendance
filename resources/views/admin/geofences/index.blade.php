@@ -78,8 +78,20 @@
             </tbody>
         </table>
         
-        <div class="px-4 py-3 border-top">
-            {{ $geofences->links() }}
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3 px-4 py-3 border-top">
+            <div class="d-flex align-items-center gap-2">
+                <label for="per_page" class="text-muted small fw-semibold text-nowrap mb-0">Show rows:</label>
+                <select name="per_page" id="per_page" class="form-select form-select-sm" style="width: auto; min-width: 85px;" onchange="window.location.href = updateQueryParam('per_page', this.value)">
+                    <option value="20" {{ request('per_page', 20) == 20 ? 'selected' : '' }}>20</option>
+                    <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
+                    <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
+                    <option value="all" {{ request('per_page') === 'all' ? 'selected' : '' }}>All</option>
+                </select>
+                <span class="text-muted small">entries per page</span>
+            </div>
+            <div>
+                {{ $geofences->links() }}
+            </div>
         </div>
     @else
         <div class="p-5 text-center text-muted">

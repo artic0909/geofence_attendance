@@ -57,7 +57,14 @@ class EmployeeController extends Controller
 
         $geofences = Geofence::where('admin_id', $adminId)->get();
 
-        $employees = $query->with(['employeeGeofences', 'department', 'designation'])->orderBy('name', 'asc')->paginate(10)->withQueryString();
+        $perPageParam = $request->input('per_page', 20);
+        $perPage = ($perPageParam === 'all' || $perPageParam == -1) ? 5000 : (int)$perPageParam;
+
+        $employees = $query->with(['employeeGeofences', 'department', 'designation'])
+            ->orderBy('name', 'asc')
+            ->paginate($perPage)
+            ->withQueryString();
+
         return view('admin.employees.index', compact('employees', 'geofences'));
     }
 

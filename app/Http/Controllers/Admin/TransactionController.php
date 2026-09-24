@@ -8,12 +8,16 @@ use Illuminate\Http\Request;
 
 class TransactionController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $perPageParam = $request->input('per_page', 20);
+        $perPage = ($perPageParam === 'all' || $perPageParam == -1) ? 5000 : (int)$perPageParam;
+
         $transactions = Transaction::with('plan')
             ->where('user_id', auth()->id())
             ->orderBy('created_at', 'desc')
-            ->paginate(15);
+            ->paginate($perPage)
+            ->withQueryString();
             
         return view('admin.transactions.index', compact('transactions'));
     }

@@ -28,7 +28,10 @@ class GeofenceController extends Controller
             $query->where('name', 'like', '%' . $request->search . '%');
         }
 
-        $geofences = $query->orderBy('name', 'asc')->paginate(10)->withQueryString();
+        $perPageParam = $request->input('per_page', 20);
+        $perPage = ($perPageParam === 'all' || $perPageParam == -1) ? 5000 : (int)$perPageParam;
+
+        $geofences = $query->orderBy('name', 'asc')->paginate($perPage)->withQueryString();
         return view('admin.geofences.index', compact('geofences'));
     }
 
