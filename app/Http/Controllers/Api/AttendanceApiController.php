@@ -126,6 +126,11 @@ class AttendanceApiController extends Controller
                 'geofence_name' => $matchedGeofence->name,
                 'assigned_geofences' => $geofences->pluck('name'), // all geofences for this employee
             ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'error' => $e->validator->errors()->first(),
+                'errors' => $e->validator->errors(),
+            ], 422);
         } catch (\Exception $e) {
             Log::error('Check-in error: ' . $e->getMessage());
             return response()->json([
@@ -225,6 +230,11 @@ class AttendanceApiController extends Controller
                 'geofence_name' => $checkInGeofence->name,
                 'assigned_geofences' => $assignedGeofences,
             ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'error' => $e->validator->errors()->first(),
+                'errors' => $e->validator->errors(),
+            ], 422);
         } catch (\Exception $e) {
             Log::error('Check-out error: ' . $e->getMessage());
             return response()->json([
@@ -401,6 +411,11 @@ class AttendanceApiController extends Controller
                 'employee_name' => $employee->name,
                 'admin_name' => $employee->admin ? ($employee->admin->business_name ?? $employee->admin->name) : null,
             ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'error' => $e->validator->errors()->first(),
+                'errors' => $e->validator->errors(),
+            ], 422);
         } catch (\Exception $e) {
             Log::error('Outside check-in error: ' . $e->getMessage());
             return response()->json([
@@ -460,6 +475,11 @@ class AttendanceApiController extends Controller
                 'employee_name' => $employee->name,
                 'admin_name' => $employee->admin ? ($employee->admin->business_name ?? $employee->admin->name) : null,
             ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'error' => $e->validator->errors()->first(),
+                'errors' => $e->validator->errors(),
+            ], 422);
         } catch (\Exception $e) {
             Log::error('Outside check-out error: ' . $e->getMessage());
             return response()->json([
