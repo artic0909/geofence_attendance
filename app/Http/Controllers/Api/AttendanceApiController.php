@@ -278,16 +278,41 @@ class AttendanceApiController extends Controller
                 // Latest check-out of the day (null if still on-duty)
                 $latestCheckOut = $hasActiveSession ? null : $lastSession->check_out;
 
-                // Calculate cumulative worked seconds across all completed sessions of the day
+                // Calculate cumulative worked seconds and format each individual session
                 $totalWorkedSeconds = 0;
+                $formattedSessions = [];
+
                 foreach ($sorted as $session) {
+                    $sessionSeconds = 0;
+                    $sessionDuration = '--:--';
+                    
                     if (!empty($session->check_in) && !empty($session->check_out)) {
                         $cIn = \Carbon\Carbon::parse($session->check_in);
                         $cOut = \Carbon\Carbon::parse($session->check_out);
                         if ($cOut->gte($cIn)) {
-                            $totalWorkedSeconds += $cOut->diffInSeconds($cIn);
+                            $sessionSeconds = $cOut->diffInSeconds($cIn);
+                            $totalWorkedSeconds += $sessionSeconds;
+                            $sH = (int) floor($sessionSeconds / 3600);
+                            $sM = (int) floor(($sessionSeconds % 3600) / 60);
+                            $sessionDuration = ($sH > 0) ? "{$sH}h {$sM}m" : "{$sM}m";
                         }
                     }
+
+                    $formattedSessions[] = [
+                        'id' => $session->id,
+                        'check_in' => $session->check_in ? $session->check_in->toDateTimeString() : null,
+                        'check_out' => $session->check_out ? $session->check_out->toDateTimeString() : null,
+                        'check_in_time' => $session->check_in ? \Carbon\Carbon::parse($session->check_in)->format('h:i A') : '--:--',
+                        'check_out_time' => $session->check_out ? \Carbon\Carbon::parse($session->check_out)->format('h:i A') : '--:--',
+                        'total_time' => $sessionDuration,
+                        'duration' => $sessionDuration,
+                        'seconds' => $sessionSeconds,
+                        'type' => $session->type ?? 'normal',
+                        'checkin_loc' => $session->checkin_loc ?? $session->geofence->name ?? 'OFFICE HUB',
+                        'checkout_loc' => $session->checkout_loc ?? $session->geofence->name ?? 'OFFICE HUB',
+                        'reason' => $session->reason ?? null,
+                        'is_auto_checkout_trap' => $session->is_auto_checkout_trap ?? false,
+                    ];
                 }
 
                 $totalWorkedMinutes = (int) round($totalWorkedSeconds / 60);
@@ -311,8 +336,8 @@ class AttendanceApiController extends Controller
                 $merged->check_in_photo = $firstSession->check_in_photo;
                 $merged->checkin_loc = $firstSession->checkin_loc;
                 $merged->checkout_loc = $lastSession->checkout_loc;
-                $merged->punches_count = $sorted->count();
-                $merged->sessions = $sorted;
+                $merged->punches_count = count($formattedSessions);
+                $merged->sessions = $formattedSessions;
 
                 return $merged;
             })->sortByDesc(function ($attendance) {
