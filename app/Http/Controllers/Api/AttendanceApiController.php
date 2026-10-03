@@ -89,20 +89,17 @@ class AttendanceApiController extends Controller
             $photoPath = $request->file('photo')->store('attendance-photos', 'public');
 
             // Create attendance record
-            $attendance = Attendance::updateOrCreate(
-                [
-                    'employee_id' => $employee->id,
-                    'date' => $today,
-                ],
-                [
-                    'admin_id' => $employee->admin_id,
-                    'geofence_id' => $matchedGeofence->id,
-                    'check_in' => $time,
-                    'check_in_lat' => $lat,
-                    'check_in_lng' => $lng,
-                    'check_in_photo' => $photoPath,
-                ]
-            );
+            $attendance = Attendance::create([
+                'employee_id' => $employee->id,
+                'admin_id' => $employee->admin_id,
+                'geofence_id' => $matchedGeofence->id,
+                'date' => $today,
+                'check_in' => $time,
+                'check_in_lat' => $lat,
+                'check_in_lng' => $lng,
+                'check_in_photo' => $photoPath,
+                'status' => 'present',
+            ]);
 
             Log::info("CheckIn successful for employee {$employee->id}");
 
@@ -334,10 +331,6 @@ class AttendanceApiController extends Controller
         $activeAttendance = $this->getActiveAttendance($user->id);
         $activeOutside = $this->getActiveOutsideAttendance($user->id);
 
-        // Fetch today's records (for completed status today)
-        $todayAttendance = Attendance::where('employee_id', $user->id)->where('date', $today)->latest('id')->first();
-        $todayOutside = \App\Models\OutsideAttendance::where('employee_id', $user->id)->where('date', $today)->latest('id')->first();
-
         $geofences = $user->employeeGeofences()->select('name', 'latitude', 'longitude', 'radius', 'tracking_radius', 'lunch_start_time', 'lunch_end_time')->get();
 
         $admin = $user->admin;
@@ -345,7 +338,6 @@ class AttendanceApiController extends Controller
         $adminSubStatus = ($admin->subscription_status !== 'active' || $isExpired) ? 'inactive' : 'active';
 
         $isCheckedIn = ($activeAttendance && $activeAttendance->check_in) || ($activeOutside && $activeOutside->check_in);
-        $isCompleted = !$isCheckedIn && (($todayAttendance && $todayAttendance->check_out) || ($todayOutside && $todayOutside->check_out));
         $isOutside = (bool) ($activeOutside && $activeOutside->check_in);
         $checkedInGeofenceName = ($activeAttendance && $activeAttendance->check_in) ? ($activeAttendance->geofence->name ?? null) : null;
 
@@ -357,7 +349,7 @@ class AttendanceApiController extends Controller
             'assigned_geofences' => $geofences,
             'attendance_status' => [
                 'is_checked_in' => (bool) $isCheckedIn,
-                'is_completed' => (bool) $isCompleted,
+                'is_completed' => false,
                 'is_outside' => (bool) $isOutside,
                 'checked_in_geofence_name' => $checkedInGeofenceName,
             ]
