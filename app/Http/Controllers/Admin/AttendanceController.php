@@ -274,11 +274,11 @@ class AttendanceController extends Controller
                 ->groupBy('employee_id');
 
             foreach ($targetEmployees as $employee) {
-                $empNormal = $normalAttendances->get($employee->id, collect())->keyBy(function($item) {
+                $empNormal = $normalAttendances->get($employee->id, collect())->groupBy(function($item) {
                     return \Carbon\Carbon::parse($item->date)->format('Y-m-d');
                 });
                 
-                $empOutside = $outsideAttendances->get($employee->id, collect())->keyBy(function($item) {
+                $empOutside = $outsideAttendances->get($employee->id, collect())->groupBy(function($item) {
                     return \Carbon\Carbon::parse($item->date)->format('Y-m-d');
                 });
                 
@@ -288,54 +288,64 @@ class AttendanceController extends Controller
                 $currentDate = $fromDate->copy();
                 while ($currentDate->lte($toDate)) {
                     $dateString = $currentDate->format('Y-m-d');
-                    $attendance = $empNormal->get($dateString) ?? $empOutside->get($dateString);
+                    $dayNormal = $empNormal->get($dateString, collect());
+                    $dayOutside = $empOutside->get($dateString, collect());
+                    $allDayAttendances = $dayNormal->concat($dayOutside);
                     
                     $status = 'A';
                     $otHours = 0;
                     $regularHours = 0;
-                    
-                    if ($attendance) {
-                        $status = 'P';
-                        $totals['P']++;
-                        
-                        if ($attendance->check_in && $attendance->check_out) {
-                            $checkIn = \Carbon\Carbon::parse($attendance->check_in);
-                            $checkOut = \Carbon\Carbon::parse($attendance->check_out);
-                            $workedMinutes = $checkIn->diffInMinutes($checkOut);
-                            $workedHours = round($workedMinutes / 60, 2);
-                            
-                            if ($workedHours > 9.25) {
-                                $regularHours = 9;
-                                $otHours = round($workedHours - 9, 2);
-                                $totals['OT'] += $otHours;
-                            } elseif ($workedHours >= 9 && $workedHours <= 9.25) {
-                                $regularHours = 9;
-                                $otHours = 0;
-                            } else {
-                                $regularHours = $workedHours;
-                            }
-                        }
-                    } else {
-                        $totals['A']++;
-                    }
-
                     $hoursDisplay = '0';
                     $otDisplay = '0';
                     $siteName = '-';
+                    
+                    if ($allDayAttendances->isNotEmpty()) {
+                        $status = 'P';
+                        $totals['P']++;
+                        
+                        $workedMinutes = 0;
+                        $hasCompletedSession = false;
+                        $hasPendingCheckOut = false;
+                        
+                        foreach ($allDayAttendances as $att) {
+                            if ($att->check_in && $att->check_out) {
+                                $cIn = \Carbon\Carbon::parse($att->check_in);
+                                $cOut = \Carbon\Carbon::parse($att->check_out);
+                                $workedMinutes += $cIn->diffInMinutes($cOut);
+                                $hasCompletedSession = true;
+                            } elseif ($att->check_in && !$att->check_out) {
+                                $hasPendingCheckOut = true;
+                            }
+                        }
+                        
+                        $workedHours = round($workedMinutes / 60, 2);
+                        
+                        if ($workedHours > 9.25) {
+                            $regularHours = 9;
+                            $otHours = round($workedHours - 9, 2);
+                            $totals['OT'] += $otHours;
+                        } elseif ($workedHours >= 9 && $workedHours <= 9.25) {
+                            $regularHours = 9;
+                            $otHours = 0;
+                        } else {
+                            $regularHours = $workedHours;
+                        }
 
-                    if ($attendance) {
-                        if ($attendance instanceof \App\Models\OutsideAttendance) {
+                        $latestAtt = $allDayAttendances->last();
+                        if ($latestAtt instanceof \App\Models\OutsideAttendance) {
                             $siteName = 'Outside';
                         } else {
-                            $siteName = $attendance->geofence->name ?? 'Unknown Site';
+                            $siteName = $latestAtt->geofence->name ?? 'Unknown Site';
                         }
 
-                        if ($attendance->check_in && $attendance->check_out) {
+                        if ($hasCompletedSession) {
                             $hoursDisplay = $regularHours;
                             $otDisplay = $otHours;
-                        } else if ($attendance->check_in && !$attendance->check_out) {
+                        } elseif ($hasPendingCheckOut) {
                             $hoursDisplay = 'Missing Check-out';
                         }
+                    } else {
+                        $totals['A']++;
                     }
 
                     $dayByDay[] = [

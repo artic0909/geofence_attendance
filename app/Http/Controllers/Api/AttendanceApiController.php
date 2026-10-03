@@ -237,8 +237,8 @@ class AttendanceApiController extends Controller
             // Merge collections
             $allAttendances = $normalAttendances->concat($outsideAttendances);
 
-            // Format dates and times to strings to prevent timezone shifts in frontend
-            $attendances = $allAttendances->map(function ($attendance) {
+            // Sort chronologically before grouping
+            $formattedAttendances = $allAttendances->map(function ($attendance) {
                 // Ensure date is a simple 'Y-m-d' string
                 $attendance->date_formatted = is_string($attendance->date) ? substr($attendance->date, 0, 10) : $attendance->date->format('Y-m-d');
                 
@@ -256,6 +256,57 @@ class AttendanceApiController extends Controller
                 }
                 
                 return $attendance;
+            });
+
+            // Group by date so each day appears as a single unified card in the mobile app
+            $attendances = $formattedAttendances->groupBy('date_formatted')->map(function ($dayRecords, $dateKey) {
+                $sorted = $dayRecords->sortBy(function ($att) {
+                    return is_string($att->check_in) ? $att->check_in : ($att->check_in ? $att->check_in->toDateTimeString() : '00:00:00');
+                })->values();
+
+                $firstSession = $sorted->first();
+                $lastSession = $sorted->last();
+
+                // Check if any session today is still active/unclosed
+                $hasActiveSession = $sorted->contains(function ($att) {
+                    return empty($att->check_out);
+                });
+
+                // Earliest check-in of the day
+                $earliestCheckIn = $firstSession->check_in;
+
+                // Latest check-out of the day (null if still on-duty)
+                $latestCheckOut = $hasActiveSession ? null : $lastSession->check_out;
+
+                // Calculate cumulative worked minutes across all completed sessions of the day
+                $totalWorkedMinutes = 0;
+                foreach ($sorted as $session) {
+                    if (!empty($session->check_in) && !empty($session->check_out)) {
+                        $cIn = \Carbon\Carbon::parse($session->check_in);
+                        $cOut = \Carbon\Carbon::parse($session->check_out);
+                        $totalWorkedMinutes += (int) round($cIn->diffInMinutes($cOut));
+                    }
+                }
+
+                $h = (int) floor($totalWorkedMinutes / 60);
+                $m = (int) ($totalWorkedMinutes % 60);
+                $totalTimeFormatted = "{$h}h {$m}m";
+
+                $merged = clone $lastSession;
+                $merged->check_in = $earliestCheckIn;
+                $merged->check_out = $latestCheckOut;
+                $merged->total_minutes = $totalWorkedMinutes;
+                $merged->total_hours = round($totalWorkedMinutes / 60, 2);
+                $merged->total_time = $totalTimeFormatted;
+                $merged->check_in_lat = $firstSession->check_in_lat;
+                $merged->check_in_lng = $firstSession->check_in_lng;
+                $merged->check_in_photo = $firstSession->check_in_photo;
+                $merged->checkin_loc = $firstSession->checkin_loc;
+                $merged->checkout_loc = $lastSession->checkout_loc;
+                $merged->punches_count = $sorted->count();
+                $merged->sessions = $sorted;
+
+                return $merged;
             })->sortByDesc(function ($attendance) {
                 $checkInTime = is_string($attendance->check_in) ? $attendance->check_in : ($attendance->check_in ? $attendance->check_in->toDateTimeString() : '00:00:00');
                 return $attendance->date_formatted . ' ' . $checkInTime;
