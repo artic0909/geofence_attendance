@@ -278,26 +278,34 @@ class AttendanceApiController extends Controller
                 // Latest check-out of the day (null if still on-duty)
                 $latestCheckOut = $hasActiveSession ? null : $lastSession->check_out;
 
-                // Calculate cumulative worked minutes across all completed sessions of the day
-                $totalWorkedMinutes = 0;
+                // Calculate cumulative worked seconds across all completed sessions of the day
+                $totalWorkedSeconds = 0;
                 foreach ($sorted as $session) {
                     if (!empty($session->check_in) && !empty($session->check_out)) {
                         $cIn = \Carbon\Carbon::parse($session->check_in);
                         $cOut = \Carbon\Carbon::parse($session->check_out);
-                        $totalWorkedMinutes += (int) round($cIn->diffInMinutes($cOut));
+                        if ($cOut->gte($cIn)) {
+                            $totalWorkedSeconds += $cOut->diffInSeconds($cIn);
+                        }
                     }
                 }
 
-                $h = (int) floor($totalWorkedMinutes / 60);
-                $m = (int) ($totalWorkedMinutes % 60);
+                $totalWorkedMinutes = (int) round($totalWorkedSeconds / 60);
+                $h = (int) floor($totalWorkedSeconds / 3600);
+                $m = (int) floor(($totalWorkedSeconds % 3600) / 60);
+                $s = (int) ($totalWorkedSeconds % 60);
+                
                 $totalTimeFormatted = "{$h}h {$m}m";
+                $totalHoursFormatted = sprintf('%02d:%02d:%02d', $h, $m, $s);
 
                 $merged = clone $lastSession;
                 $merged->check_in = $earliestCheckIn;
                 $merged->check_out = $latestCheckOut;
                 $merged->total_minutes = $totalWorkedMinutes;
-                $merged->total_hours = round($totalWorkedMinutes / 60, 2);
+                $merged->total_seconds = $totalWorkedSeconds;
+                $merged->total_hours = round($totalWorkedSeconds / 3600, 2);
                 $merged->total_time = $totalTimeFormatted;
+                $merged->total_time_formatted = $totalHoursFormatted;
                 $merged->check_in_lat = $firstSession->check_in_lat;
                 $merged->check_in_lng = $firstSession->check_in_lng;
                 $merged->check_in_photo = $firstSession->check_in_photo;
