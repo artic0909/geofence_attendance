@@ -187,16 +187,16 @@ class EmployeeController extends Controller
     public function track(User $employee)
     {
         $attendance = \App\Models\Attendance::with('geofence')->where('employee_id', $employee->id)
-            ->whereDate('date', now())
             ->whereNotNull('check_in')
             ->whereNull('check_out')
+            ->latest('check_in')
             ->first();
 
         if (!$attendance) {
             $attendance = \App\Models\OutsideAttendance::where('employee_id', $employee->id)
-                ->whereDate('date', now())
                 ->whereNotNull('check_in')
                 ->whereNull('check_out')
+                ->latest('check_in')
                 ->first();
                 
             if ($attendance) {

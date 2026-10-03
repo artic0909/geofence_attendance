@@ -34,25 +34,13 @@ class AttendanceApiController extends Controller
             $time = $request->filled('timestamp') ? \Carbon\Carbon::parse($request->timestamp) : now();
             $today = $time->format('Y-m-d');
 
-            // Check if already checked in via Outside Attendance today
-            $existsOutside = \App\Models\OutsideAttendance::where('employee_id', $employee->id)
-                ->where('date', $today)
-                ->exists();
+            // Check if already checked in (active session not yet checked out)
+            $activeAttendance = Attendance::where('employee_id', $employee->id)->whereNull('check_out')->first();
+            $activeOutside = \App\Models\OutsideAttendance::where('employee_id', $employee->id)->whereNull('check_out')->first();
 
-            if ($existsOutside) {
+            if ($activeAttendance || $activeOutside) {
                 return response()->json([
-                    'error' => 'You have already recorded Outside Attendance for today.',
-                ], 403);
-            }
-
-            // Check if already checked in today
-            $existingAttendance = Attendance::where('employee_id', $employee->id)
-                ->where('date', $today)
-                ->first();
-
-            if ($existingAttendance && $existingAttendance->check_in) {
-                return response()->json([
-                    'error' => 'Already checked in today',
+                    'error' => 'You are already checked in. Please check out first.',
                 ], 400);
             }
 
@@ -150,21 +138,16 @@ class AttendanceApiController extends Controller
 
             $employee = $request->user();
             $time = $request->filled('timestamp') ? \Carbon\Carbon::parse($request->timestamp) : now();
-            $today = $time->format('Y-m-d');
 
+            // Find the active check-in (unclosed session)
             $attendance = Attendance::where('employee_id', $employee->id)
-                ->where('date', $today)
+                ->whereNull('check_out')
+                ->latest('check_in')
                 ->first();
 
             if (!$attendance || !$attendance->check_in) {
                 return response()->json([
-                    'error' => 'No check-in found for today',
-                ], 400);
-            }
-
-            if ($attendance->check_out) {
-                return response()->json([
-                    'error' => 'Already checked out today',
+                    'error' => 'No active check-in found',
                 ], 400);
             }
 
@@ -324,15 +307,24 @@ class AttendanceApiController extends Controller
         $user = auth()->user();
         $today = now()->format('Y-m-d');
         
-        // Check today's status across both tables
-        $attendance = Attendance::where('employee_id', $user->id)->where('date', $today)->first();
-        $outside = \App\Models\OutsideAttendance::where('employee_id', $user->id)->where('date', $today)->first();
+        // Find active open session first (handles cross-midnight checkouts)
+        $activeAttendance = Attendance::where('employee_id', $user->id)->whereNull('check_out')->latest('check_in')->first();
+        $activeOutside = \App\Models\OutsideAttendance::where('employee_id', $user->id)->whereNull('check_out')->latest('check_in')->first();
+
+        // If no active session, fetch the latest today record to see if completed
+        $attendance = $activeAttendance ?? Attendance::where('employee_id', $user->id)->where('date', $today)->latest('id')->first();
+        $outside = $activeOutside ?? \App\Models\OutsideAttendance::where('employee_id', $user->id)->where('date', $today)->latest('id')->first();
 
         $geofences = $user->employeeGeofences()->select('name', 'latitude', 'longitude', 'radius', 'tracking_radius', 'lunch_start_time', 'lunch_end_time')->get();
 
         $admin = $user->admin;
         $isExpired = $admin->subscription_expires_at && now()->greaterThan($admin->subscription_expires_at);
         $adminSubStatus = ($admin->subscription_status !== 'active' || $isExpired) ? 'inactive' : 'active';
+
+        $isCheckedIn = ($activeAttendance && $activeAttendance->check_in) || ($activeOutside && $activeOutside->check_in);
+        $isCompleted = !$isCheckedIn && (($attendance && $attendance->check_out) || ($outside && $outside->check_out));
+        $isOutside = (bool) ($activeOutside && $activeOutside->check_in);
+        $checkedInGeofenceName = ($activeAttendance && $activeAttendance->check_in) ? ($activeAttendance->geofence->name ?? null) : null;
 
         return response()->json([
             'employee_name' => $user->name,
@@ -341,10 +333,10 @@ class AttendanceApiController extends Controller
             'admin_subscription_status' => $adminSubStatus,
             'assigned_geofences' => $geofences,
             'attendance_status' => [
-                'is_checked_in' => ($attendance && $attendance->check_in && !$attendance->check_out) || ($outside && $outside->check_in && !$outside->check_out),
-                'is_completed' => ($attendance && $attendance->check_out) || ($outside && $outside->check_out),
-                'is_outside' => ($outside && $outside->check_in && !$outside->check_out),
-                'checked_in_geofence_name' => ($attendance && $attendance->check_in && !$attendance->check_out) ? ($attendance->geofence->name ?? null) : null,
+                'is_checked_in' => $isCheckedIn,
+                'is_completed' => $isCompleted,
+                'is_outside' => $isOutside,
+                'checked_in_geofence_name' => $checkedInGeofenceName,
             ]
         ]);
     }
@@ -372,18 +364,14 @@ class AttendanceApiController extends Controller
             $time = $request->filled('timestamp') ? \Carbon\Carbon::parse($request->timestamp) : now();
             $today = $time->format('Y-m-d');
 
-            // Block if ANY attendance exists today (Normal or Outside)
-            $existsNormal = Attendance::where('employee_id', $employee->id)
-                ->where('date', $today)
-                ->exists();
-            $existsOutside = \App\Models\OutsideAttendance::where('employee_id', $employee->id)
-                ->where('date', $today)
-                ->exists();
+            // Check if already checked in (active session in normal or outside)
+            $activeAttendance = Attendance::where('employee_id', $employee->id)->whereNull('check_out')->first();
+            $activeOutside = \App\Models\OutsideAttendance::where('employee_id', $employee->id)->whereNull('check_out')->first();
 
-            if ($existsNormal || $existsOutside) {
+            if ($activeAttendance || $activeOutside) {
                 return response()->json([
-                    'error' => 'You already have an attendance record for today. Multiple entries are not allowed.',
-                ], 403);
+                    'error' => 'You are already checked in. Please check out first.',
+                ], 400);
             }
 
             // Save photo
@@ -437,17 +425,15 @@ class AttendanceApiController extends Controller
 
             $employee = $request->user();
             $time = $request->filled('timestamp') ? \Carbon\Carbon::parse($request->timestamp) : now();
-            $today = $time->format('Y-m-d');
 
             $attendance = \App\Models\OutsideAttendance::where('employee_id', $employee->id)
-                ->where('date', $today)
                 ->whereNull('check_out')
-                ->latest()
+                ->latest('check_in')
                 ->first();
 
             if (!$attendance) {
                 return response()->json([
-                    'error' => 'No active outside check-in found for today',
+                    'error' => 'No active outside check-in found',
                 ], 400);
             }
 

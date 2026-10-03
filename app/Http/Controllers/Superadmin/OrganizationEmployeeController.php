@@ -179,16 +179,16 @@ class OrganizationEmployeeController extends Controller
         $employee = User::where('admin_id', $org->id)->where('role', 'employee')->findOrFail($employeeId);
         
         $attendance = \App\Models\Attendance::with('geofence')->where('employee_id', $employee->id)
-            ->whereDate('date', now())
             ->whereNotNull('check_in')
             ->whereNull('check_out')
+            ->latest('check_in')
             ->first();
 
         if (!$attendance) {
             $attendance = \App\Models\OutsideAttendance::where('employee_id', $employee->id)
-                ->whereDate('date', now())
                 ->whereNotNull('check_in')
                 ->whereNull('check_out')
+                ->latest('check_in')
                 ->first();
                 
             if ($attendance) {
