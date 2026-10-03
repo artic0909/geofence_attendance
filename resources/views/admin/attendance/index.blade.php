@@ -125,7 +125,9 @@
                     </td>
                     <td>
                         @php
-                        if ($attendance->check_in && $attendance->check_out) {
+                        if (!empty($attendance->total_hours_formatted)) {
+                            $totalHours = $attendance->total_hours_formatted;
+                        } elseif ($attendance->check_in && $attendance->check_out) {
                             $checkIn = \Carbon\Carbon::parse($attendance->check_in);
                             $checkOut = \Carbon\Carbon::parse($attendance->check_out);
                             $totalHours = $checkIn->diff($checkOut)->format('%H:%I:%S');

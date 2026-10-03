@@ -79,10 +79,6 @@ class DashboardController extends Controller
         $totalDesignations = Designation::where('admin_id', $adminId)->count();
 
         // 2. Today's Live Stats
-        $todayInside = Attendance::where('admin_id', $adminId)->whereDate('date', today())->count();
-        $todayOutside = OutsideAttendance::where('admin_id', $adminId)->whereDate('date', today())->count();
-        $todayAttendances = $todayInside + $todayOutside;
-
         $attendedEmployeeIdsToday = Attendance::where('admin_id', $adminId)
             ->whereDate('date', today())
             ->pluck('employee_id')
@@ -92,6 +88,8 @@ class DashboardController extends Controller
                     ->pluck('employee_id')
             )
             ->unique();
+
+        $todayAttendances = $attendedEmployeeIdsToday->count();
 
         $todayAbsents = User::where('role', 'employee')
             ->where('admin_id', $adminId)

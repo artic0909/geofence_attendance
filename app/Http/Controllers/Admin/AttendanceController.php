@@ -18,14 +18,15 @@ class AttendanceController extends Controller
         // Get admin's geofences
         $geofences = Geofence::where('admin_id', $adminId)->get();
 
-        // Stats
+        // Stats (Unique employees count)
         $stats = [
             'total_employees' => User::where('role', 'employee')->where('admin_id', $adminId)->count(),
             'total_geofences' => Geofence::where('admin_id', $adminId)->count(),
             'today_attendances' => Attendance::where('admin_id', $adminId)
                 ->whereDate('date', today())
-                ->count() + OutsideAttendance::where('admin_id', $adminId)
-                ->whereDate('date', today())
+                ->pluck('employee_id')
+                ->concat(OutsideAttendance::where('admin_id', $adminId)->whereDate('date', today())->pluck('employee_id'))
+                ->unique()
                 ->count(),
             'active_employees' => User::where('role', 'employee')->where('admin_id', $adminId)
                 ->where('is_active', true)
@@ -75,7 +76,11 @@ class AttendanceController extends Controller
         $normalRecords = $normalQuery->get()->map(function($a) { $a->attendance_type = 'normal'; return $a; });
         $outsideRecords = $outsideQuery->get()->map(function($a) { $a->attendance_type = 'outside'; return $a; });
 
-        $merged = $normalRecords->concat($outsideRecords)->sortByDesc('date')->values();
+        $rawMerged = $normalRecords->concat($outsideRecords);
+        $merged = $this->groupAttendancesByEmployeeAndDate($rawMerged)
+            ->sortByDesc('date')
+            ->sortByDesc('check_in')
+            ->values();
 
         // Manual Pagination
         $perPageParam = $request->input('per_page', 20);
@@ -133,9 +138,13 @@ class AttendanceController extends Controller
             }
         }
 
-        $attendances = $normalQuery->get()->map(function($a){ $a->attendance_type = 'normal'; return $a; })
-            ->concat($outsideQuery->get()->map(function($a){ $a->attendance_type = 'outside'; return $a; }))
-            ->sortByDesc('date');
+        $rawAttendances = $normalQuery->get()->map(function($a){ $a->attendance_type = 'normal'; return $a; })
+            ->concat($outsideQuery->get()->map(function($a){ $a->attendance_type = 'outside'; return $a; }));
+
+        $attendances = $this->groupAttendancesByEmployeeAndDate($rawAttendances)
+            ->sortByDesc('date')
+            ->sortByDesc('check_in')
+            ->values();
 
         $csvFileName = 'attendances_' . date('Y-m-d_H-i-s') . '.csv';
 
@@ -156,10 +165,7 @@ class AttendanceController extends Controller
                 $checkIn = $attendance->check_in ? \Carbon\Carbon::parse($attendance->check_in) : null;
                 $checkOut = $attendance->check_out ? \Carbon\Carbon::parse($attendance->check_out) : null;
                 
-                $totalHours = 'N/A';
-                if ($checkIn && $checkOut) {
-                    $totalHours = $checkIn->diff($checkOut)->format('%H:%I:%S');
-                }
+                $totalHours = $attendance->total_hours_formatted ?? ($checkIn && $checkOut ? $checkIn->diff($checkOut)->format('%H:%I:%S') : 'N/A');
 
                 $location = $attendance->attendance_type == 'normal' 
                     ? ($attendance->geofence->name ?? 'N/A') 
@@ -377,14 +383,15 @@ class AttendanceController extends Controller
         // Get only this admin's geofences
         $geofences = Geofence::where('admin_id', $adminId)->get();
 
-        // Stats for this admin only
+        // Stats for this admin only (Unique employees count)
         $stats = [
             'total_employees' => User::where('role', 'employee')->where('admin_id', $adminId)->count(),
             'total_geofences' => Geofence::where('admin_id', $adminId)->count(),
             'today_attendances' => Attendance::where('admin_id', $adminId)
                 ->whereDate('date', today())
-                ->count() + OutsideAttendance::where('admin_id', $adminId)
-                ->whereDate('date', today())
+                ->pluck('employee_id')
+                ->concat(OutsideAttendance::where('admin_id', $adminId)->whereDate('date', today())->pluck('employee_id'))
+                ->unique()
                 ->count(),
             'active_employees' => User::where('role', 'employee')->where('admin_id', $adminId)
                 ->where('is_active', true)
@@ -418,9 +425,12 @@ class AttendanceController extends Controller
             });
         }
 
-        $merged = $normalQuery->get()->map(function($a){ $a->attendance_type = 'normal'; return $a; })
-            ->concat($outsideQuery->get()->map(function($a){ $a->attendance_type = 'outside'; return $a; }))
-            ->sortByDesc('check_in')->values();
+        $rawMerged = $normalQuery->get()->map(function($a){ $a->attendance_type = 'normal'; return $a; })
+            ->concat($outsideQuery->get()->map(function($a){ $a->attendance_type = 'outside'; return $a; }));
+
+        $merged = $this->groupAttendancesByEmployeeAndDate($rawMerged)
+            ->sortByDesc('check_in')
+            ->values();
 
         $perPageParam = $request->input('per_page', 20);
         $perPage = ($perPageParam === 'all' || $perPageParam == -1) ? max(1, $merged->count()) : (int)$perPageParam;
@@ -498,7 +508,10 @@ class AttendanceController extends Controller
             ->whereDate('date', today())
             ->get()->map(function($a){ $a->attendance_type = 'outside'; return $a; });
 
-        $attendances = $normalRecords->concat($outsideRecords)->sortByDesc('check_in');
+        $rawAttendances = $normalRecords->concat($outsideRecords);
+        $attendances = $this->groupAttendancesByEmployeeAndDate($rawAttendances)
+            ->sortByDesc('check_in')
+            ->values();
 
         $csvFileName = 'todays_attendances_' . date('Y-m-d_H-i-s') . '.csv';
 
@@ -529,10 +542,7 @@ class AttendanceController extends Controller
                 $checkIn = $attendance->check_in ? \Carbon\Carbon::parse($attendance->check_in) : null;
                 $checkOut = $attendance->check_out ? \Carbon\Carbon::parse($attendance->check_out) : null;
                 
-                $totalHours = 'N/A';
-                if ($checkIn && $checkOut) {
-                    $totalHours = $checkIn->diff($checkOut)->format('%H:%I:%S');
-                }
+                $totalHours = $attendance->total_hours_formatted ?? ($checkIn && $checkOut ? $checkIn->diff($checkOut)->format('%H:%I:%S') : 'N/A');
 
                 $location = $attendance->attendance_type == 'normal' 
                     ? ($attendance->geofence->name ?? 'N/A') 
@@ -656,5 +666,62 @@ class AttendanceController extends Controller
 
         return redirect()->route('admin.attendances.delete')
             ->with('success', "Successfully deleted {$count} attendance record(s).");
+    }
+
+    /**
+     * Group attendance records by employee and date, calculating cumulative duty hours.
+     */
+    private function groupAttendancesByEmployeeAndDate($attendances)
+    {
+        return $attendances->groupBy(function ($att) {
+            $dateStr = is_string($att->date) ? substr($att->date, 0, 10) : ($att->date ? $att->date->format('Y-m-d') : 'unknown');
+            return $att->employee_id . '_' . $dateStr;
+        })->map(function ($group) {
+            $sorted = $group->sortBy(function ($att) {
+                return is_string($att->check_in) ? $att->check_in : ($att->check_in ? $att->check_in->toDateTimeString() : '00:00:00');
+            })->values();
+
+            $firstSession = $sorted->first();
+            $lastSession = $sorted->last();
+
+            $hasActiveSession = $sorted->contains(function ($att) {
+                return empty($att->check_out);
+            });
+
+            $earliestCheckIn = $firstSession->check_in;
+            $latestCheckOut = $hasActiveSession ? null : $lastSession->check_out;
+
+            $totalWorkedSeconds = 0;
+            $hasCompletedSession = false;
+            $hasPendingCheckOut = false;
+
+            foreach ($sorted as $att) {
+                if ($att->check_in && $att->check_out) {
+                    $cIn = \Carbon\Carbon::parse($att->check_in);
+                    $cOut = \Carbon\Carbon::parse($att->check_out);
+                    $totalWorkedSeconds += (int) round($cIn->diffInSeconds($cOut));
+                    $hasCompletedSession = true;
+                } elseif ($att->check_in && !$att->check_out) {
+                    $hasPendingCheckOut = true;
+                }
+            }
+
+            $hours = (int) floor($totalWorkedSeconds / 3600);
+            $mins = (int) floor(($totalWorkedSeconds % 3600) / 60);
+            $secs = (int) ($totalWorkedSeconds % 60);
+            $formattedTotalHours = sprintf('%02d:%02d:%02d', $hours, $mins, $secs);
+
+            $merged = clone $lastSession;
+            $merged->check_in = $earliestCheckIn;
+            $merged->check_out = $latestCheckOut;
+            $merged->check_in_photo = $firstSession->check_in_photo;
+            $merged->check_out_photo = $lastSession->check_out_photo;
+            $merged->total_hours_formatted = $hasCompletedSession ? $formattedTotalHours : ($hasPendingCheckOut ? '--:--:--' : 'N/A');
+            $merged->total_worked_seconds = $totalWorkedSeconds;
+            $merged->punches_count = $sorted->count();
+            $merged->sessions = $sorted;
+
+            return $merged;
+        })->values();
     }
 }

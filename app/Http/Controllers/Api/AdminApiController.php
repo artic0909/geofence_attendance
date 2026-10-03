@@ -133,47 +133,76 @@ class AdminApiController extends Controller
 
         foreach ($allPresentIds as $empId) {
             $employee = User::with('designation')->find($empId);
+            if (!$employee) {
+                continue;
+            }
             
-            $attendance = Attendance::with('geofence')->where('employee_id', $empId)
-                ->whereDate('created_at', $today)->latest()->first();
+            $onsiteAttendances = Attendance::with('geofence')->where('employee_id', $empId)
+                ->whereDate('date', $today)->orderBy('created_at', 'asc')->get();
                 
-            if (!$attendance) {
-                $attendance = OutsideAttendance::where('employee_id', $empId)
-                    ->whereDate('created_at', $today)->latest()->first();
-                if ($attendance) {
-                    $attendance->attendance_type = 'outside';
+            $outsideAttendances = OutsideAttendance::where('employee_id', $empId)
+                ->whereDate('date', $today)->orderBy('created_at', 'asc')->get();
+            
+            foreach ($outsideAttendances as $oa) {
+                $oa->attendance_type = 'outside';
+            }
+
+            $allRecords = $onsiteAttendances->concat($outsideAttendances)->sortBy('created_at')->values();
+
+            if ($allRecords->isEmpty()) {
+                continue;
+            }
+
+            $firstRecord = $allRecords->first();
+            $lastRecord = $allRecords->last();
+            $hasActiveSession = $allRecords->contains(fn($r) => empty($r->check_out));
+
+            $earliestCheckIn = $firstRecord->check_in ? Carbon::parse($firstRecord->check_in)->format('h:i A') : '--:--';
+            $latestCheckOut = $hasActiveSession ? null : ($lastRecord->check_out ? Carbon::parse($lastRecord->check_out)->format('h:i A') : null);
+
+            $totalWorkedSeconds = 0;
+            $hasAnyCompleted = false;
+
+            foreach ($allRecords as $rec) {
+                if ($rec->check_in && $rec->check_out) {
+                    $in = Carbon::parse($rec->check_in);
+                    $out = Carbon::parse($rec->check_out);
+                    if ($out->gte($in)) {
+                        $totalWorkedSeconds += $out->diffInSeconds($in);
+                        $hasAnyCompleted = true;
+                    }
                 }
             }
 
-            if ($attendance && $employee) {
-                $checkIn = $attendance->check_in ? Carbon::parse($attendance->check_in)->format('h:i A') : '--:--';
-                $checkOut = $attendance->check_out ? Carbon::parse($attendance->check_out)->format('h:i A') : null;
-                
-                $hours = '--:--:--';
-                if ($attendance->check_in && $attendance->check_out) {
-                    $hours = Carbon::parse($attendance->check_in)->diff(Carbon::parse($attendance->check_out))->format('%H:%I:%S');
-                }
-                
-                $location = ($attendance->attendance_type == 'outside')
-                    ? ($attendance->checkin_location ?? 'Outside')
-                    : ($attendance->geofence->name ?? 'N/A');
-
-                $presentEmployeesClean[] = [
-                    'id' => $employee->id,
-                    'employee_id' => $employee->employee_id ?? 'N/A',
-                    'name' => $employee->name,
-                    'email' => $employee->email,
-                    'phone' => $employee->phone ?? 'N/A',
-                    'designation' => $employee->designation ? $employee->designation->name : 'Employee',
-                    
-                    'type' => ucfirst($attendance->attendance_type ?? 'Normal'),
-                    'is_privacy_violation' => $attendance->is_auto_checkout_trap ?? false,
-                    'check_in' => $checkIn,
-                    'check_out' => $checkOut,
-                    'hours' => $hours,
-                    'location' => $location,
-                ];
+            if ($hasAnyCompleted || $totalWorkedSeconds > 0) {
+                $hoursPart = floor($totalWorkedSeconds / 3600);
+                $minutesPart = floor(($totalWorkedSeconds % 3600) / 60);
+                $secondsPart = $totalWorkedSeconds % 60;
+                $hoursFormatted = sprintf('%02d:%02d:%02d', $hoursPart, $minutesPart, $secondsPart);
+            } else {
+                $hoursFormatted = '--:--:--';
             }
+
+            $displayRecord = $lastRecord;
+            $location = ($displayRecord->attendance_type == 'outside')
+                ? ($displayRecord->checkin_location ?? 'Outside')
+                : ($displayRecord->geofence->name ?? 'N/A');
+
+            $presentEmployeesClean[] = [
+                'id' => $employee->id,
+                'employee_id' => $employee->employee_id ?? 'N/A',
+                'name' => $employee->name,
+                'email' => $employee->email,
+                'phone' => $employee->phone ?? 'N/A',
+                'designation' => $employee->designation ? $employee->designation->name : 'Employee',
+                
+                'type' => ucfirst($displayRecord->attendance_type ?? 'Normal'),
+                'is_privacy_violation' => $displayRecord->is_auto_checkout_trap ?? false,
+                'check_in' => $earliestCheckIn,
+                'check_out' => $latestCheckOut,
+                'hours' => $hoursFormatted,
+                'location' => $location,
+            ];
         }
 
         return response()->json([
