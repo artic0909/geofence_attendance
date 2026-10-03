@@ -189,6 +189,7 @@ class EmployeeController extends Controller
         $attendance = \App\Models\Attendance::with('geofence')->where('employee_id', $employee->id)
             ->whereNotNull('check_in')
             ->whereNull('check_out')
+            ->where('check_in', '>=', now()->subHours(24))
             ->latest('check_in')
             ->first();
 
@@ -196,6 +197,7 @@ class EmployeeController extends Controller
             $attendance = \App\Models\OutsideAttendance::where('employee_id', $employee->id)
                 ->whereNotNull('check_in')
                 ->whereNull('check_out')
+                ->where('check_in', '>=', now()->subHours(24))
                 ->latest('check_in')
                 ->first();
                 
