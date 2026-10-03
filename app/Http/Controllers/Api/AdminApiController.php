@@ -167,10 +167,8 @@ class AdminApiController extends Controller
                 if ($rec->check_in && $rec->check_out) {
                     $in = Carbon::parse($rec->check_in);
                     $out = Carbon::parse($rec->check_out);
-                    if ($out->gte($in)) {
-                        $totalWorkedSeconds += $out->diffInSeconds($in);
-                        $hasAnyCompleted = true;
-                    }
+                    $totalWorkedSeconds += abs($in->diffInSeconds($out));
+                    $hasAnyCompleted = true;
                 }
             }
 

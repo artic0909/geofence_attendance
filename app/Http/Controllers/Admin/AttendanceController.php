@@ -317,7 +317,7 @@ class AttendanceController extends Controller
                             if ($att->check_in && $att->check_out) {
                                 $cIn = \Carbon\Carbon::parse($att->check_in);
                                 $cOut = \Carbon\Carbon::parse($att->check_out);
-                                $workedMinutes += $cIn->diffInMinutes($cOut);
+                                $workedMinutes += abs($cIn->diffInMinutes($cOut));
                                 $hasCompletedSession = true;
                             } elseif ($att->check_in && !$att->check_out) {
                                 $hasPendingCheckOut = true;
@@ -699,7 +699,7 @@ class AttendanceController extends Controller
                 if ($att->check_in && $att->check_out) {
                     $cIn = \Carbon\Carbon::parse($att->check_in);
                     $cOut = \Carbon\Carbon::parse($att->check_out);
-                    $totalWorkedSeconds += (int) round($cIn->diffInSeconds($cOut));
+                    $totalWorkedSeconds += abs((int) round($cIn->diffInSeconds($cOut)));
                     $hasCompletedSession = true;
                 } elseif ($att->check_in && !$att->check_out) {
                     $hasPendingCheckOut = true;

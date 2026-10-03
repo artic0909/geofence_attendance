@@ -289,19 +289,21 @@ class AttendanceApiController extends Controller
                     if (!empty($session->check_in) && !empty($session->check_out)) {
                         $cIn = \Carbon\Carbon::parse($session->check_in);
                         $cOut = \Carbon\Carbon::parse($session->check_out);
-                        if ($cOut->gte($cIn)) {
-                            $sessionSeconds = $cOut->diffInSeconds($cIn);
-                            $totalWorkedSeconds += $sessionSeconds;
-                            $sH = (int) floor($sessionSeconds / 3600);
-                            $sM = (int) floor(($sessionSeconds % 3600) / 60);
-                            $sessionDuration = ($sH > 0) ? "{$sH}h {$sM}m" : "{$sM}m";
+                        $sessionSeconds = abs($cIn->diffInSeconds($cOut));
+                        $totalWorkedSeconds += $sessionSeconds;
+                        $sH = (int) floor($sessionSeconds / 3600);
+                        $sM = (int) round(($sessionSeconds % 3600) / 60);
+                        if ($sM == 60) {
+                            $sH += 1;
+                            $sM = 0;
                         }
+                        $sessionDuration = ($sH > 0) ? "{$sH}h {$sM}m" : "{$sM}m";
                     }
 
                     $formattedSessions[] = [
                         'id' => $session->id,
-                        'check_in' => $session->check_in ? $session->check_in->toDateTimeString() : null,
-                        'check_out' => $session->check_out ? $session->check_out->toDateTimeString() : null,
+                        'check_in' => $session->check_in ? (is_string($session->check_in) ? $session->check_in : $session->check_in->toDateTimeString()) : null,
+                        'check_out' => $session->check_out ? (is_string($session->check_out) ? $session->check_out : $session->check_out->toDateTimeString()) : null,
                         'check_in_time' => $session->check_in ? \Carbon\Carbon::parse($session->check_in)->format('h:i A') : '--:--',
                         'check_out_time' => $session->check_out ? \Carbon\Carbon::parse($session->check_out)->format('h:i A') : '--:--',
                         'total_time' => $sessionDuration,
@@ -317,11 +319,15 @@ class AttendanceApiController extends Controller
 
                 $totalWorkedMinutes = (int) round($totalWorkedSeconds / 60);
                 $h = (int) floor($totalWorkedSeconds / 3600);
-                $m = (int) floor(($totalWorkedSeconds % 3600) / 60);
+                $m = (int) round(($totalWorkedSeconds % 3600) / 60);
+                if ($m == 60) {
+                    $h += 1;
+                    $m = 0;
+                }
                 $s = (int) ($totalWorkedSeconds % 60);
                 
                 $totalTimeFormatted = "{$h}h {$m}m";
-                $totalHoursFormatted = sprintf('%02d:%02d:%02d', $h, $m, $s);
+                $totalHoursFormatted = sprintf('%02d:%02d:%02d', $h, floor(($totalWorkedSeconds % 3600) / 60), $s);
 
                 $merged = clone $lastSession;
                 $merged->check_in = $earliestCheckIn;
