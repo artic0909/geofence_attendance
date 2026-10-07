@@ -214,7 +214,7 @@ class AttendanceApiController extends Controller
             Log::info("CheckOut successful for employee {$employee->id}");
 
             // Fetch all assigned geofences for employee
-            $assignedGeofences = $employee->employeeGeofences()->where('is_active', true)->pluck('name');
+            $assignedGeofences = $employee->employeeGeofences()->pluck('name');
 
             return response()->json([
                 'message' => 'Check-out successful!',
@@ -369,7 +369,7 @@ class AttendanceApiController extends Controller
                 return $attendance->date_formatted . ' ' . $checkInTime;
             })->values();
 
-            $assignedGeofences = $employee->employeeGeofences()->where('is_active', true)->pluck('name');
+            $assignedGeofences = $employee->employeeGeofences()->pluck('name');
 
             return response()->json([
                 'employee_name' => $employee->name,

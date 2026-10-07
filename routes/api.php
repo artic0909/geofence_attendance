@@ -16,8 +16,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/outside-check-in', [AttendanceApiController::class, 'outsideCheckIn']);
     Route::post('/outside-check-out', [AttendanceApiController::class, 'outsideCheckOut']);
     Route::get('/attendance-history', [AttendanceApiController::class, 'history']);
+    Route::get('/attendance/history', [AttendanceApiController::class, 'history']);
     Route::get('/employee/geofences', [AttendanceApiController::class, 'getAssignedGeofences']);
     Route::get('/employee/data', [AttendanceApiController::class, 'getEmployeeData']);
+    Route::get('/employee-data', [AttendanceApiController::class, 'getEmployeeData']);
     Route::post('/location-update', [AttendanceApiController::class, 'updateLocation']);
 
     // Admin Routes
