@@ -115,16 +115,22 @@
         </thead>
         <tbody>
             @foreach($attendances as $attendance)
-            <tr class="{{ $attendance->is_auto_checkout_trap ? 'table-danger' : '' }}">
+            <tr>
                 <td>{{ $loop->iteration }}</td>
                 <td>
                     <span class="badge {{ $attendance->attendance_type == 'outside' ? 'text-bg-warning' : 'text-bg-success' }}">
                         {{ ucfirst($attendance->attendance_type) }}
                     </span>
-                    @if($attendance->is_auto_checkout_trap)
+                    @if(!empty($attendance->app_usages) && count($attendance->app_usages) > 0)
                     <div class="mt-1">
-                        <span class="badge text-bg-danger" title="Privacy Violation: The employee forcefully bypassed the Kiosk Mode pin.">
-                            <i class="bi bi-shield-exclamation me-1"></i> Privacy Violation
+                        <button type="button" class="btn btn-outline-primary btn-sm py-0 px-2 rounded-pill d-inline-flex align-items-center gap-1" style="font-size: 11px;" onclick="showAppUsage('{{ addslashes($attendance->employee->name) }}', {{ json_encode($attendance->app_usages) }})" title="View App Usage Record">
+                            <i class="bi bi-phone"></i> App Usage ({{ count($attendance->app_usages) }})
+                        </button>
+                    </div>
+                    @elseif($attendance->employee->phone_used_restricted)
+                    <div class="mt-1">
+                        <span class="badge text-bg-secondary bg-opacity-25 text-secondary border border-secondary border-opacity-25" style="font-size: 10px;" title="Phone Restriction Enabled">
+                            <i class="bi bi-phone-vibrate me-1"></i> Monitored
                         </span>
                     </div>
                     @endif
@@ -279,6 +285,65 @@
             `,
             confirmButtonColor: '#fd7e14',
             confirmButtonText: 'Close',
+        });
+    }
+
+    function showAppUsage(employeeName, usages) {
+        if (!usages || usages.length === 0) {
+            Swal.fire({
+                title: 'No App Usage Recorded',
+                text: 'No external app activity was recorded during this session.',
+                icon: 'info',
+                confirmButtonColor: '#0a58ca'
+            });
+            return;
+        }
+
+        let totalSeconds = usages.reduce((acc, curr) => acc + (curr.usage_seconds || 0), 0);
+        let totalH = Math.floor(totalSeconds / 3600);
+        let totalM = Math.floor((totalSeconds % 3600) / 60);
+        let totalS = totalSeconds % 60;
+        let totalStr = (totalH > 0 ? totalH + 'h ' : '') + totalM + 'm ' + totalS + 's';
+
+        let listHtml = usages.map(app => {
+            let appSecs = app.usage_seconds || 0;
+            let pct = totalSeconds > 0 ? Math.round((appSecs / totalSeconds) * 100) : 0;
+            let formatted = app.usage_formatted || ((Math.floor(appSecs / 60)) + 'm ' + (appSecs % 60) + 's');
+            return `
+                <div class="p-2 mb-2 bg-light border rounded d-flex flex-column text-start">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <div>
+                            <span class="fw-bold text-dark">${app.app_name || app.package_name}</span>
+                            <small class="text-muted d-block font-monospace" style="font-size: 11px;">${app.package_name || ''}</small>
+                        </div>
+                        <span class="badge bg-primary fs-7">${formatted}</span>
+                    </div>
+                    <div class="progress" style="height: 6px;">
+                        <div class="progress-bar bg-primary" role="progressbar" style="width: ${pct}%" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        Swal.fire({
+            title: `<i class="bi bi-phone text-primary me-2"></i>App Usage Track Record`,
+            html: `
+                <div class="text-start mb-2">
+                    <div class="small text-muted text-uppercase fw-bold">Employee</div>
+                    <div class="fw-bold text-primary fs-6 mb-2">${employeeName}</div>
+                    <div class="d-flex justify-content-between bg-primary bg-opacity-10 border border-primary border-opacity-25 rounded p-2 mb-3">
+                        <span class="small fw-semibold text-primary">Total App Screen Time</span>
+                        <span class="fw-bold text-primary">${totalStr}</span>
+                    </div>
+                    <div class="small text-muted text-uppercase fw-bold mb-2">Apps Used During Work Duty (${usages.length})</div>
+                    <div style="max-height: 280px; overflow-y: auto;">
+                        ${listHtml}
+                    </div>
+                </div>
+            `,
+            width: '520px',
+            confirmButtonColor: '#0a58ca',
+            confirmButtonText: 'Close'
         });
     }
 

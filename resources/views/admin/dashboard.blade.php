@@ -482,8 +482,8 @@
               <strong class="text-info fw-bold">{{ $stats['period_outside'] }}</strong>
             </div>
             <div class="border-start ps-3">
-              <span class="text-muted d-block">Auto-Traps</span>
-              <strong class="text-danger fw-bold">{{ $stats['period_traps'] }}</strong>
+              <span class="text-muted d-block">App Tracked</span>
+              <strong class="text-primary fw-bold">{{ $stats['period_traps'] }}</strong>
             </div>
           </div>
         </div>
@@ -641,8 +641,8 @@
                       @endif
                     </td>
                     <td>
-                      @if($item->is_auto_checkout_trap)
-                        <span class="badge bg-danger">Trapped</span>
+                      @if(!empty($item->app_usages) && count($item->app_usages) > 0)
+                        <span class="badge bg-primary">App Tracked</span>
                       @elseif($item->status === 'late')
                         <span class="badge bg-warning text-dark">Late</span>
                       @else

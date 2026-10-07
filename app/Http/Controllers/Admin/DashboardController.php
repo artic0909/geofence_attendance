@@ -134,9 +134,9 @@ class DashboardController extends Controller
         $periodTotalCheckouts = $periodInsideCheckoutCount + $periodOutsideCheckoutCount;
         $checkoutCompletionRate = $periodTotalAttendance > 0 ? round(($periodTotalCheckouts / $periodTotalAttendance) * 100, 1) : 0;
 
-        // Auto-checkout traps count
-        $periodTrapCount = (clone $attendanceQuery)->where('is_auto_checkout_trap', true)->count() 
-            + (clone $outsideAttendanceQuery)->where('is_auto_checkout_trap', true)->count();
+        // App usage tracked count
+        $periodTrackedUsageCount = (clone $attendanceQuery)->whereNotNull('app_usages')->count() 
+            + (clone $outsideAttendanceQuery)->whereNotNull('app_usages')->count();
 
         // 4. Subscription Progress Calculation
         $current_plan = auth()->user()->activeSubscription;
@@ -226,9 +226,9 @@ class DashboardController extends Controller
             }
         }
 
-        // 6. Chart 2: Attendance Method & Status Breakdown
-        $methodLabels = ['On-Site (Geofence)', 'Outside / Field Duty', 'Auto-Checkout Trap'];
-        $methodData = [$periodInsideCount, $periodOutsideCount, $periodTrapCount];
+        // 6. Chart 2: Attendance Method Breakdown
+        $methodLabels = ['On-Site (Geofence)', 'Outside / Field Duty', 'App Usage Tracked'];
+        $methodData = [$periodInsideCount, $periodOutsideCount, $periodTrackedUsageCount];
 
         // 7. Chart 3: Geofence / Site Attendance Distribution
         $geofences = Geofence::where('admin_id', $adminId)
@@ -360,7 +360,8 @@ class DashboardController extends Controller
             'period_outside' => $periodOutsideCount,
             'period_checkouts' => $periodTotalCheckouts,
             'checkout_completion_rate' => $checkoutCompletionRate,
-            'period_traps' => $periodTrapCount,
+            'period_traps' => $periodTrackedUsageCount,
+            'period_tracked_usage' => $periodTrackedUsageCount,
             'total_payments' => $periodPayments,
             
             // Charts Data

@@ -25,13 +25,14 @@ class OutsideAttendance extends Model
         'checkout_location',
         'reason',
         'status',
-        'is_auto_checkout_trap'
+        'app_usages',
     ];
 
     protected $casts = [
         'date' => 'date',
         'check_in' => 'datetime',
         'check_out' => 'datetime',
+        'app_usages' => 'array',
     ];
 
     public function employee()

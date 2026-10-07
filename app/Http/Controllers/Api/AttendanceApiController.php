@@ -177,7 +177,7 @@ class AttendanceApiController extends Controller
                 ], 403);
             }
 
-            Log::info("Employee {$employee->id} is INSIDE check-in geofence for checkout or is_auto_trap is true");
+            Log::info("Employee {$employee->id} is INSIDE check-in geofence for checkout");
 
             // Save photo if exists
             $photoPath = null;
@@ -185,14 +185,31 @@ class AttendanceApiController extends Controller
                 $photoPath = $request->file('photo')->store('attendance-photos', 'public');
             }
 
-            $attendance->update([
+            // Parse app usages if provided
+            $appUsages = null;
+            if ($request->filled('app_usages')) {
+                $raw = $request->input('app_usages');
+                if (is_string($raw)) {
+                    $decoded = json_decode($raw, true);
+                    $appUsages = is_array($decoded) ? $decoded : null;
+                } elseif (is_array($raw)) {
+                    $appUsages = $raw;
+                }
+            }
+
+            $updateData = [
                 'check_out' => $time,
                 'check_out_lat' => $lat,
                 'check_out_lng' => $lng,
                 'check_out_photo' => $photoPath,
                 'admin_id' => $employee->admin_id,
-                'is_auto_checkout_trap' => $request->boolean('is_auto_trap'), // if we want to add this later, it will just be ignored if not in fillable
-            ]);
+            ];
+
+            if ($appUsages !== null) {
+                $updateData['app_usages'] = $appUsages;
+            }
+
+            $attendance->update($updateData);
 
             Log::info("CheckOut successful for employee {$employee->id}");
 
@@ -313,7 +330,7 @@ class AttendanceApiController extends Controller
                         'checkin_loc' => $session->checkin_loc ?? $session->geofence->name ?? 'OFFICE HUB',
                         'checkout_loc' => $session->checkout_loc ?? $session->geofence->name ?? 'OFFICE HUB',
                         'reason' => $session->reason ?? null,
-                        'is_auto_checkout_trap' => $session->is_auto_checkout_trap ?? false,
+                        'app_usages' => $session->app_usages ?? [],
                     ];
                 }
 
@@ -344,6 +361,7 @@ class AttendanceApiController extends Controller
                 $merged->checkout_loc = $lastSession->checkout_loc;
                 $merged->punches_count = count($formattedSessions);
                 $merged->sessions = $formattedSessions;
+                $merged->app_usages = $lastSession->app_usages ?? [];
 
                 return $merged;
             })->sortByDesc(function ($attendance) {
@@ -545,15 +563,32 @@ class AttendanceApiController extends Controller
                 $photoPath = $request->file('photo')->store('attendance-photos', 'public');
             }
 
-            $attendance->update([
+            // Parse app usages if provided
+            $appUsages = null;
+            if ($request->filled('app_usages')) {
+                $raw = $request->input('app_usages');
+                if (is_string($raw)) {
+                    $decoded = json_decode($raw, true);
+                    $appUsages = is_array($decoded) ? $decoded : null;
+                } elseif (is_array($raw)) {
+                    $appUsages = $raw;
+                }
+            }
+
+            $updateData = [
                 'check_out' => $time,
                 'check_out_lat' => $request->latitude,
                 'check_out_lng' => $request->longitude,
                 'check_out_photo' => $photoPath,
                 'checkout_location' => $request->checkout_location ?? "{$request->latitude}, {$request->longitude}",
                 'reason' => $request->reason ?: $attendance->reason,
-                'is_auto_checkout_trap' => $request->boolean('is_auto_trap'),
-            ]);
+            ];
+
+            if ($appUsages !== null) {
+                $updateData['app_usages'] = $appUsages;
+            }
+
+            $attendance->update($updateData);
 
             Log::info("Outside CheckOut successful for employee {$employee->id}");
 

@@ -195,7 +195,8 @@ class AdminApiController extends Controller
                 'designation' => $employee->designation ? $employee->designation->name : 'Employee',
                 
                 'type' => ucfirst($displayRecord->attendance_type ?? 'Normal'),
-                'is_privacy_violation' => $displayRecord->is_auto_checkout_trap ?? false,
+                'phone_restriction' => (bool) ($employee->phone_used_restricted ?? false),
+                'app_usages' => $displayRecord->app_usages ?? [],
                 'check_in' => $earliestCheckIn,
                 'check_out' => $latestCheckOut,
                 'hours' => $hoursFormatted,
