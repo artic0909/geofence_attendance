@@ -439,7 +439,7 @@ class AttendanceApiController extends Controller
         $activeAttendance = $this->getActiveAttendance($user->id);
         $activeOutside = $this->getActiveOutsideAttendance($user->id);
 
-        $geofences = $user->employeeGeofences()->select('name', 'latitude', 'longitude', 'radius', 'tracking_radius', 'lunch_start_time', 'lunch_end_time')->get();
+        $geofences = $user->employeeGeofences()->where('is_active', true)->get();
 
         $admin = $user->admin;
         $isExpired = $admin->subscription_expires_at && now()->greaterThan($admin->subscription_expires_at);
