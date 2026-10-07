@@ -15,6 +15,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/check-out', [AttendanceApiController::class, 'checkOut']);
     Route::post('/outside-check-in', [AttendanceApiController::class, 'outsideCheckIn']);
     Route::post('/outside-check-out', [AttendanceApiController::class, 'outsideCheckOut']);
+    Route::post('/sync-app-usage', [AttendanceApiController::class, 'syncAppUsage']);
     Route::get('/attendance-history', [AttendanceApiController::class, 'history']);
     Route::get('/attendance/history', [AttendanceApiController::class, 'history']);
     Route::get('/employee/geofences', [AttendanceApiController::class, 'getAssignedGeofences']);

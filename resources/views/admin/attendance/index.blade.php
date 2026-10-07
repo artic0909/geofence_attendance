@@ -96,10 +96,22 @@
                         <span class="badge {{ $attendance->attendance_type == 'outside' ? 'text-bg-warning' : 'text-bg-success' }}">
                             {{ ucfirst($attendance->attendance_type) }}
                         </span>
-                        @if(!empty($attendance->app_usages) && count($attendance->app_usages) > 0)
+                        @php
+                            $appCount = 0;
+                            if (!empty($attendance->app_usages)) {
+                                if (isset($attendance->app_usages['summary']) && is_array($attendance->app_usages['summary'])) {
+                                    $appCount = count($attendance->app_usages['summary']);
+                                } elseif (isset($attendance->app_usages['before_lunch']) && is_array($attendance->app_usages['before_lunch'])) {
+                                    $appCount = count($attendance->app_usages['before_lunch']);
+                                } elseif (is_array($attendance->app_usages)) {
+                                    $appCount = count($attendance->app_usages);
+                                }
+                            }
+                        @endphp
+                        @if($appCount > 0)
                         <div class="mt-1">
                             <button type="button" class="btn btn-outline-primary btn-sm py-0 px-2 rounded-pill d-inline-flex align-items-center gap-1" style="font-size: 11px;" onclick="showAppUsage('{{ addslashes($attendance->employee->name) }}', {{ json_encode($attendance->app_usages) }})" title="View App Usage Record">
-                                <i class="bi bi-phone"></i> App Usage ({{ count($attendance->app_usages) }})
+                                <i class="bi bi-phone"></i> App Usage ({{ $appCount }})
                             </button>
                         </div>
                         @elseif($attendance->employee->phone_used_restricted)
@@ -238,7 +250,7 @@
     }
 
     function showAppUsage(employeeName, usages) {
-        if (!usages || usages.length === 0) {
+        if (!usages || (Array.isArray(usages) && usages.length === 0) || (typeof usages === 'object' && !Array.isArray(usages) && (!usages.summary || usages.summary.length === 0) && (!usages.before_lunch || usages.before_lunch.length === 0))) {
             Swal.fire({
                 title: 'No App Usage Recorded',
                 text: 'No external app activity was recorded during this session.',
@@ -248,49 +260,133 @@
             return;
         }
 
-        let totalSeconds = usages.reduce((acc, curr) => acc + (curr.usage_seconds || 0), 0);
-        let totalH = Math.floor(totalSeconds / 3600);
-        let totalM = Math.floor((totalSeconds % 3600) / 60);
-        let totalS = totalSeconds % 60;
-        let totalStr = (totalH > 0 ? totalH + 'h ' : '') + totalM + 'm ' + totalS + 's';
+        let isStructured = !Array.isArray(usages) && typeof usages === 'object';
+        let summaryList = [];
+        let lunchStart = isStructured ? (usages.lunch_start_time || null) : null;
+        let lunchEnd = isStructured ? (usages.lunch_end_time || null) : null;
 
-        let listHtml = usages.map(app => {
-            let appSecs = app.usage_seconds || 0;
-            let pct = totalSeconds > 0 ? Math.round((appSecs / totalSeconds) * 100) : 0;
-            let formatted = app.usage_formatted || ((Math.floor(appSecs / 60)) + 'm ' + (appSecs % 60) + 's');
+        if (isStructured) {
+            summaryList = usages.summary || [];
+        } else {
+            summaryList = usages.map(app => ({
+                app_name: app.app_name || app.package_name,
+                package_name: app.package_name || '',
+                before_lunch_seconds: app.usage_seconds || 0,
+                before_lunch_formatted: app.usage_formatted || ((Math.floor((app.usage_seconds || 0) / 60)) + 'm ' + ((app.usage_seconds || 0) % 60) + 's'),
+                after_lunch_seconds: 0,
+                after_lunch_formatted: '0s',
+                total_seconds: app.usage_seconds || 0,
+                total_formatted: app.usage_formatted || ((Math.floor((app.usage_seconds || 0) / 60)) + 'm ' + ((app.usage_seconds || 0) % 60) + 's')
+            }));
+        }
+
+        let totalBeforeSeconds = summaryList.reduce((acc, curr) => acc + (curr.before_lunch_seconds || 0), 0);
+        let totalAfterSeconds = summaryList.reduce((acc, curr) => acc + (curr.after_lunch_seconds || 0), 0);
+        let totalAllSeconds = summaryList.reduce((acc, curr) => acc + (curr.total_seconds || 0), 0);
+
+        function fmtSec(sec) {
+            let h = Math.floor(sec / 3600);
+            let m = Math.floor((sec % 3600) / 60);
+            let s = sec % 60;
+            if (h > 0) return h + 'h ' + m + 'm';
+            if (m > 0) return m + 'm ' + s + 's';
+            return s + 's';
+        }
+
+        let tableRows = summaryList.map(item => {
+            let pct = totalAllSeconds > 0 ? Math.round((item.total_seconds / totalAllSeconds) * 100) : 0;
             return `
-                <div class="p-2 mb-2 bg-light border rounded d-flex flex-column text-start">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                        <div>
-                            <span class="fw-bold text-dark">${app.app_name || app.package_name}</span>
-                            <small class="text-muted d-block font-monospace" style="font-size: 11px;">${app.package_name || ''}</small>
+                <tr>
+                    <td class="align-middle text-start py-2">
+                        <div class="fw-bold text-dark fs-7">${item.app_name || item.package_name}</div>
+                        <small class="text-muted d-block font-monospace" style="font-size: 10px;">${item.package_name || ''}</small>
+                    </td>
+                    <td class="align-middle text-center py-2">
+                        <span class="badge ${item.before_lunch_seconds > 0 ? 'bg-warning text-dark' : 'bg-light text-muted border'} px-2 py-1" style="font-size: 11px;">
+                            ${item.before_lunch_seconds > 0 ? item.before_lunch_formatted : '-'}
+                        </span>
+                    </td>
+                    <td class="align-middle text-center py-2">
+                        <span class="badge ${item.after_lunch_seconds > 0 ? 'bg-info text-dark' : 'bg-light text-muted border'} px-2 py-1" style="font-size: 11px;">
+                            ${item.after_lunch_seconds > 0 ? item.after_lunch_formatted : '-'}
+                        </span>
+                    </td>
+                    <td class="align-middle text-end py-2">
+                        <div class="fw-bold text-dark" style="font-size: 12px;">${item.total_formatted}</div>
+                        <div class="progress mt-1 ms-auto" style="height: 4px; width: 65px;">
+                            <div class="progress-bar bg-primary" role="progressbar" style="width: ${pct}%" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"></div>
                         </div>
-                        <span class="badge bg-primary fs-7">${formatted}</span>
-                    </div>
-                    <div class="progress" style="height: 6px;">
-                        <div class="progress-bar bg-primary" role="progressbar" style="width: ${pct}%" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                </div>
+                    </td>
+                </tr>
             `;
         }).join('');
 
+        let lunchInfoHtml = '';
+        if (lunchStart && lunchEnd) {
+            lunchInfoHtml = `
+                <div class="d-flex align-items-center justify-content-between bg-light border rounded px-3 py-1 mb-3 text-muted small">
+                    <span><i class="bi bi-cup-hot me-1 text-warning"></i> Lunch Window: <strong>${lunchStart} - ${lunchEnd}</strong></span>
+                    <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25">Tracking Paused During Lunch</span>
+                </div>
+            `;
+        }
+
         Swal.fire({
-            title: `<i class="bi bi-phone text-primary me-2"></i>App Usage Track Record`,
+            title: `<div class="d-flex align-items-center justify-content-center gap-2"><i class="bi bi-phone text-primary"></i><span>App Usage Breakdown</span></div>`,
             html: `
                 <div class="text-start mb-2">
-                    <div class="small text-muted text-uppercase fw-bold">Employee</div>
-                    <div class="fw-bold text-primary fs-6 mb-2">${employeeName}</div>
-                    <div class="d-flex justify-content-between bg-primary bg-opacity-10 border border-primary border-opacity-25 rounded p-2 mb-3">
-                        <span class="small fw-semibold text-primary">Total App Screen Time</span>
-                        <span class="fw-bold text-primary">${totalStr}</span>
+                    <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                        <div>
+                            <div class="small text-muted text-uppercase fw-bold" style="font-size: 10px;">Employee</div>
+                            <div class="fw-bold text-primary fs-6">${employeeName}</div>
+                        </div>
+                        <div class="text-end">
+                            <div class="small text-muted text-uppercase fw-bold" style="font-size: 10px;">Total Tracked Apps</div>
+                            <span class="badge bg-dark">${summaryList.length} Apps</span>
+                        </div>
                     </div>
-                    <div class="small text-muted text-uppercase fw-bold mb-2">Apps Used During Work Duty (${usages.length})</div>
-                    <div style="max-height: 280px; overflow-y: auto;">
-                        ${listHtml}
+
+                    ${lunchInfoHtml}
+
+                    <div class="row g-2 mb-3 text-center">
+                        <div class="col-4">
+                            <div class="p-2 border rounded bg-warning bg-opacity-10 border-warning border-opacity-25">
+                                <small class="d-block text-muted text-uppercase fw-bold" style="font-size: 9px;">Before Lunch</small>
+                                <span class="fw-bold text-dark fs-7">${fmtSec(totalBeforeSeconds)}</span>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="p-2 border rounded bg-info bg-opacity-10 border-info border-info-opacity-25">
+                                <small class="d-block text-muted text-uppercase fw-bold" style="font-size: 9px;">After Lunch</small>
+                                <span class="fw-bold text-dark fs-7">${fmtSec(totalAfterSeconds)}</span>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="p-2 border rounded bg-primary bg-opacity-10 border-primary border-opacity-25">
+                                <small class="d-block text-primary text-uppercase fw-bold" style="font-size: 9px;">Total Screen Time</small>
+                                <span class="fw-bold text-primary fs-7">${fmtSec(totalAllSeconds)}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive border rounded" style="max-height: 280px; overflow-y: auto;">
+                        <table class="table table-sm table-hover align-middle mb-0" style="font-size: 12px;">
+                            <thead class="table-light sticky-top">
+                                <tr>
+                                    <th class="text-start py-2">App Name</th>
+                                    <th class="text-center py-2">Before Lunch</th>
+                                    <th class="text-center py-2">After Lunch</th>
+                                    <th class="text-end py-2">Total Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${tableRows}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             `,
-            width: '520px',
+            width: '620px',
             confirmButtonColor: '#0a58ca',
             confirmButtonText: 'Close'
         });

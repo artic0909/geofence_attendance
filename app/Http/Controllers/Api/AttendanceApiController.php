@@ -237,6 +237,44 @@ class AttendanceApiController extends Controller
         }
     }
 
+    /**
+     * Mid-day / Lunch start App Usage synchronization
+     */
+    public function syncAppUsage(Request $request)
+    {
+        try {
+            $employee = $request->user();
+            $activeAttendance = $this->getActiveAttendance($employee->id);
+            $activeOutside = $this->getActiveOutsideAttendance($employee->id);
+
+            $appUsages = null;
+            if ($request->filled('app_usages')) {
+                $raw = $request->input('app_usages');
+                if (is_string($raw)) {
+                    $decoded = json_decode($raw, true);
+                    $appUsages = is_array($decoded) ? $decoded : null;
+                } elseif (is_array($raw)) {
+                    $appUsages = $raw;
+                }
+            }
+
+            if ($appUsages !== null) {
+                if ($activeAttendance) {
+                    $activeAttendance->update(['app_usages' => $appUsages]);
+                } elseif ($activeOutside) {
+                    $activeOutside->update(['app_usages' => $appUsages]);
+                }
+            }
+
+            return response()->json([
+                'message' => 'App usage synced successfully',
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Sync app usage error: ' . $e->getMessage());
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
     public function history(Request $request)
     {
         try {
