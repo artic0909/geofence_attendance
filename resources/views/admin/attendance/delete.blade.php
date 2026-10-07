@@ -362,9 +362,20 @@
 
         let lunchInfoHtml = '';
         if (lunchStart && lunchEnd) {
+            function formatTime12(tStr) {
+                if (!tStr) return '';
+                let parts = tStr.split(':');
+                if (parts.length < 2) return tStr;
+                let h = parseInt(parts[0], 10);
+                let m = parts[1];
+                let ampm = h >= 12 ? 'PM' : 'AM';
+                let h12 = h % 12;
+                if (h12 === 0) h12 = 12;
+                return (h12 < 10 ? '0' + h12 : h12) + ':' + m + ' ' + ampm;
+            }
             lunchInfoHtml = `
                 <div class="d-flex align-items-center justify-content-between bg-light border rounded px-3 py-1 mb-3 text-muted small">
-                    <span><i class="bi bi-cup-hot me-1 text-warning"></i> Lunch Window: <strong>${lunchStart} - ${lunchEnd}</strong></span>
+                    <span><i class="bi bi-cup-hot me-1 text-warning"></i> Lunch Window: <strong>${formatTime12(lunchStart)} - ${formatTime12(lunchEnd)}</strong></span>
                     <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25">Tracking Paused During Lunch</span>
                 </div>
             `;
