@@ -97,8 +97,9 @@
                             {{ ucfirst($attendance->attendance_type) }}
                         </span>
                         @php
+                            $hasAppUsages = !empty($attendance->app_usages);
                             $appCount = 0;
-                            if (!empty($attendance->app_usages)) {
+                            if ($hasAppUsages) {
                                 if (isset($attendance->app_usages['summary']) && is_array($attendance->app_usages['summary'])) {
                                     $appCount = count($attendance->app_usages['summary']);
                                 } elseif (isset($attendance->app_usages['before_lunch']) && is_array($attendance->app_usages['before_lunch'])) {
@@ -108,7 +109,7 @@
                                 }
                             }
                         @endphp
-                        @if($appCount > 0)
+                        @if($hasAppUsages)
                         <div class="mt-1">
                             <button type="button" class="btn btn-outline-primary btn-sm py-0 px-2 rounded-pill d-inline-flex align-items-center gap-1" style="font-size: 11px;" onclick="showAppUsage('{{ addslashes($attendance->employee->name) }}', {{ json_encode($attendance->app_usages) }})" title="View App Usage Record">
                                 <i class="bi bi-phone"></i> App Usage ({{ $appCount }})

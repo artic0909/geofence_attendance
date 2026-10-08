@@ -711,6 +711,14 @@ class AttendanceController extends Controller
             $secs = (int) ($totalWorkedSeconds % 60);
             $formattedTotalHours = sprintf('%02d:%02d:%02d', $hours, $mins, $secs);
 
+            $latestAppUsages = null;
+            foreach ($sorted->reverse() as $att) {
+                if (!empty($att->app_usages)) {
+                    $latestAppUsages = $att->app_usages;
+                    break;
+                }
+            }
+
             $merged = clone $lastSession;
             $merged->check_in = $earliestCheckIn;
             $merged->check_out = $latestCheckOut;
@@ -720,6 +728,7 @@ class AttendanceController extends Controller
             $merged->total_worked_seconds = $totalWorkedSeconds;
             $merged->punches_count = $sorted->count();
             $merged->sessions = $sorted;
+            $merged->app_usages = $latestAppUsages;
 
             return $merged;
         })->values();

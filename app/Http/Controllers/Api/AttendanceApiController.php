@@ -248,7 +248,7 @@ class AttendanceApiController extends Controller
             $activeOutside = $this->getActiveOutsideAttendance($employee->id);
 
             $appUsages = null;
-            if ($request->filled('app_usages')) {
+            if ($request->has('app_usages')) {
                 $raw = $request->input('app_usages');
                 if (is_string($raw)) {
                     $decoded = json_decode($raw, true);
@@ -258,16 +258,31 @@ class AttendanceApiController extends Controller
                 }
             }
 
+            Log::info("syncAppUsage invoked by employee {$employee->id}. Usages: " . json_encode($appUsages));
+
             if ($appUsages !== null) {
                 if ($activeAttendance) {
                     $activeAttendance->update(['app_usages' => $appUsages]);
+                    Log::info("Synced app_usages to active normal attendance #{$activeAttendance->id}");
                 } elseif ($activeOutside) {
                     $activeOutside->update(['app_usages' => $appUsages]);
+                    Log::info("Synced app_usages to active outside attendance #{$activeOutside->id}");
+                } else {
+                    // Fallback to today's latest attendance for this employee
+                    $todayAttendance = Attendance::where('employee_id', $employee->id)
+                        ->where('date', now()->format('Y-m-d'))
+                        ->latest('check_in')
+                        ->first();
+                    if ($todayAttendance) {
+                        $todayAttendance->update(['app_usages' => $appUsages]);
+                        Log::info("Synced app_usages to today attendance #{$todayAttendance->id}");
+                    }
                 }
             }
 
             return response()->json([
                 'message' => 'App usage synced successfully',
+                'app_usages' => $appUsages,
             ]);
         } catch (\Exception $e) {
             Log::error('Sync app usage error: ' . $e->getMessage());
@@ -487,6 +502,10 @@ class AttendanceApiController extends Controller
         $isOutside = (bool) ($activeOutside && $activeOutside->check_in);
         $checkedInGeofenceName = ($activeAttendance && $activeAttendance->check_in) ? ($activeAttendance->geofence->name ?? null) : null;
 
+        $activeCheckInTime = ($activeAttendance && $activeAttendance->check_in) 
+            ? $activeAttendance->check_in->toIso8601String() 
+            : (($activeOutside && $activeOutside->check_in) ? $activeOutside->check_in->toIso8601String() : null);
+
         return response()->json([
             'employee_name' => $user->name,
             'admin_name' => $admin->business_name ?? $admin->name ?? 'Admin',
@@ -498,6 +517,7 @@ class AttendanceApiController extends Controller
                 'is_completed' => false,
                 'is_outside' => (bool) $isOutside,
                 'checked_in_geofence_name' => $checkedInGeofenceName,
+                'check_in_time' => $activeCheckInTime,
             ]
         ]);
     }
