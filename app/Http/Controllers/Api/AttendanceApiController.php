@@ -415,7 +415,7 @@ class AttendanceApiController extends Controller
                 $merged->checkout_loc = $lastSession->checkout_loc;
                 $merged->punches_count = count($formattedSessions);
                 $merged->sessions = $formattedSessions;
-                $merged->app_usages = $lastSession->app_usages ?? [];
+                $merged->app_usages = $this->aggregateAppUsagesAcrossSessions($sorted) ?? ($lastSession->app_usages ?? []);
 
                 return $merged;
             })->sortByDesc(function ($attendance) {
@@ -777,6 +777,143 @@ class AttendanceApiController extends Controller
             'total_tracked_formatted' => $this->formatSeconds($totalTracked),
             'lunch_start_time' => $incoming['lunch_start_time'] ?? ($existing['lunch_start_time'] ?? null),
             'lunch_end_time' => $incoming['lunch_end_time'] ?? ($existing['lunch_end_time'] ?? null),
+        ];
+    }
+
+    /**
+     * Aggregate and sum app usages across multiple daily attendance punches/sessions.
+     */
+    private function aggregateAppUsagesAcrossSessions($sessions)
+    {
+        $summaryMap = [];
+        $lunchStart = null;
+        $lunchEnd = null;
+        $hasAnyUsage = false;
+
+        foreach ($sessions as $session) {
+            $usages = $session->app_usages;
+            if (empty($usages)) continue;
+
+            if (is_string($usages)) {
+                $decoded = json_decode($usages, true);
+                $usages = is_array($decoded) ? $decoded : null;
+            }
+            if (empty($usages)) continue;
+
+            $hasAnyUsage = true;
+
+            if (empty($lunchStart) && !empty($usages['lunch_start_time'])) {
+                $lunchStart = $usages['lunch_start_time'];
+            }
+            if (empty($lunchEnd) && !empty($usages['lunch_end_time'])) {
+                $lunchEnd = $usages['lunch_end_time'];
+            }
+
+            $beforeList = $usages['before_lunch'] ?? [];
+            $afterList = $usages['after_lunch'] ?? [];
+
+            // Support legacy flat list if before/after not split
+            if (empty($beforeList) && empty($afterList) && is_array($usages) && !isset($usages['summary'])) {
+                $beforeList = $usages;
+            }
+
+            foreach ($beforeList as $app) {
+                $pkg = $app['package_name'] ?? ($app['app_name'] ?? 'unknown');
+                $name = $app['app_name'] ?? $pkg;
+                $sec = (int) ($app['usage_seconds'] ?? ($app['before_lunch_seconds'] ?? 0));
+                if ($sec <= 0) continue;
+
+                if (!isset($summaryMap[$pkg])) {
+                    $summaryMap[$pkg] = [
+                        'package_name' => $pkg,
+                        'app_name' => $name,
+                        'before_lunch_seconds' => 0,
+                        'after_lunch_seconds' => 0,
+                        'total_seconds' => 0,
+                    ];
+                }
+                $summaryMap[$pkg]['before_lunch_seconds'] += $sec;
+                $summaryMap[$pkg]['total_seconds'] += $sec;
+            }
+
+            foreach ($afterList as $app) {
+                $pkg = $app['package_name'] ?? ($app['app_name'] ?? 'unknown');
+                $name = $app['app_name'] ?? $pkg;
+                $sec = (int) ($app['usage_seconds'] ?? ($app['after_lunch_seconds'] ?? 0));
+                if ($sec <= 0) continue;
+
+                if (!isset($summaryMap[$pkg])) {
+                    $summaryMap[$pkg] = [
+                        'package_name' => $pkg,
+                        'app_name' => $name,
+                        'before_lunch_seconds' => 0,
+                        'after_lunch_seconds' => 0,
+                        'total_seconds' => 0,
+                    ];
+                }
+                $summaryMap[$pkg]['after_lunch_seconds'] += $sec;
+                $summaryMap[$pkg]['total_seconds'] += $sec;
+            }
+        }
+
+        if (!$hasAnyUsage && empty($summaryMap)) {
+            return null;
+        }
+
+        $finalBeforeList = [];
+        $finalAfterList = [];
+        $finalSummaryList = [];
+
+        foreach ($summaryMap as $pkg => $data) {
+            $bSec = $data['before_lunch_seconds'];
+            $aSec = $data['after_lunch_seconds'];
+            $tot = $data['total_seconds'];
+            $name = $data['app_name'];
+
+            if ($bSec > 0) {
+                $finalBeforeList[] = [
+                    'package_name' => $pkg,
+                    'app_name' => $name,
+                    'usage_seconds' => $bSec,
+                    'usage_formatted' => $this->formatSeconds($bSec),
+                ];
+            }
+
+            if ($aSec > 0) {
+                $finalAfterList[] = [
+                    'package_name' => $pkg,
+                    'app_name' => $name,
+                    'usage_seconds' => $aSec,
+                    'usage_formatted' => $this->formatSeconds($aSec),
+                ];
+            }
+
+            $finalSummaryList[] = [
+                'package_name' => $pkg,
+                'app_name' => $name,
+                'before_lunch_seconds' => $bSec,
+                'before_lunch_formatted' => $this->formatSeconds($bSec),
+                'after_lunch_seconds' => $aSec,
+                'after_lunch_formatted' => $this->formatSeconds($aSec),
+                'total_seconds' => $tot,
+                'total_formatted' => $this->formatSeconds($tot),
+            ];
+        }
+
+        usort($finalBeforeList, fn($a, $b) => $b['usage_seconds'] <=> $a['usage_seconds']);
+        usort($finalAfterList, fn($a, $b) => $b['usage_seconds'] <=> $a['usage_seconds']);
+        usort($finalSummaryList, fn($a, $b) => $b['total_seconds'] <=> $a['total_seconds']);
+
+        $totalTrackedSeconds = array_sum(array_column($finalSummaryList, 'total_seconds'));
+
+        return [
+            'before_lunch' => $finalBeforeList,
+            'after_lunch' => $finalAfterList,
+            'summary' => $finalSummaryList,
+            'total_tracked_seconds' => $totalTrackedSeconds,
+            'total_tracked_formatted' => $this->formatSeconds($totalTrackedSeconds),
+            'lunch_start_time' => $lunchStart,
+            'lunch_end_time' => $lunchEnd,
         ];
     }
 
