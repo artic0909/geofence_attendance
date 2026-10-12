@@ -108,10 +108,13 @@
                                     $appCount = count($attendance->app_usages);
                                 }
                             }
+                            $siteName = $attendance->attendance_type == 'normal' 
+                                ? ($attendance->geofence->name ?? 'N/A') 
+                                : ($attendance->checkin_location ?? 'Outside');
                         @endphp
                         @if($hasAppUsages)
                         <div class="mt-1">
-                            <button type="button" class="btn btn-outline-primary btn-sm py-0 px-2 rounded-pill d-inline-flex align-items-center gap-1" style="font-size: 11px;" onclick="showAppUsage('{{ addslashes($attendance->employee->name) }}', {{ json_encode($attendance->app_usages) }})" title="View App Usage Record">
+                            <button type="button" class="btn btn-outline-primary btn-sm py-0 px-2 rounded-pill d-inline-flex align-items-center gap-1" style="font-size: 11px;" onclick="showAppUsage('{{ addslashes(optional($attendance->employee)->name ?? 'Employee') }}', {{ json_encode($attendance->app_usages) }}, '{{ addslashes(optional($attendance->employee)->phone ?? '') }}', '{{ addslashes($siteName) }}', '{{ addslashes(optional($attendance->employee)->employee_id ?? '') }}')" title="View App Usage Record">
                                 <i class="bi bi-phone"></i> App Usage ({{ $appCount }})
                             </button>
                         </div>
@@ -250,7 +253,15 @@
         });
     }
 
-    function showAppUsage(employeeName, usages) {
+    function showAppUsage(employeeName, usages, employeePhone = '', siteName = '', empCode = '') {
+        if (typeof employeeName === 'object' && employeeName !== null) {
+            const data = employeeName;
+            employeeName = data.name || '';
+            usages = data.usages || data.app_usages || [];
+            employeePhone = data.phone || data.employeePhone || '';
+            siteName = data.site || data.siteName || '';
+            empCode = data.empCode || data.employee_id || '';
+        }
         if (!usages || (Array.isArray(usages) && usages.length === 0) || (typeof usages === 'object' && !Array.isArray(usages) && (!usages.summary || usages.summary.length === 0) && (!usages.before_lunch || usages.before_lunch.length === 0))) {
             Swal.fire({
                 title: 'No App Usage Recorded',
@@ -347,14 +358,31 @@
             title: `<div class="d-flex align-items-center justify-content-center gap-2"><i class="bi bi-phone text-primary"></i><span>App Usage Breakdown</span></div>`,
             html: `
                 <div class="text-start mb-2">
-                    <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
-                        <div>
-                            <div class="small text-muted text-uppercase fw-bold" style="font-size: 10px;">Employee</div>
-                            <div class="fw-bold text-primary fs-6">${employeeName}</div>
+                    <div class="bg-light bg-opacity-75 p-2 rounded-3 border mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                            <div>
+                                <div class="small text-muted text-uppercase fw-bold" style="font-size: 10px; letter-spacing: 0.5px;">Employee</div>
+                                <div class="fw-bold text-primary fs-5">${employeeName}</div>
+                            </div>
+                            <div class="text-end">
+                                <div class="small text-muted text-uppercase fw-bold" style="font-size: 10px; letter-spacing: 0.5px;">Total Tracked Apps</div>
+                                <span class="badge bg-dark px-2 py-1">${summaryList.length} Apps</span>
+                            </div>
                         </div>
-                        <div class="text-end">
-                            <div class="small text-muted text-uppercase fw-bold" style="font-size: 10px;">Total Tracked Apps</div>
-                            <span class="badge bg-dark">${summaryList.length} Apps</span>
+
+                        <div class="row g-2 text-start pt-1">
+                            <div class="col-4">
+                                <div class="small text-muted text-uppercase fw-bold mb-1" style="font-size: 9px;"><i class="bi bi-telephone text-primary me-1"></i>Employee Number</div>
+                                <div class="fw-semibold text-dark text-truncate" style="font-size: 12px;">${employeePhone || '<span class="text-muted fw-normal fst-italic">N/A</span>'}</div>
+                            </div>
+                            <div class="col-4">
+                                <div class="small text-muted text-uppercase fw-bold mb-1" style="font-size: 9px;"><i class="bi bi-geo-alt-fill text-danger me-1"></i>Attendance Site</div>
+                                <div class="fw-semibold text-dark text-truncate" style="font-size: 12px;" title="${siteName || 'N/A'}">${siteName || '<span class="text-muted fw-normal fst-italic">N/A</span>'}</div>
+                            </div>
+                            <div class="col-4">
+                                <div class="small text-muted text-uppercase fw-bold mb-1" style="font-size: 9px;"><i class="bi bi-person-badge text-info me-1"></i>Emp Code</div>
+                                <div class="fw-bold text-dark font-monospace text-truncate" style="font-size: 12px;">${empCode || '<span class="text-muted fw-normal fst-italic">N/A</span>'}</div>
+                            </div>
                         </div>
                     </div>
 
