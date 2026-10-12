@@ -111,10 +111,11 @@
                             $siteName = $attendance->attendance_type == 'normal' 
                                 ? ($attendance->geofence->name ?? 'N/A') 
                                 : ($attendance->checkin_location ?? 'Outside');
+                            $attendanceDateFormatted = $attendance->date ? \Carbon\Carbon::parse($attendance->date)->format('d/m/Y') : 'N/A';
                         @endphp
                         @if($hasAppUsages)
                         <div class="mt-1">
-                            <button type="button" class="btn btn-outline-primary btn-sm py-0 px-2 rounded-pill d-inline-flex align-items-center gap-1" style="font-size: 11px;" onclick="showAppUsage('{{ addslashes(optional($attendance->employee)->name ?? 'Employee') }}', {{ json_encode($attendance->app_usages) }}, '{{ addslashes(optional($attendance->employee)->phone ?? '') }}', '{{ addslashes($siteName) }}', '{{ addslashes(optional($attendance->employee)->employee_id ?? '') }}')" title="View App Usage Record">
+                            <button type="button" class="btn btn-outline-primary btn-sm py-0 px-2 rounded-pill d-inline-flex align-items-center gap-1" style="font-size: 11px;" onclick="showAppUsage('{{ addslashes(optional($attendance->employee)->name ?? 'Employee') }}', {{ json_encode($attendance->app_usages) }}, '{{ addslashes(optional($attendance->employee)->phone ?? '') }}', '{{ addslashes($siteName) }}', '{{ addslashes(optional($attendance->employee)->employee_id ?? '') }}', '{{ $attendanceDateFormatted }}')" title="View App Usage Record">
                                 <i class="bi bi-phone"></i> App Usage ({{ $appCount }})
                             </button>
                         </div>
@@ -253,7 +254,7 @@
         });
     }
 
-    function showAppUsage(employeeName, usages, employeePhone = '', siteName = '', empCode = '') {
+    function showAppUsage(employeeName, usages, employeePhone = '', siteName = '', empCode = '', attendanceDate = '') {
         if (typeof employeeName === 'object' && employeeName !== null) {
             const data = employeeName;
             employeeName = data.name || '';
@@ -261,6 +262,7 @@
             employeePhone = data.phone || data.employeePhone || '';
             siteName = data.site || data.siteName || '';
             empCode = data.empCode || data.employee_id || '';
+            attendanceDate = data.attendanceDate || data.date || '';
         }
         if (!usages || (Array.isArray(usages) && usages.length === 0) || (typeof usages === 'object' && !Array.isArray(usages) && (!usages.summary || usages.summary.length === 0) && (!usages.before_lunch || usages.before_lunch.length === 0))) {
             Swal.fire({
@@ -426,10 +428,369 @@
                     </div>
                 </div>
             `,
-            width: '620px',
-            confirmButtonColor: '#0a58ca',
-            confirmButtonText: 'Close'
+            width: '640px',
+            showCloseButton: true,
+            showDenyButton: true,
+            confirmButtonColor: '#6c757d',
+            confirmButtonText: '<i class="bi bi-x-lg me-1"></i> Close',
+            denyButtonColor: '#198754',
+            denyButtonText: '<i class="bi bi-file-earmark-excel-fill me-1"></i> Export to Excel',
+            returnInputValueOnDeny: true,
+            preDeny: () => {
+                const denyBtn = Swal.getDenyButton();
+                if (denyBtn) {
+                    const origHtml = denyBtn.innerHTML;
+                    denyBtn.innerHTML = '<i class="bi bi-check2-circle me-1"></i> Downloading...';
+                    setTimeout(() => {
+                        if (denyBtn) denyBtn.innerHTML = origHtml;
+                    }, 2000);
+                }
+                exportAppUsageToExcel({
+                    employeeName,
+                    usages,
+                    employeePhone,
+                    siteName,
+                    empCode,
+                    attendanceDate,
+                    lunchStart,
+                    lunchEnd,
+                    summaryList,
+                    totalBeforeSeconds,
+                    totalAfterSeconds,
+                    totalAllSeconds
+                });
+                return false;
+            }
         });
+    }
+
+    function exportAppUsageToExcel(data) {
+        const {
+            employeeName,
+            employeePhone,
+            siteName,
+            empCode,
+            attendanceDate,
+            lunchStart,
+            lunchEnd,
+            summaryList,
+            totalBeforeSeconds,
+            totalAfterSeconds,
+            totalAllSeconds
+        } = data;
+
+        function fmtSec(sec) {
+            let h = Math.floor(sec / 3600);
+            let m = Math.floor((sec % 3600) / 60);
+            let s = sec % 60;
+            if (h > 0) return h + 'h ' + m + 'm';
+            if (m > 0) return m + 'm ' + s + 's';
+            return s + 's';
+        }
+
+        function formatTime12(tStr) {
+            if (!tStr) return 'N/A';
+            let parts = tStr.split(':');
+            if (parts.length < 2) return tStr;
+            let h = parseInt(parts[0], 10);
+            let m = parts[1];
+            let ampm = h >= 12 ? 'PM' : 'AM';
+            let h12 = h % 12;
+            if (h12 === 0) h12 = 12;
+            return (h12 < 10 ? '0' + h12 : h12) + ':' + m + ' ' + ampm;
+        }
+
+        const lunchWindowText = (lunchStart && lunchEnd) ? (formatTime12(lunchStart) + ' - ' + formatTime12(lunchEnd)) : 'N/A';
+
+        if (typeof XLSX !== 'undefined') {
+            try {
+                const aoa = [
+                    ["APP USAGE BREAKDOWN REPORT", "", "", "", "", ""],
+                    [],
+                    ["Employee Name:", employeeName || "N/A", "", "Emp Code:", empCode || "N/A", ""],
+                    ["Phone Number:", employeePhone || "N/A", "", "Attendance Site:", siteName || "N/A", ""],
+                    ["Attendance Date:", attendanceDate || "N/A", "", "Lunch Window:", lunchWindowText, ""],
+                    ["Total Tracked Apps:", summaryList.length + " Apps", "", "Total Screen Time:", fmtSec(totalAllSeconds), ""],
+                    [],
+                    ["SL", "App Name", "Package Name", "Before Lunch", "After Lunch", "Total Time"]
+                ];
+
+                summaryList.forEach((item, idx) => {
+                    aoa.push([
+                        idx + 1,
+                        item.app_name || item.package_name,
+                        item.package_name || '',
+                        item.before_lunch_seconds > 0 ? item.before_lunch_formatted : '0s',
+                        item.after_lunch_seconds > 0 ? item.after_lunch_formatted : '0s',
+                        item.total_formatted || '0s'
+                    ]);
+                });
+
+                const lastRowIdx = aoa.length;
+                aoa.push([
+                    "TOTAL",
+                    "",
+                    "",
+                    fmtSec(totalBeforeSeconds),
+                    fmtSec(totalAfterSeconds),
+                    fmtSec(totalAllSeconds)
+                ]);
+
+                const ws = XLSX.utils.aoa_to_sheet(aoa);
+
+                ws['!merges'] = [
+                    { s: { r: 0, c: 0 }, e: { r: 0, c: 5 } },
+                    { s: { r: 2, c: 1 }, e: { r: 2, c: 2 } },
+                    { s: { r: 2, c: 4 }, e: { r: 2, c: 5 } },
+                    { s: { r: 3, c: 1 }, e: { r: 3, c: 2 } },
+                    { s: { r: 3, c: 4 }, e: { r: 3, c: 5 } },
+                    { s: { r: 4, c: 1 }, e: { r: 4, c: 2 } },
+                    { s: { r: 4, c: 4 }, e: { r: 4, c: 5 } },
+                    { s: { r: 5, c: 1 }, e: { r: 5, c: 2 } },
+                    { s: { r: 5, c: 4 }, e: { r: 5, c: 5 } },
+                    { s: { r: lastRowIdx, c: 0 }, e: { r: lastRowIdx, c: 2 } }
+                ];
+
+                ws['!cols'] = [
+                    { wch: 8 },
+                    { wch: 28 },
+                    { wch: 34 },
+                    { wch: 18 },
+                    { wch: 18 },
+                    { wch: 18 }
+                ];
+
+                const titleStyle = {
+                    font: { name: "Calibri", sz: 14, bold: true, color: { rgb: "FFFFFF" } },
+                    fill: { fgColor: { rgb: "1E3A8A" } },
+                    alignment: { horizontal: "center", vertical: "center" }
+                };
+
+                const metaLabelStyle = {
+                    font: { name: "Calibri", sz: 10, bold: true, color: { rgb: "475569" } },
+                    fill: { fgColor: { rgb: "F1F5F9" } },
+                    alignment: { horizontal: "left", vertical: "center" },
+                    border: {
+                        top: { style: "thin", color: { rgb: "E2E8F0" } },
+                        bottom: { style: "thin", color: { rgb: "E2E8F0" } },
+                        left: { style: "thin", color: { rgb: "E2E8F0" } },
+                        right: { style: "thin", color: { rgb: "E2E8F0" } }
+                    }
+                };
+
+                const metaValStyle = {
+                    font: { name: "Calibri", sz: 10, bold: true, color: { rgb: "0F172A" } },
+                    alignment: { horizontal: "left", vertical: "center" },
+                    border: {
+                        top: { style: "thin", color: { rgb: "E2E8F0" } },
+                        bottom: { style: "thin", color: { rgb: "E2E8F0" } },
+                        left: { style: "thin", color: { rgb: "E2E8F0" } },
+                        right: { style: "thin", color: { rgb: "E2E8F0" } }
+                    }
+                };
+
+                const tableHeaderStyle = {
+                    font: { name: "Calibri", sz: 11, bold: true, color: { rgb: "FFFFFF" } },
+                    fill: { fgColor: { rgb: "1E40AF" } },
+                    alignment: { horizontal: "center", vertical: "center" },
+                    border: {
+                        top: { style: "thin", color: { rgb: "3B82F6" } },
+                        bottom: { style: "thin", color: { rgb: "3B82F6" } },
+                        left: { style: "thin", color: { rgb: "3B82F6" } },
+                        right: { style: "thin", color: { rgb: "3B82F6" } }
+                    }
+                };
+
+                const rowCenterStyle = {
+                    font: { name: "Calibri", sz: 10, color: { rgb: "1E293B" } },
+                    alignment: { horizontal: "center", vertical: "center" },
+                    border: {
+                        top: { style: "thin", color: { rgb: "E2E8F0" } },
+                        bottom: { style: "thin", color: { rgb: "E2E8F0" } },
+                        left: { style: "thin", color: { rgb: "E2E8F0" } },
+                        right: { style: "thin", color: { rgb: "E2E8F0" } }
+                    }
+                };
+
+                const rowLeftStyle = {
+                    font: { name: "Calibri", sz: 10, color: { rgb: "1E293B" } },
+                    alignment: { horizontal: "left", vertical: "center" },
+                    border: {
+                        top: { style: "thin", color: { rgb: "E2E8F0" } },
+                        bottom: { style: "thin", color: { rgb: "E2E8F0" } },
+                        left: { style: "thin", color: { rgb: "E2E8F0" } },
+                        right: { style: "thin", color: { rgb: "E2E8F0" } }
+                    }
+                };
+
+                const totalStyle = {
+                    font: { name: "Calibri", sz: 11, bold: true, color: { rgb: "0F172A" } },
+                    fill: { fgColor: { rgb: "F1F5F9" } },
+                    alignment: { horizontal: "center", vertical: "center" },
+                    border: {
+                        top: { style: "medium", color: { rgb: "94A3B8" } },
+                        bottom: { style: "medium", color: { rgb: "94A3B8" } },
+                        left: { style: "thin", color: { rgb: "E2E8F0" } },
+                        right: { style: "thin", color: { rgb: "E2E8F0" } }
+                    }
+                };
+
+                for (let r = 0; r < aoa.length; r++) {
+                    for (let c = 0; c < 6; c++) {
+                        const cellRef = XLSX.utils.encode_cell({ r, c });
+                        if (!ws[cellRef]) ws[cellRef] = { t: "s", v: "" };
+                        if (r === 0) ws[cellRef].s = titleStyle;
+                        else if (r >= 2 && r <= 5) {
+                            ws[cellRef].s = (c === 0 || c === 3) ? metaLabelStyle : metaValStyle;
+                        } else if (r === 7) {
+                            ws[cellRef].s = tableHeaderStyle;
+                        } else if (r > 7 && r < lastRowIdx) {
+                            ws[cellRef].s = (c === 1 || c === 2) ? rowLeftStyle : rowCenterStyle;
+                        } else if (r === lastRowIdx) {
+                            ws[cellRef].s = totalStyle;
+                        }
+                    }
+                }
+
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "App Usage");
+                const cleanName = (employeeName || 'employee').replace(/[^a-z0-9]/gi, '_').toLowerCase();
+                const cleanDate = (attendanceDate || 'record').replace(/[^a-z0-9]/gi, '_');
+                const filename = `app_usage_${cleanName}_${cleanDate}.xlsx`;
+                XLSX.writeFile(wb, filename);
+                return;
+            } catch (err) {
+                console.error("XLSX export error, falling back to HTML Excel:", err);
+            }
+        }
+
+        downloadHtmlExcelFallback(data);
+    }
+
+    function downloadHtmlExcelFallback(data) {
+        const {
+            employeeName,
+            employeePhone,
+            siteName,
+            empCode,
+            attendanceDate,
+            lunchStart,
+            lunchEnd,
+            summaryList,
+            totalBeforeSeconds,
+            totalAfterSeconds,
+            totalAllSeconds
+        } = data;
+
+        function fmtSec(sec) {
+            let h = Math.floor(sec / 3600);
+            let m = Math.floor((sec % 3600) / 60);
+            let s = sec % 60;
+            if (h > 0) return h + 'h ' + m + 'm';
+            if (m > 0) return m + 'm ' + s + 's';
+            return s + 's';
+        }
+
+        function formatTime12(tStr) {
+            if (!tStr) return 'N/A';
+            let parts = tStr.split(':');
+            if (parts.length < 2) return tStr;
+            let h = parseInt(parts[0], 10);
+            let m = parts[1];
+            let ampm = h >= 12 ? 'PM' : 'AM';
+            let h12 = h % 12;
+            if (h12 === 0) h12 = 12;
+            return (h12 < 10 ? '0' + h12 : h12) + ':' + m + ' ' + ampm;
+        }
+
+        const lunchWindowText = (lunchStart && lunchEnd) ? (formatTime12(lunchStart) + ' - ' + formatTime12(lunchEnd)) : 'N/A';
+
+        let rowsHtml = summaryList.map((item, idx) => `
+            <tr>
+                <td style="text-align: center; border: 1px solid #CBD5E1; padding: 6px;">${idx + 1}</td>
+                <td style="text-align: left; border: 1px solid #CBD5E1; padding: 6px; font-weight: bold;">${item.app_name || item.package_name}</td>
+                <td style="text-align: left; border: 1px solid #CBD5E1; padding: 6px; color: #64748B;">${item.package_name || ''}</td>
+                <td style="text-align: center; border: 1px solid #CBD5E1; padding: 6px;">${item.before_lunch_seconds > 0 ? item.before_lunch_formatted : '0s'}</td>
+                <td style="text-align: center; border: 1px solid #CBD5E1; padding: 6px;">${item.after_lunch_seconds > 0 ? item.after_lunch_formatted : '0s'}</td>
+                <td style="text-align: center; border: 1px solid #CBD5E1; padding: 6px; font-weight: bold;">${item.total_formatted || '0s'}</td>
+            </tr>
+        `).join('');
+
+        const html = `
+            <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+            <head>
+                <meta charset="utf-8">
+                <style>
+                    body { font-family: Calibri, sans-serif; }
+                    table { border-collapse: collapse; width: 100%; }
+                    th, td { font-family: Calibri, sans-serif; font-size: 11pt; }
+                </style>
+            </head>
+            <body>
+                <table>
+                    <tr>
+                        <th colspan="6" style="background-color: #1E3A8A; color: #FFFFFF; font-size: 15pt; font-weight: bold; text-align: center; padding: 12px; height: 35px;">
+                            APP USAGE BREAKDOWN REPORT
+                        </th>
+                    </tr>
+                    <tr><td colspan="6"></td></tr>
+                    <tr>
+                        <td style="background-color: #F1F5F9; font-weight: bold; padding: 6px; border: 1px solid #E2E8F0; width: 150px;">Employee Name:</td>
+                        <td colspan="2" style="font-weight: bold; color: #0F172A; padding: 6px; border: 1px solid #E2E8F0;">${employeeName || 'N/A'}</td>
+                        <td style="background-color: #F1F5F9; font-weight: bold; padding: 6px; border: 1px solid #E2E8F0; width: 150px;">Emp Code:</td>
+                        <td colspan="2" style="padding: 6px; border: 1px solid #E2E8F0;">${empCode || 'N/A'}</td>
+                    </tr>
+                    <tr>
+                        <td style="background-color: #F1F5F9; font-weight: bold; padding: 6px; border: 1px solid #E2E8F0;">Phone Number:</td>
+                        <td colspan="2" style="padding: 6px; border: 1px solid #E2E8F0;">${employeePhone || 'N/A'}</td>
+                        <td style="background-color: #F1F5F9; font-weight: bold; padding: 6px; border: 1px solid #E2E8F0;">Attendance Site:</td>
+                        <td colspan="2" style="padding: 6px; border: 1px solid #E2E8F0;">${siteName || 'N/A'}</td>
+                    </tr>
+                    <tr>
+                        <td style="background-color: #F1F5F9; font-weight: bold; padding: 6px; border: 1px solid #E2E8F0;">Attendance Date:</td>
+                        <td colspan="2" style="padding: 6px; border: 1px solid #E2E8F0;">${attendanceDate || 'N/A'}</td>
+                        <td style="background-color: #F1F5F9; font-weight: bold; padding: 6px; border: 1px solid #E2E8F0;">Lunch Window:</td>
+                        <td colspan="2" style="padding: 6px; border: 1px solid #E2E8F0;">${lunchWindowText}</td>
+                    </tr>
+                    <tr>
+                        <td style="background-color: #F1F5F9; font-weight: bold; padding: 6px; border: 1px solid #E2E8F0;">Total Tracked Apps:</td>
+                        <td colspan="2" style="padding: 6px; border: 1px solid #E2E8F0;">${summaryList.length} Apps</td>
+                        <td style="background-color: #F1F5F9; font-weight: bold; padding: 6px; border: 1px solid #E2E8F0;">Total Screen Time:</td>
+                        <td colspan="2" style="font-weight: bold; color: #1E3A8A; padding: 6px; border: 1px solid #E2E8F0;">${fmtSec(totalAllSeconds)}</td>
+                    </tr>
+                    <tr><td colspan="6"></td></tr>
+                    <tr style="background-color: #1E40AF; color: #FFFFFF; font-weight: bold; text-align: center; height: 32px;">
+                        <th style="background-color: #1E40AF; color: #FFFFFF; border: 1px solid #3B82F6; padding: 8px;">SL</th>
+                        <th style="background-color: #1E40AF; color: #FFFFFF; border: 1px solid #3B82F6; padding: 8px; text-align: left;">App Name</th>
+                        <th style="background-color: #1E40AF; color: #FFFFFF; border: 1px solid #3B82F6; padding: 8px; text-align: left;">Package Name</th>
+                        <th style="background-color: #1E40AF; color: #FFFFFF; border: 1px solid #3B82F6; padding: 8px;">Before Lunch</th>
+                        <th style="background-color: #1E40AF; color: #FFFFFF; border: 1px solid #3B82F6; padding: 8px;">After Lunch</th>
+                        <th style="background-color: #1E40AF; color: #FFFFFF; border: 1px solid #3B82F6; padding: 8px;">Total Time</th>
+                    </tr>
+                    ${rowsHtml}
+                    <tr style="background-color: #F8FAFC; font-weight: bold;">
+                        <td colspan="3" style="text-align: center; border: 1px solid #CBD5E1; padding: 8px; font-weight: bold;">TOTAL</td>
+                        <td style="text-align: center; border: 1px solid #CBD5E1; padding: 8px;">${fmtSec(totalBeforeSeconds)}</td>
+                        <td style="text-align: center; border: 1px solid #CBD5E1; padding: 8px;">${fmtSec(totalAfterSeconds)}</td>
+                        <td style="text-align: center; border: 1px solid #CBD5E1; padding: 8px; color: #1E40AF; font-weight: bold;">${fmtSec(totalAllSeconds)}</td>
+                    </tr>
+                </table>
+            </body>
+            </html>
+        `;
+
+        const blob = new Blob(['\ufeff', html], { type: 'application/vnd.ms-excel;charset=utf-8' });
+        const cleanName = (employeeName || 'employee').replace(/[^a-z0-9]/gi, '_').toLowerCase();
+        const cleanDate = (attendanceDate || 'record').replace(/[^a-z0-9]/gi, '_');
+        const filename = `app_usage_${cleanName}_${cleanDate}.xls`;
+
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
     }
 
     const fromDateInput = document.getElementById('from_date');
@@ -445,6 +806,7 @@
 
 @endsection
 @push('scripts')
+<script src="{{ asset('admin_assets/js/xlsx.bundle.js') }}"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
     $(document).ready(function() {
