@@ -486,31 +486,46 @@
             confirmButtonText: '<i class="bi bi-x-lg me-1"></i> Close',
             denyButtonColor: '#198754',
             denyButtonText: '<i class="bi bi-file-earmark-excel-fill me-1"></i> Export to Excel',
-            returnInputValueOnDeny: true,
-            preDeny: () => {
+            didOpen: () => {
                 const denyBtn = Swal.getDenyButton();
                 if (denyBtn) {
-                    const origHtml = denyBtn.innerHTML;
-                    denyBtn.innerHTML = '<i class="bi bi-check2-circle me-1"></i> Downloading...';
-                    setTimeout(() => {
-                        if (denyBtn) denyBtn.innerHTML = origHtml;
-                    }, 2000);
+                    denyBtn.onclick = function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        const origText = denyBtn.innerHTML;
+                        denyBtn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i> Exporting...';
+                        denyBtn.disabled = true;
+
+                        try {
+                            exportAppUsageToExcel({
+                                employeeName,
+                                usages,
+                                employeePhone,
+                                siteName,
+                                empCode,
+                                attendanceDate,
+                                lunchStart,
+                                lunchEnd,
+                                summaryList,
+                                totalBeforeSeconds,
+                                totalAfterSeconds,
+                                totalAllSeconds
+                            });
+                            denyBtn.innerHTML = '<i class="bi bi-check-circle me-1"></i> Downloaded!';
+                        } catch (err) {
+                            console.error("Export error:", err);
+                            denyBtn.innerHTML = '<i class="bi bi-exclamation-triangle me-1"></i> Failed';
+                        }
+
+                        setTimeout(function() {
+                            if (denyBtn) {
+                                denyBtn.innerHTML = origText;
+                                denyBtn.disabled = false;
+                            }
+                        }, 2000);
+                    };
                 }
-                exportAppUsageToExcel({
-                    employeeName,
-                    usages,
-                    employeePhone,
-                    siteName,
-                    empCode,
-                    attendanceDate,
-                    lunchStart,
-                    lunchEnd,
-                    summaryList,
-                    totalBeforeSeconds,
-                    totalAfterSeconds,
-                    totalAllSeconds
-                });
-                return false;
             }
         });
     }
@@ -836,12 +851,18 @@
         const filename = `app_usage_${cleanName}_${cleanDate}.xls`;
 
         const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
+        const objectUrl = window.URL.createObjectURL(blob);
+        link.href = objectUrl;
         link.download = filename;
+        link.style.display = 'none';
         document.body.appendChild(link);
         link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(link.href);
+        setTimeout(function() {
+            if (link.parentNode) {
+                link.parentNode.removeChild(link);
+            }
+            window.URL.revokeObjectURL(objectUrl);
+        }, 3000);
     }
 
     document.getElementById('from_date').addEventListener('change', function() {
@@ -851,6 +872,7 @@
 @endpush
 @endsection
 @push('scripts')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="{{ asset('admin_assets/js/xlsx.bundle.js') }}"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
